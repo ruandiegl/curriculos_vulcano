@@ -1,0 +1,255 @@
+:root {
+  --orange: #fb7900;
+  --button-orange: #ff8424;
+  --text-dark: #2c3547;
+  --text-muted: #8893a5;
+  --bg-light: #f5f8fb;
+  --border-light: #edf1f5;
+  --blue-dark: #063e66;
+  --gray-button: #aeb9c7;
+}
+
+.dashboard-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  font-family: Inter, sans-serif;
+  color: var(--text-dark);
+}
+
+.dashboard-header {
+  background: #fff;
+  padding: 1rem 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand img {
+  height: 40px;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #4b5563;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.logout-button {
+  background-color: var(--button-orange);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard-main {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.search-section {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-category {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 500;
+  margin: 0 0 2rem 0;
+  color: #334155;
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  background: white;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 50px;
+  padding: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
+}
+
+.clear-button {
+  background-color: var(--gray-button);
+  color: white;
+  border: none;
+  padding: 0.7rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 2px;
+}
+
+.legend-container {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.desconsiderado, .status-dot.desconsiderado { background-color: #ef4444; }
+.dot.entrevistado, .status-dot.entrevistado { background-color: #f59e0b; }
+.dot.selecionado, .status-dot.selecionado { background-color: #10b981; }
+.dot.visualizado, .status-dot.visualizado { background-color: #3b82f6; }
+
+.status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.table-wrapper {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.curriculos-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.curriculos-table thead {
+  background-color: #334155;
+  color: white;
+}
+
+.curriculos-table th {
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.curriculos-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.curriculos-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 2rem;
+}
+
+.page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #334155;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.page-btn:hover {
+  opacity: 0.9;
+}
+
+.page-btn.active {
+  background-color: #64748b;
+}
+
+.page-btn:first-child, .page-btn:last-child {
+  background-color: #475569;
+}
