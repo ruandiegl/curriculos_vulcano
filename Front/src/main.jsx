@@ -1,11 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
-
-const media = {
-  logo: '../media/',
-  welding: '/media/soldagem.jpg',
-};
+import logo from '../media/logo.png';
+import solda from '../media/solda.jpg';
 
 function LoginIcon() {
   return (
@@ -28,9 +25,14 @@ function App() {
       <section className="login-card" aria-label="Tela de login">
         <div className="login-panel">
           <div className="brand" aria-label="Metalurgica Vulcano">
-            <img src={media.welding} alt="Metalurgica Vulcano" onError={hideMissingImage} />
+            <img src={logo} alt="Metalurgica Vulcano" onError={hideMissingImage} />
             <div className="brand-fallback" aria-hidden="true">
-              <img src='../media/logo.png'></img>
+              <span className="mark">M</span>
+              <span className="brand-copy">
+                <small>Metalurgica</small>
+                <strong>VULCANO</strong>
+                <em>www.e-vulcano.com.br</em>
+              </span>
             </div>
           </div>
 
@@ -63,7 +65,7 @@ function App() {
         </div>
 
         <div className="photo-panel" aria-hidden="true">
-          <img src="../media/solda.jpg" alt="" onError={hideMissingImage} />
+          <img src={solda} alt="" onError={hideMissingImage} />
         </div>
       </section>
     </main>
