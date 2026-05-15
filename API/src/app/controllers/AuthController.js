@@ -36,7 +36,7 @@ export class AuthController {
       nome: payload.nome,
       email: payload.email,
       cpf: payload.cpf,
-      tipo: payload.tipo,
+      tipo: 'usuario',
       passHash,
     });
 

@@ -627,7 +627,7 @@ export const swaggerDocument = {
         type: 'object',
         required: ['email', 'password'],
         properties: {
-          email: { type: 'string', format: 'email', example: 'admin@email.com' },
+          email: { type: 'string', format: 'email', example: 'usuario@email.com' },
           password: { type: 'string', format: 'password', example: '123456' },
         },
       },
@@ -635,16 +635,15 @@ export const swaggerDocument = {
         type: 'object',
         required: ['nome', 'email', 'password'],
         properties: {
-          nome: { type: 'string', example: 'Administrador' },
-          email: { type: 'string', format: 'email', example: 'admin@email.com' },
+          nome: { type: 'string', example: 'Usuario' },
+          email: { type: 'string', format: 'email', example: 'usuario@email.com' },
           password: { type: 'string', format: 'password', example: '123456' },
           firebaseUid: {
             type: 'string',
             description: 'Opcional. Quando omitido, a API salva local:<email>.',
-            example: 'local-admin',
+            example: 'local-usuario',
           },
           cpf: { type: 'string', nullable: true, example: '12345678900' },
-          tipo: { type: 'string', example: 'admin' },
         },
       },
       LoginResponse: {
@@ -661,8 +660,8 @@ export const swaggerDocument = {
           usuario: {
             type: 'object',
             properties: {
-              nome: { type: 'string', example: 'Administrador' },
-              email: { type: 'string', format: 'email', example: 'admin@email.com' },
+              nome: { type: 'string', example: 'Usuario' },
+              email: { type: 'string', format: 'email', example: 'usuario@email.com' },
             },
           },
         },
@@ -695,7 +694,6 @@ export const swaggerDocument = {
           nome: { type: 'string', example: 'Maria Souza' },
           email: { type: 'string', format: 'email', example: 'maria@email.com' },
           cpf: { type: 'string', nullable: true, example: '12345678900' },
-          tipo: { type: 'string', example: 'usuario' },
           possuiCurriculo: { type: 'boolean', example: false },
           dataCheck: { type: 'string', format: 'date', nullable: true },
           horaCheck: { type: 'string', nullable: true, example: '14:30:00' },
