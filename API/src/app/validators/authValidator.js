@@ -6,7 +6,6 @@ export const registerSchema = z.object({
   password: z.string().min(6),
   firebaseUid: z.string().min(1).optional(),
   cpf: z.string().optional().nullable(),
-  tipo: z.string().optional(),
 });
 
 export const loginSchema = z.object({

@@ -70,10 +70,9 @@ POST /api/login/register
 
 ```json
 {
-  "nome": "Administrador",
-  "email": "admin@email.com",
-  "password": "123456",
-  "tipo": "admin"
+  "nome": "Usuario",
+  "email": "usuario@email.com",
+  "password": "123456"
 }
 ```
 
@@ -85,7 +84,7 @@ POST /api/login
 
 ```json
 {
-  "email": "admin@email.com",
+  "email": "usuario@email.com",
   "password": "123456"
 }
 ```
