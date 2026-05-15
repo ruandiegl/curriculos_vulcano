@@ -6,6 +6,7 @@ CREATE TABLE usuarios (
     firebase_uid TEXT UNIQUE NOT NULL,
     nome TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
+    pass_hash TEXT,
     cpf TEXT UNIQUE,
     tipo TEXT DEFAULT 'usuario',
     possui_curriculo BOOLEAN DEFAULT false,

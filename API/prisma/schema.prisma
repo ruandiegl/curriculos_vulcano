@@ -12,6 +12,7 @@ model Usuario {
   firebaseUid     String            @unique @map("firebase_uid")
   nome            String
   email           String            @unique
+  passHash        String?           @map("pass_hash")
   cpf             String?           @unique
   tipo            String            @default("usuario")
   possuiCurriculo Boolean           @default(false) @map("possui_curriculo")

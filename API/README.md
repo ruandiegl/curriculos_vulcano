@@ -24,9 +24,19 @@ Healthcheck:
 GET /api/health
 ```
 
+Documentacao Swagger:
+
+```txt
+http://localhost:3001/api/docs
+http://localhost:3001/api/docs.json
+```
+
 ## Rotas principais
 
 ```txt
+POST   /api/login/register
+POST   /api/login
+
 GET    /api/usuarios
 POST   /api/usuarios
 GET    /api/usuarios/:id
@@ -48,6 +58,42 @@ DELETE /api/vagas/:id
 GET    /api/candidaturas
 POST   /api/candidaturas
 DELETE /api/candidaturas/:id
+```
+
+## Autenticacao
+
+Crie um usuario local:
+
+```txt
+POST /api/login/register
+```
+
+```json
+{
+  "nome": "Administrador",
+  "email": "admin@email.com",
+  "password": "123456",
+  "tipo": "admin"
+}
+```
+
+Faca login:
+
+```txt
+POST /api/login
+```
+
+```json
+{
+  "email": "admin@email.com",
+  "password": "123456"
+}
+```
+
+Use o token retornado nas rotas protegidas:
+
+```txt
+Authorization: Bearer <token>
 ```
 
 ## Busca de curriculos

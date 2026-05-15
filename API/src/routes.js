@@ -1,12 +1,15 @@
 import express from 'express';
+import { AuthController } from './app/controllers/AuthController.js';
 import { CandidaturaController } from './app/controllers/CandidaturaController.js';
 import { CurriculoController } from './app/controllers/CurriculoController.js';
 import { UsuarioController } from './app/controllers/UsuarioController.js';
 import { VagaController } from './app/controllers/VagaController.js';
+import { privateRoutes } from './app/middlewares/Auth.js';
 import { asyncHandler } from './app/middlewares/asyncHandler.js';
 
 export const router = express.Router();
 
+const auth = new AuthController();
 const usuarios = new UsuarioController();
 const curriculos = new CurriculoController();
 const vagas = new VagaController();
@@ -15,6 +18,11 @@ const candidaturas = new CandidaturaController();
 router.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+router.post('/login', asyncHandler(auth.login));
+router.post('/login/register', asyncHandler(auth.register));
+
+router.use(privateRoutes);
 
 router.get('/usuarios', asyncHandler(usuarios.index));
 router.post('/usuarios', asyncHandler(usuarios.store));
