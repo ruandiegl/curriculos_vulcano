@@ -1,5 +1,19 @@
 import { prisma } from '../../databases/prisma.js';
 
+const usuarioSafeSelect = {
+  id: true,
+  firebaseUid: true,
+  nome: true,
+  email: true,
+  cpf: true,
+  tipo: true,
+  possuiCurriculo: true,
+  dataCheck: true,
+  horaCheck: true,
+  createdAt: true,
+  updatedAt: true,
+};
+
 function normalizeUsuario(data) {
   return {
     ...data,
@@ -14,7 +28,10 @@ export class UsuarioRepository {
       skip,
       take,
       orderBy: { createdAt: 'desc' },
-      include: { curriculos: true },
+      select: {
+        ...usuarioSafeSelect,
+        curriculos: true,
+      },
     });
   }
 
@@ -25,7 +42,8 @@ export class UsuarioRepository {
   findById(id) {
     return prisma.usuario.findUnique({
       where: { id },
-      include: {
+      select: {
+        ...usuarioSafeSelect,
         curriculos: true,
         candidaturas: { include: { vaga: true } },
         novidades: { include: { vaga: true } },
@@ -33,14 +51,22 @@ export class UsuarioRepository {
     });
   }
 
+  findByEmailWithPassword(email) {
+    return prisma.usuario.findUnique({ where: { email } });
+  }
+
   create(data) {
-    return prisma.usuario.create({ data: normalizeUsuario(data) });
+    return prisma.usuario.create({
+      data: normalizeUsuario(data),
+      select: usuarioSafeSelect,
+    });
   }
 
   update(id, data) {
     return prisma.usuario.update({
       where: { id },
       data: normalizeUsuario(data),
+      select: usuarioSafeSelect,
     });
   }
 
