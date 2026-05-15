@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firebaseUid     String            @unique @map("firebase_uid")
+  nome            String
+  email           String            @unique
+  cpf             String?           @unique
+  tipo            String            @default("usuario")
+  possuiCurriculo Boolean           @default(false) @map("possui_curriculo")
+  dataCheck       DateTime?         @map("data_check") @db.Date
+  horaCheck       DateTime?         @map("hora_check") @db.Time(6)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  curriculos      Curriculo[]
+  candidaturas    Candidatura[]
+  novidades       NovidadeUsuario[]
+
+  @@map("usuarios")
+}
+
+model Curriculo {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuarioId     String?       @map("usuario_id") @db.Uuid
+  nome          String
+  cpf           String?       @unique
+  rg            String?
+  nascimento    DateTime?     @db.Date
+  estadoCivil   String?       @map("estado_civil")
+  email         String?
+  celular       String?
+  telefone      String?
+  possuiCnh     Boolean       @default(false) @map("possui_cnh")
+  categoriaCnh  String?       @map("categoria_cnh")
+  numeroCnh     String?       @map("numero_cnh")
+  vencimentoCnh DateTime?     @map("vencimento_cnh") @db.Date
+  cursoAtivo    Boolean       @default(false) @map("curso_ativo")
+  status        String        @default("visualizado")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  usuario       Usuario?      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  enderecos     Endereco[]
+  atuacoes      Atuacao[]
+  cursos        Curso[]
+  experiencias  Experiencia[]
+  escolaridades Escolaridade[]
+
+  @@map("curriculos")
+}
+
+model Endereco {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  curriculoId String    @map("curriculo_id") @db.Uuid
+  rua         String?
+  numero      String?
+  complemento String?
+  bairro      String?
+  cidade      String?
+  estado      String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  curriculo   Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
+
+  @@map("enderecos")
+}
+
+model Atuacao {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  curriculoId String    @map("curriculo_id") @db.Uuid
+  nome        String
+  prioridade  Int?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  curriculo   Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
+
+  @@map("atuacoes")
+}
+
+model Curso {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  curriculoId String    @map("curriculo_id") @db.Uuid
+  nome        String
+  instituicao String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  curriculo   Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
+
+  @@map("cursos")
+}
+
+model Experiencia {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  curriculoId String    @map("curriculo_id") @db.Uuid
+  empresa     String
+  cargo       String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  curriculo   Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
+
+  @@map("experiencias")
+}
+
+model Escolaridade {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  curriculoId String    @map("curriculo_id") @db.Uuid
+  escola      String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  curriculo   Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
+
+  @@map("escolaridades")
+}
+
+model Vaga {
+  id           String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  titulo       String
+  descricao    String?
+  cidade       String?
+  estado       String?
+  ativa        Boolean           @default(true)
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  candidaturas Candidatura[]
+  novidades    NovidadeUsuario[]
+
+  @@map("vagas")
+}
+
+model Candidatura {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuarioId String   @map("usuario_id") @db.Uuid
+  vagaId    String   @map("vaga_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  vaga      Vaga     @relation(fields: [vagaId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, vagaId])
+  @@map("candidaturas")
+}
+
+model NovidadeUsuario {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuarioId   String   @map("usuario_id") @db.Uuid
+  vagaId      String   @map("vaga_id") @db.Uuid
+  visualizado Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  vaga        Vaga     @relation(fields: [vagaId], references: [id], onDelete: Cascade)
+
+  @@map("novidades_usuario")
+}
