@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import Dashboard from '../pages/dashboard/index.tsx';
 import Login from '../pages/Login/index.tsx';
 import Register from '../pages/register/index.tsx';
+import View from '../pages/view/index.tsx';
 
 type PrivateRouteProps = {
   children: ReactNode;
@@ -32,6 +33,7 @@ export function AppRoutes() {
         }
       />
       <Route path="/register" element={<Register />} />
+      <Route path="/view" element={<View />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
