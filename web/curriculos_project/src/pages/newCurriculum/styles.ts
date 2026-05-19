@@ -95,25 +95,35 @@ export const Main = styled.main`
   flex: 1;
 `;
 
-export const Section = styled.section`
-  background: #778899;
-  padding: 40px;
+export const Greeting = styled.div`
   margin-bottom: 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+  p {
+    color: #64748b;
+    font-size: 18px;
+    font-weight: 500;
+    margin: 4px 0;
+  }
+`;
+
+export const Section = styled.section`
+  background: #111827; /* Dark navy from image */
+  padding: 50px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 `;
 
 export const SectionTitle = styled.h2`
   color: #fff;
-  font-size: 20px;
-  font-weight: 500;
-  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 40px;
 `;
 
 export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px 20px;
+  gap: 36px 30px;
 
   @media (max-width: 900px) {
     grid-template-columns: repeat(2, 1fr);
@@ -124,57 +134,93 @@ export const Grid = styled.div`
   }
 `;
 
-export const DataItem = styled.div`
+export const Field = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 `;
 
-export const Label = styled.span`
+export const Label = styled.label`
   color: #fff;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 800;
+  text-transform: uppercase;
 `;
 
-export const Value = styled.span`
+export const Input = styled.input`
   width: 100%;
-  height: 34px;
+  height: 36px;
+  background: transparent;
+  border: none;
   border-bottom: 1.5px solid #fff;
   color: #fff;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
+  outline: none;
+  padding: 0 2px;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+`;
+
+export const Select = styled.select`
+  width: 100%;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid #fff;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+
+  option {
+    background: #111827;
+    color: #fff;
+  }
+`;
+
+export const RadioGroup = styled.div`
   display: flex;
   align-items: center;
-  padding: 0 2px;
+  gap: 20px;
+  height: 36px;
+`;
+
+export const RadioLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+
+  input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
 `;
 
 export const ActionButtons = styled.div`
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-
-  @media (max-width: 480px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  margin-top: 50px;
 `;
 
-export const ActionButton = styled.button`
-  height: 44px;
-  padding: 0 40px;
+export const SubmitButton = styled.button`
+  height: 48px;
+  padding: 0 50px;
+  border: 0;
   border-radius: 999px;
   background: #fff;
-  border: 0;
   color: #063e66;
-  text-decoration: none;
+  cursor: pointer;
   font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
 
   &:hover {
     background: #f1f5f9;
@@ -183,7 +229,7 @@ export const ActionButton = styled.button`
 
 export const Footer = styled.footer`
   background: #fff;
-  padding: 40px 0;
+  padding: 60px 0;
   border-top: 1px solid rgba(226, 232, 240, 0.8);
 `;
 
@@ -196,7 +242,7 @@ export const FooterContent = styled.div`
 
   @media (max-width: 720px) {
     flex-direction: column;
-    gap: 20px;
+    gap: 30px;
     text-align: center;
   }
 `;

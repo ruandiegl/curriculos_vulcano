@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import {
   ActionButton,
@@ -22,19 +23,20 @@ import {
 } from './styles';
 
 export default function View() {
+  const navigate = useNavigate();
   const possuiCNH = 'Sim';
 
   return (
     <Page>
       <Header>
         <HeaderContent>
-          <Brand href="/dashboard">
+          <Brand onClick={() => navigate('/dashboard')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink href="/dashboard">Gerenciar Curriculos</NavLink>
-            <NavLink href="#">Gerenciar Vagas</NavLink>
+            <NavLink onClick={() => navigate('/dashboard')}>Gerenciar Curriculos</NavLink>
+            <NavLink onClick={() => {}}>Gerenciar Vagas</NavLink>
             <LogoutButton>Sair</LogoutButton>
           </HeaderNav>
         </HeaderContent>
@@ -146,15 +148,15 @@ export default function View() {
           </Grid>
 
           <ActionButtons>
-            <ActionButton href="/edit">Alterar Currículo</ActionButton>
-            <ActionButton href="/dashboard">Voltar</ActionButton>
+            <ActionButton onClick={() => navigate('/edit')}>Alterar Currículo</ActionButton>
+            <ActionButton onClick={() => navigate('/dashboard')}>Voltar</ActionButton>
           </ActionButtons>
         </Section>
       </Main>
 
       <Footer>
         <FooterContent>
-          <Brand href="/dashboard">
+          <Brand onClick={() => navigate('/dashboard')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
           <Copyright>© 2023 Multi Publicidade</Copyright>

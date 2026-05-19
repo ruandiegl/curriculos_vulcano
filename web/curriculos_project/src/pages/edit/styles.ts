@@ -35,9 +35,10 @@ export const HeaderContent = styled.div`
   }
 `;
 
-export const Brand = styled.a`
+export const Brand = styled.div`
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
 
   img {
     height: 44px;
@@ -58,12 +59,13 @@ export const HeaderNav = styled.nav`
   }
 `;
 
-export const NavLink = styled.a`
+export const NavLink = styled.div`
   color: #063e66;
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
 
   &:hover {
     color: #fb7900;
@@ -94,7 +96,7 @@ export const Main = styled.main`
 `;
 
 export const Section = styled.section`
-  background: #778899; /* Dark blue-greyish color from image */
+  background: #778899;
   padding: 40px;
   margin-bottom: 40px;
   border-radius: 8px;

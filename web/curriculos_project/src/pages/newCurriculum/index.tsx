@@ -9,6 +9,7 @@ import {
   Footer,
   FooterContent,
   Grid,
+  Greeting,
   Header,
   HeaderContent,
   HeaderNav,
@@ -18,7 +19,8 @@ import {
   Main,
   NavLink,
   Page,
-  ReturnButton,
+  RadioGroup,
+  RadioLabel,
   Section,
   SectionTitle,
   Select,
@@ -55,7 +57,7 @@ const jobRoles = [
   'OPERADOR DE MÁQUINAS OPERATRIZES',
 ];
 
-export default function Edit() {
+export default function NewCurriculum() {
   const navigate = useNavigate();
   const [possuiCNH, setPossuiCNH] = useState('Não');
 
@@ -63,33 +65,38 @@ export default function Edit() {
     <Page>
       <Header>
         <HeaderContent>
-          <Brand onClick={() => navigate('/dashboard')}>
+          <Brand onClick={() => navigate('/')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/dashboard')}>Gerenciar Curriculos</NavLink>
-            <NavLink onClick={() => {}}>Gerenciar Vagas</NavLink>
+            <NavLink onClick={() => navigate('/')}>Início</NavLink>
+            <NavLink onClick={() => {}}>Vagas</NavLink>
             <LogoutButton>Sair</LogoutButton>
           </HeaderNav>
         </HeaderContent>
       </Header>
 
       <Main>
+        <Greeting>
+          <p>Ruan, seja bem vindo(a) a central de Recursos Humanos do Grupo Metalúrgica Vulcano!</p>
+          <p>Vamos precisar de suas informações - Preencha seus dados pessoais</p>
+        </Greeting>
+
         <Section>
           <SectionTitle>Dados Pessoais</SectionTitle>
           <Grid>
             <Field>
-              <Label>Nome</Label>
-              <Input type="text" defaultValue="Adenilson knupp alves junior" />
+              <Label>Nome Completo</Label>
+              <Input type="text" placeholder="ruan diego dos santos" />
             </Field>
             <Field>
               <Label>Celular</Label>
-              <Input type="text" defaultValue="(24) 98128-2805" />
+              <Input type="text" placeholder="(24) 99999-9999" />
             </Field>
             <Field>
               <Label>Data de Nascimento</Label>
-              <Input type="text" defaultValue="04/01/1995" />
+              <Input type="text" placeholder="03/11/2001" />
             </Field>
 
             <Field>
@@ -103,57 +110,78 @@ export default function Edit() {
             </Field>
             <Field>
               <Label>RG</Label>
-              <Input type="text" defaultValue="21.807.878-0" />
+              <Input type="text" placeholder="00.000.000-0" />
             </Field>
             <Field>
               <Label>Telefone</Label>
-              <Input type="text" defaultValue="(24) 9888-24214" />
+              <Input type="text" placeholder="(24) 3333-33333" />
             </Field>
 
             <Field>
               <Label>CPF</Label>
-              <Input type="text" defaultValue="153.139.107-95" />
-            </Field>
-            <Field>
-              <Label>Possui curso ativo de CBSP e HUET?</Label>
-              <Select defaultValue="Sim">
-                <option value="Sim">Sim</option>
-                <option value="Não">Não</option>
-              </Select>
+              <Input type="text" placeholder="000.000.000-00" />
             </Field>
             <Field>
               <Label>Possui CNH?</Label>
-              <Select
-                value={possuiCNH}
-                onChange={(e) => setPossuiCNH(e.target.value)}
-              >
-                <option value="Sim">Sim</option>
-                <option value="Não">Não</option>
-              </Select>
+              <RadioGroup>
+                <RadioLabel>
+                  <input
+                    type="radio"
+                    name="cnh"
+                    value="Sim"
+                    checked={possuiCNH === 'Sim'}
+                    onChange={(e) => setPossuiCNH(e.target.value)}
+                  />
+                  Sim
+                </RadioLabel>
+                <RadioLabel>
+                  <input
+                    type="radio"
+                    name="cnh"
+                    value="Não"
+                    checked={possuiCNH === 'Não'}
+                    onChange={(e) => setPossuiCNH(e.target.value)}
+                  />
+                  Não
+                </RadioLabel>
+              </RadioGroup>
+            </Field>
+            <Field>
+              <Label>Possui curso ativo de CBSP e HUET?</Label>
+              <RadioGroup>
+                <RadioLabel>
+                  <input type="radio" name="cbsp" value="Sim" />
+                  Sim
+                </RadioLabel>
+                <RadioLabel>
+                  <input type="radio" name="cbsp" value="Não" defaultChecked />
+                  Não
+                </RadioLabel>
+              </RadioGroup>
             </Field>
 
             <Field>
-              <Label>Cargo/Área de Atuação desejado 01</Label>
-              <Select defaultValue="SOLDADOR MIG/MAG">
-                <option value="" disabled>SELECIONE UMA OPÇÃO</option>
+              <Label>Cargo/Área de Atuação desejado</Label>
+              <Select defaultValue="ENGENHARIA">
+                <option value="" disabled>Selecione</option>
                 {jobRoles.map((role) => (
                   <option key={role} value={role}>{role}</option>
                 ))}
               </Select>
             </Field>
             <Field>
-              <Label>Cargo/Área de Atuação desejado 02</Label>
-              <Select defaultValue="MECÂNICO DE MANUTENÇÃO">
-                <option value="" disabled>SELECIONE UMA OPÇÃO</option>
+              <Label>Cargo/Área de Atuação secundário</Label>
+              <Select defaultValue="">
+                <option value="">Selecione</option>
                 {jobRoles.map((role) => (
                   <option key={role} value={role}>{role}</option>
                 ))}
               </Select>
             </Field>
             <Field>
-              <Label>Cargo/Área de Atuação desejado 03</Label>
-              <Select defaultValue="MECÂNICO DE MONTAGEM">
-                <option value="" disabled>SELECIONE UMA OPÇÃO</option>
+              <Label>Cargo/Área de Atuação terciário</Label>
+              <Select defaultValue="">
+                <option value="">Selecione</option>
                 {jobRoles.map((role) => (
                   <option key={role} value={role}>{role}</option>
                 ))}
@@ -164,16 +192,15 @@ export default function Edit() {
               <>
                 <Field>
                   <Label>Número da CNH</Label>
-                  <Input type="text" />
+                  <Input type="text" placeholder="00000000000000000000" />
                 </Field>
                 <Field>
                   <Label>Vencimento da CNH</Label>
-                  <Input type="text" />
+                  <Input type="text" placeholder="25/11/2030" />
                 </Field>
                 <Field>
                   <Label>Categoria da CNH</Label>
-                  <Select defaultValue="">
-                    <option value="" disabled>Selecione</option>
+                  <Select defaultValue="A">
                     <option value="A">A</option>
                     <option value="B">B</option>
                     <option value="C">C</option>
@@ -185,50 +212,16 @@ export default function Edit() {
               </>
             )}
           </Grid>
-        </Section>
-
-        <Section>
-          <SectionTitle>Endereço</SectionTitle>
-          <Grid>
-            <Field>
-              <Label>Logradouro</Label>
-              <Input type="text" defaultValue="Avenida São Paulo" />
-            </Field>
-            <Field>
-              <Label>Complemento</Label>
-              <Input type="text" defaultValue="Casa" />
-            </Field>
-            <Field>
-              <Label>Cidade</Label>
-              <Input type="text" defaultValue="Barra Mansa" />
-            </Field>
-
-            <Field>
-              <Label>Número</Label>
-              <Input type="text" defaultValue="41" />
-            </Field>
-            <Field>
-              <Label>Bairro</Label>
-              <Input type="text" defaultValue="Colônia Santo Antônio" />
-            </Field>
-            <Field>
-              <Label>Estado</Label>
-              <Input type="text" defaultValue="RJ" />
-            </Field>
-          </Grid>
 
           <ActionButtons>
-            <SubmitButton type="button">Alterar Currículo</SubmitButton>
-            <ReturnButton type="button" onClick={() => navigate(-1)}>
-              Voltar
-            </ReturnButton>
+            <SubmitButton type="button">Continuar</SubmitButton>
           </ActionButtons>
         </Section>
       </Main>
 
       <Footer>
         <FooterContent>
-          <Brand onClick={() => navigate('/dashboard')}>
+          <Brand onClick={() => navigate('/')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
           <Copyright>© 2023 Multi Publicidade</Copyright>

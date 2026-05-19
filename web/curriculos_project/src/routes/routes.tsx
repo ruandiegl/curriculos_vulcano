@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import Dashboard from '../pages/dashboard/index.tsx';
 import Edit from '../pages/edit/index.tsx';
 import Login from '../pages/Login/index.tsx';
+import NewCurriculum from '../pages/newCurriculum/index.tsx';
 import Register from '../pages/register/index.tsx';
 import View from '../pages/view/index.tsx';
 
@@ -13,6 +14,7 @@ export function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/view" element={<View />} />
       <Route path="/edit" element={<Edit />} />
+      <Route path="/newCurriculum" element={<NewCurriculum />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
