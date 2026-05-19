@@ -77,7 +77,7 @@ export default function View() {
             </DataItem>
             <DataItem>
               <Label>RG</Label>
-              <Value>(24) 9888-24214</Value>
+              <Value>21.807.878-0</Value>
             </DataItem>
             <DataItem>
               <Label>Telefone</Label>
