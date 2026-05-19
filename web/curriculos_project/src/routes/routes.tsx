@@ -34,8 +34,22 @@ export function AppRoutes() {
         }
       />
       <Route path="/register" element={<Register />} />
-      <Route path="/view" element={<View />} />
-      <Route path="/edit" element={<Edit />} />
+      <Route
+        path="/view/:id"
+        element={
+          <PrivateRoute>
+            <View />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/edit/:id"
+        element={
+          <PrivateRoute>
+            <Edit />
+          </PrivateRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
