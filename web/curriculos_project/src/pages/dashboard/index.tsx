@@ -1,4 +1,6 @@
+import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { useAuth } from '../../hooks/useAuth';
 import {
   ActionButton,
   ActionButtons,
@@ -58,6 +60,14 @@ const statusLabels = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  function handleSignOut() {
+    signOut();
+    navigate('/');
+  }
+
   return (
     <Page>
       <Header>
@@ -69,7 +79,9 @@ export default function Dashboard() {
           <HeaderNav>
             <NavLink href="#">Gerenciar Curriculos</NavLink>
             <NavLink href="#">Gerenciar Vagas</NavLink>
-            <LogoutButton>Sair</LogoutButton>
+            <LogoutButton type="button" onClick={handleSignOut}>
+              Sair
+            </LogoutButton>
           </HeaderNav>
         </HeaderContent>
       </Header>
