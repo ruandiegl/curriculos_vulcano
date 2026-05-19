@@ -1,11 +1,10 @@
 import logo from '../../assets/logo.png';
 import {
-  BackLink,
+  ActionButton,
+  ActionButtons,
   Brand,
   Copyright,
   DataItem,
-  DownloadLink,
-  DownloadLinks,
   Footer,
   FooterContent,
   Grid,
@@ -19,13 +18,12 @@ import {
   Page,
   Section,
   SectionTitle,
-  StatusLabel,
-  StatusSelect,
-  StatusWrapper,
   Value,
 } from './styles';
 
 export default function View() {
+  const possuiCNH = 'Sim';
+
   return (
     <Page>
       <Header>
@@ -43,18 +41,6 @@ export default function View() {
       </Header>
 
       <Main>
-        <BackLink href="/dashboard">Voltar</BackLink>
-
-        <StatusWrapper>
-          <StatusLabel>Status</StatusLabel>
-          <StatusSelect defaultValue="selecionado">
-            <option value="selecionado">Selecionado</option>
-            <option value="entrevistado">Entrevistado</option>
-            <option value="desconsiderado">Desconsiderado</option>
-            <option value="visualizado">Visualizado</option>
-          </StatusSelect>
-        </StatusWrapper>
-
         <Section>
           <SectionTitle>Dados Pessoais</SectionTitle>
           <Grid>
@@ -89,25 +75,43 @@ export default function View() {
               <Value>153.139.107-95</Value>
             </DataItem>
             <DataItem>
-              <Label>Possui CNH?</Label>
-              <Value>Não</Value>
-            </DataItem>
-            <DataItem>
-              <Label>E-mail</Label>
-              <Value>junior-knupp@hotmail.com</Value>
-            </DataItem>
-
-            <DataItem>
-              <Label>Cargo/Área de Atuação desejado</Label>
-              <Value>-</Value>
-            </DataItem>
-            <DataItem />
-            <DataItem />
-
-            <DataItem>
               <Label>Possui curso ativo de CBSP e HUET?</Label>
               <Value>Sim</Value>
             </DataItem>
+            <DataItem>
+              <Label>Possui CNH?</Label>
+              <Value>{possuiCNH}</Value>
+            </DataItem>
+
+            <DataItem>
+              <Label>Cargo/Área de Atuação desejado 01</Label>
+              <Value>SOLDADOR MIG/MAG</Value>
+            </DataItem>
+            <DataItem>
+              <Label>Cargo/Área de Atuação desejado 02</Label>
+              <Value>MECÂNICO DE MANUTENÇÃO</Value>
+            </DataItem>
+            <DataItem>
+              <Label>Cargo/Área de Atuação desejado 03</Label>
+              <Value>MECÂNICO DE MONTAGEM</Value>
+            </DataItem>
+
+            {possuiCNH === 'Sim' && (
+              <>
+                <DataItem>
+                  <Label>Número da CNH</Label>
+                  <Value />
+                </DataItem>
+                <DataItem>
+                  <Label>Vencimento da CNH</Label>
+                  <Value />
+                </DataItem>
+                <DataItem>
+                  <Label>Categoria da CNH</Label>
+                  <Value />
+                </DataItem>
+              </>
+            )}
           </Grid>
         </Section>
 
@@ -140,12 +144,12 @@ export default function View() {
               <Value>RJ</Value>
             </DataItem>
           </Grid>
-        </Section>
 
-        <DownloadLinks>
-          <DownloadLink href="#">+ Download PDF (Sistema)</DownloadLink>
-          <DownloadLink href="#">+ Download PDF (Usuário)</DownloadLink>
-        </DownloadLinks>
+          <ActionButtons>
+            <ActionButton href="/edit">Alterar Currículo</ActionButton>
+            <ActionButton href="/dashboard">Voltar</ActionButton>
+          </ActionButtons>
+        </Section>
       </Main>
 
       <Footer>

@@ -87,47 +87,35 @@ export const LogoutButton = styled.button`
 `;
 
 export const Main = styled.main`
-  width: min(1200px, calc(100% - 48px));
+  width: min(1000px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 40px 0 60px;
+  padding: 60px 0 80px;
   flex: 1;
 `;
 
 export const BackLink = styled.a`
-  display: inline-block;
-  color: #2c3547;
-  text-decoration: none;
-  font-weight: 800;
-  font-size: 14px;
-  margin-bottom: 30px;
-
-  &::before {
-    content: '← ';
-  }
-
-  &:hover {
-    color: #fb7900;
-  }
+  display: none; /* Removed as per the image layout which uses buttons at the bottom */
 `;
 
 export const Section = styled.section`
-  background: #fff;
+  background: #778899; /* Dark blue-greyish color from image */
   padding: 40px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 `;
 
 export const SectionTitle = styled.h2`
-  color: #64748b;
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 24px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 30px;
 `;
 
 export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 30px 20px;
+  gap: 24px 20px;
 
   @media (max-width: 900px) {
     grid-template-columns: repeat(2, 1fr);
@@ -141,19 +129,57 @@ export const Grid = styled.div`
 export const DataItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 `;
 
 export const Label = styled.span`
-  color: #64748b;
+  color: #fff;
   font-size: 12px;
   font-weight: 600;
 `;
 
 export const Value = styled.span`
-  color: #4b586d;
-  font-size: 13px;
+  width: 100%;
+  height: 34px;
+  border-bottom: 1.5px solid #fff;
+  color: #fff;
+  font-size: 14px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+`;
+
+export const ActionButtons = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
+export const ActionButton = styled.a`
+  height: 44px;
+  padding: 0 40px;
+  border-radius: 999px;
+  background: #fff;
+  color: #063e66;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background: #f1f5f9;
+  }
 `;
 
 export const StatusWrapper = styled.div`
