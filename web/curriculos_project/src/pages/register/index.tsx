@@ -4,16 +4,15 @@ import {
   Brand,
   Card,
   Field,
-  ForgotLink,
   Form,
-  LoginButton,
+  RegisterButton,
+  ReturnButton,
   LoginIcon,
   Page,
   PhotoPanel,
-  SignupText,
 } from './styles';
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
 
   return (
@@ -24,7 +23,12 @@ export default function Login() {
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
 
-          <h1>Faça seu Login</h1>
+          <p>Seja Bem vindo(a) a Plataforma de Recursos Humanos da Metalurgica Vulcano!</p>
+
+          <Field>
+            <span>Nome</span>
+            <input type="text" placeholder="Nome" autoComplete="name" />
+          </Field>
 
           <Field>
             <span>Email</span>
@@ -33,27 +37,26 @@ export default function Login() {
 
           <Field>
             <span>Senha</span>
-            <input type="password" placeholder="Senha" autoComplete="current-password" />
+            <input type="password" placeholder="Senha" autoComplete="new-password" />
           </Field>
 
-          <LoginButton type="button" onClick={() => navigate('/dashboard')}>
+          <RegisterButton type="button">
             <LoginIcon aria-hidden="true">
               <span className="head" />
               <span className="body" />
               <span className="plus horizontal" />
               <span className="plus vertical" />
             </LoginIcon>
-            Login
-          </LoginButton>
+            Registrar
+          </RegisterButton>
 
-          <ForgotLink href="#">Esqueci minha senha</ForgotLink>
-
-          <SignupText>
-            Não tem uma conta?{' '}
-            <button type="button" onClick={() => navigate('/register')}>
-              Cadastro
-            </button>
-          </SignupText>
+          <ReturnButton type="button" onClick={() => navigate('/')}>
+            <LoginIcon aria-hidden="true">
+              <span className="head" />
+              <span className="body" />
+            </LoginIcon>
+            Ja tenho cadastro
+          </ReturnButton>
         </Form>
 
         <PhotoPanel />
