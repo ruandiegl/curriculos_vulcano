@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { TOKEN_STORAGE_KEY } from '../services/api';
 
