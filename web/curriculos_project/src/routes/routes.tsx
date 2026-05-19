@@ -13,6 +13,7 @@ type PrivateRouteProps = {
 
 function PrivateRoute({ children }: PrivateRouteProps) {
   const { isAuthenticated } = useAuth();
+   console.log('isAuthenticated:', isAuthenticated); // ← adicione isso
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
