@@ -46,10 +46,9 @@ export default function Register() {
       setLoading(true);
 
       await api.post('/login/register', {
-        name,
+        nome: name,
         email,
         password,
-        phone,
       });
 
       setSuccessMessage('Cadastro realizado com sucesso. Redirecionando para o login...');
