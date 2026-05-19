@@ -6,6 +6,7 @@ import Edit from '../pages/edit/index.tsx';
 import Login from '../pages/Login/index.tsx';
 import Register from '../pages/register/index.tsx';
 import View from '../pages/view/index.tsx';
+import NewCurriculum from '../pages/newCurriculum/index.tsx';
 
 type PrivateRouteProps = {
   children: ReactNode;
@@ -51,6 +52,12 @@ export function AppRoutes() {
           </PrivateRoute>
         }
       />
+      <Route 
+      path="/newCurriculum" element={
+        <PrivateRoute>  
+          <NewCurriculum />
+        </PrivateRoute>
+      } />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

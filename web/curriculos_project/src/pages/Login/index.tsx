@@ -45,7 +45,7 @@ export default function Login() {
       });
 
       signIn(response.data.token);
-      navigate('/dashboard');
+      navigate('/newCurriculum');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
         setErrorMessage(
