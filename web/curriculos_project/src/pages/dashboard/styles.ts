@@ -1,16 +1,6 @@
 import styled from 'styled-components';
 import solda from '../../assets/solda.jpg';
-
-function getStatusColor(status: string) {
-  const colors: Record<string, string> = {
-    desconsiderado: '#dc2626',
-    entrevistado: '#fde047',
-    selecionado: '#2f8f75',
-    visualizado: '#2f70ad',
-  };
-
-  return colors[status] ?? '#94a3b8';
-}
+import { getStatusColor } from '../../utils/status';
 
 export const Page = styled.div`
   min-height: 100vh;
@@ -127,7 +117,7 @@ export const SectionTitle = styled.h1`
   font-weight: 500;
 `;
 
-export const SearchContainer = styled.div`
+export const SearchContainer = styled.form`
   display: flex;
   justify-content: center;
 `;
@@ -175,6 +165,15 @@ export const ClearButton = styled.button`
   &:hover {
     background: #95a3b5;
   }
+`;
+
+export const StateMessage = styled.div`
+  padding: 30px 16px;
+  background: rgba(75, 88, 109, 0.96);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
 `;
 
 export const TableSection = styled.section`
@@ -271,6 +270,20 @@ export const ActionButton = styled.button`
   }
 `;
 
+export const ActionLink = styled.button`
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+
+  &:hover {
+    color: #ff8424;
+  }
+`;
+
 export const Pagination = styled.div`
   height: 36px;
   display: flex;
@@ -296,5 +309,10 @@ export const PageButton = styled.button<{ $active?: boolean }>`
 
   &:hover {
     background: #fb7900;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
   }
 `;
