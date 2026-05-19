@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import logo from '../../assets/logo.png';
 import {
   ActionButtons,
@@ -23,7 +24,39 @@ import {
   SubmitButton,
 } from './styles';
 
+const jobRoles = [
+  'FISCAL',
+  'FINANCEIRO',
+  'SOLDADOR TIG',
+  'SOLDADOR MIG/MAG',
+  'MECÂNICO DE MANUTENÇÃO',
+  'MECÂNICO DE MONTAGEM',
+  'RECURSOS HUMANOS',
+  'SEGURANÇA DO TRABALHO',
+  'ELETRICISTA',
+  'QUALIDADE',
+  'CONTROLADORIA',
+  'ENGENHARIA',
+  'COMPRAS',
+  'ALMOXARIFADO',
+  'LOGÍSTICA',
+  'LIMPEZA',
+  'CONSTRUÇÃO CIVIL',
+  'TRANSPORTE / MOTORISTA',
+  'AJUDANTE',
+  'ESMERILHADOR',
+  'OPERADOR DE EMPILHADEIRA',
+  'OPERADOR DE PONTE ROLANTE',
+  'OPERADOR DE MANDRILHADORA',
+  'PINTOR DE VEÍCULOS',
+  'MAÇARIQUEIRO',
+  'DESENHISTA PROJETISTA',
+  'OPERADOR DE MÁQUINAS OPERATRIZES',
+];
+
 export default function Edit() {
+  const [possuiCNH, setPossuiCNH] = useState('Não');
+
   return (
     <Page>
       <Header>
@@ -88,7 +121,10 @@ export default function Edit() {
             </Field>
             <Field>
               <Label>Possui CNH?</Label>
-              <Select defaultValue="Não">
+              <Select
+                value={possuiCNH}
+                onChange={(e) => setPossuiCNH(e.target.value)}
+              >
                 <option value="Sim">Sim</option>
                 <option value="Não">Não</option>
               </Select>
@@ -97,24 +133,47 @@ export default function Edit() {
             <Field>
               <Label>Cargo/Área de Atuação desejado 01</Label>
               <Select defaultValue="SOLDADOR MIG/MAG">
-                <option value="SOLDADOR MIG/MAG">SOLDADOR MIG/MAG</option>
-                <option value="OUTRO">OUTRO</option>
+                <option value="" disabled>SELECIONE UMA OPÇÃO</option>
+                {jobRoles.map((role) => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
               </Select>
             </Field>
             <Field>
               <Label>Cargo/Área de Atuação desejado 02</Label>
               <Select defaultValue="MECÂNICO DE MANUTENÇÃO">
-                <option value="MECÂNICO DE MANUTENÇÃO">MECÂNICO DE MANUTENÇÃO</option>
-                <option value="OUTRO">OUTRO</option>
+                <option value="" disabled>SELECIONE UMA OPÇÃO</option>
+                {jobRoles.map((role) => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
               </Select>
             </Field>
             <Field>
               <Label>Cargo/Área de Atuação desejado 03</Label>
               <Select defaultValue="MECÂNICO DE MONTAGEM">
-                <option value="MECÂNICO DE MONTAGEM">MECÂNICO DE MONTAGEM</option>
-                <option value="OUTRO">OUTRO</option>
+                <option value="" disabled>SELECIONE UMA OPÇÃO</option>
+                {jobRoles.map((role) => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
               </Select>
             </Field>
+
+            {possuiCNH === 'Sim' && (
+              <>
+                <Field>
+                  <Label>Número da CNH</Label>
+                  <Input type="text" />
+                </Field>
+                <Field>
+                  <Label>Vencimento da CNH</Label>
+                  <Input type="text" />
+                </Field>
+                <Field>
+                  <Label>Categoria da CNH</Label>
+                  <Input type="text" />
+                </Field>
+              </>
+            )}
           </Grid>
         </Section>
 
