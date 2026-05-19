@@ -34,7 +34,6 @@ export const Page = styled.main`
 export const Card = styled.section`
   width: 90%;
   min-height: 666px;
-  height: 90vh;
   display: grid;
   grid-template-columns: 530px minmax(0, 1fr);
   overflow: hidden;
@@ -64,7 +63,6 @@ export const Form = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   background: #fff;
   position: relative;
   z-index: 1;
@@ -109,7 +107,7 @@ export const Brand = styled.div`
 
 export const Field = styled.label`
   width: 100%;
-  margin-bottom: 22px;
+  margin-bottom: 31px;
 
   span {
     position: absolute;
@@ -165,21 +163,6 @@ export const RegisterButton = styled.button`
   &:hover {
     background: #ff7b17;
   }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.72;
-  }
-`;
-
-export const FormMessage = styled.p<{ $success?: boolean }>`
-  width: 100%;
-  margin: -6px 0 16px;
-  color: ${({ $success }) => ($success ? '#2f8f75' : '#dc2626')};
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.4;
-  text-align: center;
 `;
 
 export const ReturnButton = styled.button`

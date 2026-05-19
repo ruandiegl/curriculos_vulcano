@@ -1,15 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { useAuth } from '../../hooks/useAuth';
-import { deleteCurriculo, listCurriculos } from '../../services/curriculos';
-import type { Curriculo } from '../../types/curriculo';
-import { formatList, statusLabels } from '../../utils/status';
 import {
   ActionButton,
   ActionButtons,
-  ActionLink,
   Brand,
   ClearButton,
   Dot,
@@ -30,100 +22,42 @@ import {
   SearchSection,
   SectionCategory,
   SectionTitle,
-  StateMessage,
   Table,
   TableSection,
   TableWrapper,
 } from './styles';
 
-const PAGE_SIZE = 20;
+const curriculos = [
+  {
+    nome: 'Adenilson knupp alves junior',
+    email: 'junior-knupp@hotmail.com',
+    cargo: 'SOLDADOR MIG/MAG',
+    status: 'selecionado',
+  },
+  {
+    nome: 'Admilson Pereira Machado',
+    email: 'admilson1machado@gmail.com',
+    cargo: 'DESENHISTA PROJETISTA',
+    status: 'visualizado',
+  },
+  {
+    nome: 'Adriano Luiz de O Bonfim',
+    email: 'bonfim90@yahoo.com.br',
+    cargo: 'ELETRICISTA',
+    status: 'visualizado',
+  },
+
+
+];
+
+const statusLabels = [
+  { label: 'Desconsiderado', status: 'desconsiderado' },
+  { label: 'Entrevistado', status: 'entrevistado' },
+  { label: 'Selecionado', status: 'selecionado' },
+  { label: 'Visualizado', status: 'visualizado' },
+];
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const { signOut } = useAuth();
-  const [curriculos, setCurriculos] = useState<Curriculo[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState('');
-  const [appliedSearch, setAppliedSearch] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const pages = useMemo(() => {
-    const start = Math.max(1, page - 2);
-    const end = Math.min(totalPages, start + 4);
-    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-  }, [page, totalPages]);
-
-  useEffect(() => {
-    let isCurrent = true;
-
-    async function loadCurriculos() {
-      try {
-        setLoading(true);
-        setErrorMessage('');
-
-        const response = await listCurriculos({
-          page,
-          limit: PAGE_SIZE,
-          search: appliedSearch,
-        });
-
-        if (!isCurrent) {
-          return;
-        }
-
-        setCurriculos(response.data);
-        setTotal(response.meta.total);
-        setTotalPages(Math.max(response.meta.totalPages, 1));
-      } catch {
-        if (isCurrent) {
-          setErrorMessage('Nao foi possivel carregar os curriculos.');
-        }
-      } finally {
-        if (isCurrent) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadCurriculos();
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [page, appliedSearch]);
-
-  function handleSignOut() {
-    signOut();
-    navigate('/');
-  }
-
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setPage(1);
-    setAppliedSearch(search.trim());
-  }
-
-  function handleClearSearch() {
-    setSearch('');
-    setAppliedSearch('');
-    setPage(1);
-  }
-
-  async function handleDelete(curriculo: Curriculo) {
-    const confirmed = window.confirm(`Apagar o curriculo de ${curriculo.nome}?`);
-
-    if (!confirmed) {
-      return;
-    }
-
-    await deleteCurriculo(curriculo.id);
-    setCurriculos((items) => items.filter((item) => item.id !== curriculo.id));
-    setTotal((currentTotal) => Math.max(currentTotal - 1, 0));
-  }
-
   return (
     <Page>
       <Header>
@@ -135,9 +69,7 @@ export default function Dashboard() {
           <HeaderNav>
             <NavLink href="#">Gerenciar Curriculos</NavLink>
             <NavLink href="#">Gerenciar Vagas</NavLink>
-            <LogoutButton type="button" onClick={handleSignOut}>
-              Sair
-            </LogoutButton>
+            <LogoutButton>Sair</LogoutButton>
           </HeaderNav>
         </HeaderContent>
       </Header>
@@ -147,17 +79,10 @@ export default function Dashboard() {
           <SectionCategory>Curriculos</SectionCategory>
           <SectionTitle>Gerenciar Curriculos</SectionTitle>
 
-          <SearchContainer onSubmit={handleSearch}>
+          <SearchContainer>
             <SearchInputWrapper>
-              <SearchInput
-                type="text"
-                placeholder="Digite sua busca"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-              <ClearButton type="button" onClick={handleClearSearch}>
-                Limpar
-              </ClearButton>
+              <SearchInput type="text" placeholder="Digite sua busca" />
+              <ClearButton>Limpar</ClearButton>
             </SearchInputWrapper>
           </SearchContainer>
         </SearchSection>
@@ -173,76 +98,52 @@ export default function Dashboard() {
           </Legend>
 
           <TableWrapper>
-            {loading && <StateMessage>Carregando curriculos...</StateMessage>}
-            {!loading && errorMessage && <StateMessage>{errorMessage}</StateMessage>}
-            {!loading && !errorMessage && curriculos.length === 0 && (
-              <StateMessage>Nenhum curriculo encontrado.</StateMessage>
-            )}
-            {!loading && !errorMessage && curriculos.length > 0 && (
-              <Table>
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Atuacao Principal</th>
-                    <th>Acoes</th>
-                    <th aria-label="Status" />
-                  </tr>
-                </thead>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Atuacao Principal</th>
+                  <th>Acoes</th>
+                  <th aria-label="Status" />
+                </tr>
+              </thead>
 
-                <tbody>
-                  {curriculos.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.nome}</td>
-                      <td>{item.email ?? '-'}</td>
-                      <td>{formatList(item.atuacoes)}</td>
-                      <td>
-                        <ActionButtons>
-                          <ActionButton type="button" onClick={() => handleDelete(item)}>
-                            Apagar
-                          </ActionButton>
-                          <ActionLink type="button" onClick={() => navigate(`/edit/${item.id}`)}>
-                            Editar
-                          </ActionLink>
-                          <ActionLink type="button" onClick={() => navigate(`/view/${item.id}`)}>
-                            Ver
-                          </ActionLink>
-                        </ActionButtons>
-                      </td>
-                      <td>
-                        <Dot $status={item.status} $large />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )}
+              <tbody>
+                {curriculos.map((item) => (
+                  <tr key={`${item.email}-${item.status}`}>
+                    <td>{item.nome}</td>
+                    <td>{item.email}</td>
+                    <td>{item.cargo}</td>
+                    <td>
+                      <ActionButtons>
+                        <ActionButton>Apagar</ActionButton>
+                        <ActionButton>Editar</ActionButton>
+                        <ActionButton>Ver</ActionButton>
+                      </ActionButtons>
+                    </td>
+                    <td>
+                      <Dot $status={item.status} $large />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
           </TableWrapper>
 
           <Pagination>
-            <PageButton type="button" disabled={page === 1} onClick={() => setPage(1)}>
-              &laquo;
-            </PageButton>
-            <PageButton type="button" disabled={page === 1} onClick={() => setPage((current) => current - 1)}>
-              &lsaquo;
-            </PageButton>
-            {pages.map((item) => (
-              <PageButton key={item} type="button" $active={item === page} onClick={() => setPage(item)}>
-                {item}
-              </PageButton>
-            ))}
-            <PageButton
-              type="button"
-              disabled={page === totalPages}
-              onClick={() => setPage((current) => current + 1)}
-            >
-              &rsaquo;
-            </PageButton>
-            <PageButton type="button" disabled={page === totalPages} onClick={() => setPage(totalPages)}>
-              &raquo;
-            </PageButton>
+            <PageButton>&laquo;</PageButton>
+            <PageButton>&lsaquo;</PageButton>
+            <PageButton $active>1</PageButton>
+            <PageButton>2</PageButton>
+            <PageButton>3</PageButton>
+            <PageButton>4</PageButton>
+            <PageButton>5</PageButton>
+            <PageButton>6</PageButton>
+            <PageButton>7</PageButton>
+            <PageButton>&rsaquo;</PageButton>
+            <PageButton>&raquo;</PageButton>
           </Pagination>
-          <StateMessage>{total} curriculos encontrados. Limite de {PAGE_SIZE} por pagina.</StateMessage>
         </TableSection>
       </Main>
     </Page>
