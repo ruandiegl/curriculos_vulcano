@@ -39,7 +39,7 @@ export const Card = styled.section`
   overflow: hidden;
   border-radius: 7px;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(22, 27, 34, 0.1);
+  box-shadow: 0 1px px rgba(22, 27, 34, 0.1);
 
   @media (max-width: 1200px) {
     width: min(100%, 960px);
@@ -67,12 +67,14 @@ export const Form = styled.form`
   position: relative;
   z-index: 1;
 
-  h1 {
-    margin: 0 0 36px;
-    color: #30384a;
-    font-size: 26px;
-    line-height: 1.2;
-    font-weight: 500;
+  p {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+
   }
 
   @media (max-width: 1200px) {
@@ -141,10 +143,32 @@ export const Field = styled.label`
   }
 `;
 
-export const LoginButton = styled.button`
+export const RegisterButton = styled.button`
   width: 100%;
   height: 56px;
   margin-top: -6px;
+  border: 0;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  color: #fff;
+  background: #ff8424;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 1px 1px rgba(95, 45, 5, 0.08);
+
+  &:hover {
+    background: #ff7b17;
+  }
+`;
+
+export const ReturnButton = styled.button`
+  width: 100%;
+  height: 56px;
+  margin-top: 6px;
   border: 0;
   border-radius: 7px;
   display: inline-flex;
@@ -226,15 +250,8 @@ export const SignupText = styled.p`
   font-size: 14px;
   font-weight: 700;
 
-  a,
-  button {
-    padding: 0;
-    border: 0;
-    background: transparent;
+  a {
     color: #818ca1;
-    cursor: pointer;
-    font: inherit;
-    font-weight: 700;
     text-decoration: underline;
     text-underline-offset: 2px;
   }
