@@ -44,28 +44,21 @@ function getUserFromToken(token: string) {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-
-    if (!token) {
-      return;
-    }
-
-    try {
-      const storedUser = getUserFromToken(token);
-
-      if (!storedUser) {
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-        return;
-      }
-
-      setUser(storedUser);
-    } catch {
+ const [user, setUser] = useState<User | null>(() => {
+  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  if (!token) return null;
+  try {
+    const storedUser = getUserFromToken(token);
+    if (!storedUser) {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
+      return null;
     }
-  }, []);
+    return storedUser;
+  } catch {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    return null;
+  }
+});
 
   const value = useMemo<AuthContextType>(
     () => ({
