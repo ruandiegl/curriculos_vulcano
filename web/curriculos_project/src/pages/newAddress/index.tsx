@@ -147,6 +147,7 @@ export default function NewAddress() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage('');
+    console.log('clicou');
 
     if (!curriculoId) {
       setMessage('Nao encontrei o curriculo iniciado. Volte e preencha os dados pessoais novamente.');
