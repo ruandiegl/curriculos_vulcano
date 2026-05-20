@@ -102,6 +102,48 @@ function nullable(value: string) {
   return value.trim() || null;
 }
 
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, '');
+}
+
+function formatCpf(value: string) {
+  return onlyDigits(value)
+    .slice(0, 11)
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+}
+
+function formatRg(value: string) {
+  return onlyDigits(value)
+    .slice(0, 9)
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+}
+
+function formatPhone(value: string) {
+  const digits = onlyDigits(value).slice(0, 11);
+
+  if (digits.length <= 2) {
+    return digits ? `(${digits}` : '';
+  }
+
+  if (digits.length <= 6) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  }
+
+  if (digits.length <= 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function formatCnh(value: string) {
+  return onlyDigits(value).slice(0, 11);
+}
+
 export default function NewCurriculum() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -130,15 +172,16 @@ export default function NewCurriculum() {
     return {
       usuarioId: user?.id ?? null,
       nome: form.nome.trim(),
-      celular: nullable(form.celular),
+      email: user?.email ?? null,
+      celular: nullable(onlyDigits(form.celular)),
       nascimento: nullable(form.nascimento),
       estadoCivil: nullable(form.estadoCivil),
-      rg: nullable(form.rg),
-      telefone: nullable(form.telefone),
-      cpf: nullable(form.cpf),
+      rg: nullable(onlyDigits(form.rg)),
+      telefone: nullable(onlyDigits(form.telefone)),
+      cpf: nullable(onlyDigits(form.cpf)),
       possuiCnh: form.possuiCnh === 'Sim',
       cursoAtivo: form.cursoAtivo === 'Sim',
-      numeroCnh: form.possuiCnh === 'Sim' ? nullable(form.numeroCnh) : null,
+      numeroCnh: form.possuiCnh === 'Sim' ? nullable(onlyDigits(form.numeroCnh)) : null,
       vencimentoCnh: form.possuiCnh === 'Sim' ? nullable(form.vencimentoCnh) : null,
       categoriaCnh: form.possuiCnh === 'Sim' ? nullable(form.categoriaCnh) : null,
       atuacoes,
@@ -156,6 +199,31 @@ export default function NewCurriculum() {
 
     if (!form.atuacaoPrincipal) {
       setMessage('Selecione ao menos uma area de atuacao.');
+      return;
+    }
+
+    if (form.cpf && onlyDigits(form.cpf).length !== 11) {
+      setMessage('Informe um CPF com 11 digitos.');
+      return;
+    }
+
+    if (form.rg && onlyDigits(form.rg).length < 7) {
+      setMessage('Informe um RG valido.');
+      return;
+    }
+
+    if (form.celular && onlyDigits(form.celular).length !== 11) {
+      setMessage('Informe um celular com DDD e 9 digitos.');
+      return;
+    }
+
+    if (form.telefone && ![10, 11].includes(onlyDigits(form.telefone).length)) {
+      setMessage('Informe um telefone com DDD.');
+      return;
+    }
+
+    if (form.possuiCnh === 'Sim' && form.numeroCnh && onlyDigits(form.numeroCnh).length !== 11) {
+      setMessage('Informe a CNH com 11 digitos.');
       return;
     }
 
@@ -225,7 +293,7 @@ export default function NewCurriculum() {
                   type="text"
                   placeholder="(24) 99999-9999"
                   value={form.celular}
-                  onChange={(e) => updateField('celular', e.target.value)}
+                  onChange={(e) => updateField('celular', formatPhone(e.target.value))}
                 />
               </Field>
               <Field>
@@ -252,7 +320,7 @@ export default function NewCurriculum() {
                   type="text"
                   placeholder="00.000.000-0"
                   value={form.rg}
-                  onChange={(e) => updateField('rg', e.target.value)}
+                  onChange={(e) => updateField('rg', formatRg(e.target.value))}
                 />
               </Field>
               <Field>
@@ -261,7 +329,7 @@ export default function NewCurriculum() {
                   type="text"
                   placeholder="(24) 3333-33333"
                   value={form.telefone}
-                  onChange={(e) => updateField('telefone', e.target.value)}
+                  onChange={(e) => updateField('telefone', formatPhone(e.target.value))}
                 />
               </Field>
 
@@ -271,7 +339,7 @@ export default function NewCurriculum() {
                   type="text"
                   placeholder="000.000.000-00"
                   value={form.cpf}
-                  onChange={(e) => updateField('cpf', e.target.value)}
+                  onChange={(e) => updateField('cpf', formatCpf(e.target.value))}
                 />
               </Field>
               <Field>
@@ -369,7 +437,7 @@ export default function NewCurriculum() {
                       type="text"
                       placeholder="00000000000000000000"
                       value={form.numeroCnh}
-                      onChange={(e) => updateField('numeroCnh', e.target.value)}
+                      onChange={(e) => updateField('numeroCnh', formatCnh(e.target.value))}
                     />
                   </Field>
                   <Field>

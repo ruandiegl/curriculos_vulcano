@@ -3,8 +3,13 @@ import { createContext, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { TOKEN_STORAGE_KEY } from '../services/api';
 
+const USER_STORAGE_KEY = 'user';
+
 type User = {
   id: string;
+  nome?: string;
+  email?: string;
+  tipo?: string;
   iat?: number;
   exp?: number;
 };
@@ -12,7 +17,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
-  signIn: (token: string) => void;
+  signIn: (token: string, userData?: Partial<User>) => void;
   signOut: () => void;
 };
 
@@ -36,7 +41,11 @@ function getUserFromToken(token: string) {
     return null;
   }
 
+  const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+  const storedUserData = storedUser ? JSON.parse(storedUser) as Partial<User> : {};
+
   return {
+    ...storedUserData,
     id: decoded.id,
     iat: decoded.iat,
     exp: decoded.exp,
@@ -46,30 +55,38 @@ function getUserFromToken(token: string) {
 export function AuthProvider({ children }: AuthProviderProps) {
  const [user, setUser] = useState<User | null>(() => {
   const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-  if (!token) return null;
-  try {
-    const storedUser = getUserFromToken(token);
-    if (!storedUser) {
+    if (!token) return null;
+    try {
+      const storedUser = getUserFromToken(token);
+      if (!storedUser) {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        localStorage.removeItem(USER_STORAGE_KEY);
+        return null;
+      }
+      return storedUser;
+    } catch {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem(USER_STORAGE_KEY);
       return null;
     }
-    return storedUser;
-  } catch {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-    return null;
-  }
 });
 
   const value = useMemo<AuthContextType>(
     () => ({
       user,
       isAuthenticated: Boolean(user),
-      signIn(token: string) {
+      signIn(token: string, userData?: Partial<User>) {
         localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        if (userData) {
+          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+        } else {
+          localStorage.removeItem(USER_STORAGE_KEY);
+        }
         setUser(getUserFromToken(token));
       },
       signOut() {
         localStorage.removeItem(TOKEN_STORAGE_KEY);
+        localStorage.removeItem(USER_STORAGE_KEY);
         setUser(null);
       },
     }),
@@ -79,6 +96,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
 
