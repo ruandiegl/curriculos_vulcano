@@ -19,6 +19,16 @@ import {
   SignupText,
 } from './styles';
 
+type LoginResponse = {
+  token: string;
+  user?: {
+    id: string;
+    nome?: string;
+    email?: string;
+    tipo?: string;
+  };
+};
+
 export default function Login() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
@@ -39,12 +49,12 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const response = await api.post('/login', {
+      const response = await api.post<LoginResponse>('/login', {
         email,
         password,
       });
 
-      signIn(response.data.token);
+      signIn(response.data.token, response.data.user);
       navigate('/newCurriculum');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
