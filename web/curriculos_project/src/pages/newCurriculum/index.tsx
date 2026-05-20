@@ -70,7 +70,7 @@ export default function NewCurriculum() {
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/')}>Início</NavLink>
+            <NavLink onClick={() => {}}>Início</NavLink>
             <NavLink onClick={() => {}}>Vagas</NavLink>
             <LogoutButton>Sair</LogoutButton>
           </HeaderNav>
@@ -214,7 +214,9 @@ export default function NewCurriculum() {
           </Grid>
 
           <ActionButtons>
-            <SubmitButton type="button">Continuar</SubmitButton>
+            <SubmitButton type="button" onClick={() => navigate('/newAddress')}>
+              Continuar
+            </SubmitButton>
           </ActionButtons>
         </Section>
       </Main>
