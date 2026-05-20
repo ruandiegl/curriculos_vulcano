@@ -5,6 +5,7 @@ import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/useAuth';
 import { getCurriculo, updateCurriculo } from '../../services/curriculos';
 import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
+import { formatCnh, formatCpf, formatPhone, formatRg, onlyDigits } from '../../utils/masks';
 import { statusLabels } from '../../utils/status';
 import {
   ActionButtons,
@@ -53,15 +54,15 @@ function nullable(value: string) {
 function formFromCurriculo(curriculo: Curriculo): FormState {
   return {
     nome: curriculo.nome ?? '',
-    celular: curriculo.celular ?? '',
+    celular: formatPhone(curriculo.celular),
     nascimento: curriculo.nascimento?.slice(0, 10) ?? '',
     estadoCivil: curriculo.estadoCivil ?? '',
-    rg: curriculo.rg ?? '',
-    telefone: curriculo.telefone ?? '',
-    cpf: curriculo.cpf ?? '',
+    rg: formatRg(curriculo.rg),
+    telefone: formatPhone(curriculo.telefone),
+    cpf: formatCpf(curriculo.cpf),
     cursoAtivo: curriculo.cursoAtivo ? 'Sim' : 'Nao',
     possuiCnh: curriculo.possuiCnh ? 'Sim' : 'Nao',
-    numeroCnh: curriculo.numeroCnh ?? '',
+    numeroCnh: formatCnh(curriculo.numeroCnh),
     vencimentoCnh: curriculo.vencimentoCnh?.slice(0, 10) ?? '',
     categoriaCnh: curriculo.categoriaCnh ?? '',
     status: curriculo.status,
@@ -114,23 +115,48 @@ export default function Edit() {
       return;
     }
 
+    if (form.cpf && onlyDigits(form.cpf).length !== 11) {
+      setMessage('Informe um CPF com 11 digitos.');
+      return;
+    }
+
+    if (form.rg && onlyDigits(form.rg).length < 7) {
+      setMessage('Informe um RG valido.');
+      return;
+    }
+
+    if (form.celular && onlyDigits(form.celular).length !== 11) {
+      setMessage('Informe um celular com DDD e 9 digitos.');
+      return;
+    }
+
+    if (form.telefone && ![10, 11].includes(onlyDigits(form.telefone).length)) {
+      setMessage('Informe um telefone com DDD.');
+      return;
+    }
+
+    if (form.possuiCnh === 'Sim' && form.numeroCnh && onlyDigits(form.numeroCnh).length !== 11) {
+      setMessage('Informe a CNH com 11 digitos.');
+      return;
+    }
+
     try {
       setSaving(true);
       setMessage('');
 
       await updateCurriculo(id, {
         nome: form.nome,
-        celular: nullable(form.celular),
+        celular: nullable(onlyDigits(form.celular)),
         nascimento: nullable(form.nascimento),
         estadoCivil: nullable(form.estadoCivil),
-        rg: nullable(form.rg),
-        telefone: nullable(form.telefone),
-        cpf: nullable(form.cpf),
+        rg: nullable(onlyDigits(form.rg)),
+        telefone: nullable(onlyDigits(form.telefone)),
+        cpf: nullable(onlyDigits(form.cpf)),
         cursoAtivo: form.cursoAtivo === 'Sim',
         possuiCnh: form.possuiCnh === 'Sim',
-        numeroCnh: nullable(form.numeroCnh),
+        numeroCnh: form.possuiCnh === 'Sim' ? nullable(onlyDigits(form.numeroCnh)) : null,
         vencimentoCnh: nullable(form.vencimentoCnh),
-        categoriaCnh: nullable(form.categoriaCnh),
+        categoriaCnh: form.possuiCnh === 'Sim' ? nullable(form.categoriaCnh) : null,
         status: form.status,
       });
 
@@ -174,7 +200,7 @@ export default function Edit() {
                 </Field>
                 <Field>
                   <Label>Celular</Label>
-                  <Input type="text" value={form.celular} onChange={(e) => updateField('celular', e.target.value)} />
+                  <Input type="text" value={form.celular} onChange={(e) => updateField('celular', formatPhone(e.target.value))} />
                 </Field>
                 <Field>
                   <Label>Data de Nascimento</Label>
@@ -197,16 +223,16 @@ export default function Edit() {
                 </Field>
                 <Field>
                   <Label>RG</Label>
-                  <Input type="text" value={form.rg} onChange={(e) => updateField('rg', e.target.value)} />
+                  <Input type="text" value={form.rg} onChange={(e) => updateField('rg', formatRg(e.target.value))} />
                 </Field>
                 <Field>
                   <Label>Telefone</Label>
-                  <Input type="text" value={form.telefone} onChange={(e) => updateField('telefone', e.target.value)} />
+                  <Input type="text" value={form.telefone} onChange={(e) => updateField('telefone', formatPhone(e.target.value))} />
                 </Field>
 
                 <Field>
                   <Label>CPF</Label>
-                  <Input type="text" value={form.cpf} onChange={(e) => updateField('cpf', e.target.value)} />
+                  <Input type="text" value={form.cpf} onChange={(e) => updateField('cpf', formatCpf(e.target.value))} />
                 </Field>
                 <Field>
                   <Label>Possui curso ativo de CBSP e HUET?</Label>
@@ -244,7 +270,7 @@ export default function Edit() {
                       <Input
                         type="text"
                         value={form.numeroCnh}
-                        onChange={(e) => updateField('numeroCnh', e.target.value)}
+                        onChange={(e) => updateField('numeroCnh', formatCnh(e.target.value))}
                       />
                     </Field>
                     <Field>

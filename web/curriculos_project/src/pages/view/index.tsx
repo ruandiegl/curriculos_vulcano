@@ -4,6 +4,7 @@ import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/useAuth';
 import { getCurriculo, updateCurriculo } from '../../services/curriculos';
 import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
+import { formatCnh, formatCpf, formatPhone, formatRg, valueOrDash } from '../../utils/masks';
 import { formatList, getStatusColor, getStatusLabel, statusLabels } from '../../utils/status';
 import {
   ActionButton,
@@ -29,10 +30,6 @@ import {
   StatusWrapper,
   Value,
 } from './styles';
-
-function valueOrDash(value?: string | null) {
-  return value || '-';
-}
 
 export default function View() {
   const { id } = useParams();
@@ -144,7 +141,7 @@ export default function View() {
                 </DataItem>
                 <DataItem>
                   <Label>Celular</Label>
-                  <Value>{valueOrDash(curriculo.celular)}</Value>
+                  <Value>{valueOrDash(formatPhone(curriculo.celular))}</Value>
                 </DataItem>
                 <DataItem>
                   <Label>Data de Nascimento</Label>
@@ -157,16 +154,16 @@ export default function View() {
                 </DataItem>
                 <DataItem>
                   <Label>RG</Label>
-                  <Value>{valueOrDash(curriculo.rg)}</Value>
+                  <Value>{valueOrDash(formatRg(curriculo.rg))}</Value>
                 </DataItem>
                 <DataItem>
                   <Label>Telefone</Label>
-                  <Value>{valueOrDash(curriculo.telefone)}</Value>
+                  <Value>{valueOrDash(formatPhone(curriculo.telefone))}</Value>
                 </DataItem>
 
                 <DataItem>
                   <Label>CPF</Label>
-                  <Value>{valueOrDash(curriculo.cpf)}</Value>
+                  <Value>{valueOrDash(formatCpf(curriculo.cpf))}</Value>
                 </DataItem>
                 <DataItem>
                   <Label>Possui curso ativo de CBSP e HUET?</Label>
@@ -194,7 +191,7 @@ export default function View() {
                   <>
                     <DataItem>
                       <Label>Numero da CNH</Label>
-                      <Value>{valueOrDash(curriculo.numeroCnh)}</Value>
+                      <Value>{valueOrDash(formatCnh(curriculo.numeroCnh))}</Value>
                     </DataItem>
                     <DataItem>
                       <Label>Vencimento da CNH</Label>
