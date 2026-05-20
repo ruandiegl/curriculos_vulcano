@@ -290,7 +290,7 @@ export default function NewAddress() {
             </Grid>
 
             <ActionButtons>
-              <SubmitButton type="submit" onClick={() => handleSubmit} disabled={loading || loadingCep || !curriculoId}>
+              <SubmitButton type="submit" disabled={loading || loadingCep || !curriculoId}>
                 {loading ? 'Salvando...' : loadingCep ? 'Buscando CEP...' : 'Continuar'}
               </SubmitButton>
             </ActionButtons>
