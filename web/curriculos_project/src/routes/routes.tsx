@@ -9,6 +9,7 @@ import View from '../pages/view/index.tsx';
 import NewCurriculum from '../pages/newCurriculum/index.tsx';
 import NewAddress from '../pages/newAddress/index.tsx';
 import Profile from '../pages/Profile/index.tsx';
+import UploadPDF from '../pages/UploadPDF/index.tsx';
 
 type PrivateRouteProps = {
   children: ReactNode;
@@ -70,6 +71,12 @@ export function AppRoutes() {
       path="/profile" element={
         <PrivateRoute>
           <Profile />
+        </PrivateRoute>
+      } />
+      <Route
+      path="/upload-pdf" element={
+        <PrivateRoute>
+          <UploadPDF />
         </PrivateRoute>
       } />
 
