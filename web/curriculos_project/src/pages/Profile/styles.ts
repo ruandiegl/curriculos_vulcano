@@ -1,0 +1,179 @@
+import styled from 'styled-components';
+import solda from '../../assets/solda.jpg';
+
+export const Page = styled.div`
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(239, 245, 250, 0.96), rgba(248, 250, 252, 0.98)),
+    url(${solda}) center top / cover fixed;
+  color: #2c3547;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const Header = styled.header`
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+`;
+
+export const HeaderContent = styled.div`
+  width: min(1200px, calc(100% - 48px));
+  height: 70px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  @media (max-width: 720px) {
+    width: min(100% - 28px, 1200px);
+    height: auto;
+    padding: 14px 0;
+    align-items: flex-start;
+    gap: 16px;
+    flex-direction: column;
+  }
+`;
+
+export const Brand = styled.div`
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  img {
+    height: 44px;
+    width: auto;
+    display: block;
+  }
+`;
+
+export const HeaderNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 28px;
+
+  @media (max-width: 720px) {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+`;
+
+export const NavLink = styled.div`
+  color: #063e66;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    color: #fb7900;
+  }
+`;
+
+export const LogoutButton = styled.button`
+  min-width: 70px;
+  height: 36px;
+  border: 0;
+  border-radius: 4px;
+  background: #ff8424;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+
+  &:hover {
+    background: #fb7900;
+  }
+`;
+
+export const Main = styled.main`
+  width: min(800px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 60px 0 80px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+export const Card = styled.section`
+  background: #fff;
+  padding: 32px 40px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const CardTitle = styled.h2`
+  color: #063e66;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+`;
+
+export const CardDescription = styled.p`
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+`;
+
+export const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+`;
+
+export const InfoText = styled.span`
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+`;
+
+export const ActionLink = styled.div`
+  color: #ff8424;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  width: fit-content;
+
+  &:hover {
+    color: #fb7900;
+    text-decoration: underline;
+  }
+`;
+
+export const Footer = styled.footer`
+  background: #fff;
+  padding: 60px 0;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+`;
+
+export const FooterContent = styled.div`
+  width: min(1200px, calc(100% - 48px));
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (max-width: 720px) {
+    flex-direction: column;
+    gap: 30px;
+    text-align: center;
+  }
+`;
+
+export const Copyright = styled.span`
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 600;
+`;
