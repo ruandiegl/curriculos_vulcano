@@ -12,6 +12,14 @@ export function errorHandler(error, req, res, next) {
     });
   }
 
+  if (error.name === 'MulterError') {
+    return res.status(400).json({ message: 'Arquivo inválido.', code: error.code });
+  }
+
+  if (error.message === 'Apenas arquivos PDF são permitidos.') {
+    return res.status(400).json({ message: error.message });
+  }
+
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === 'P2002') {
       return res.status(409).json({

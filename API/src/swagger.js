@@ -368,6 +368,97 @@ export const swaggerDocument = {
         },
       },
     },
+    '/curriculos/{id}/pdf': {
+      get: {
+        tags: ['Curriculos'],
+        summary: 'Lista PDFs enviados para um currículo',
+        parameters: [{ $ref: '#/components/parameters/Id' }],
+        responses: {
+          200: {
+            description: 'Arquivos encontrados',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/CurriculoArquivo' },
+                },
+              },
+            },
+          },
+          404: { $ref: '#/components/responses/NotFoundError' },
+        },
+      },
+      post: {
+        tags: ['Curriculos'],
+        summary: 'Envia PDF de currículo',
+        parameters: [{ $ref: '#/components/parameters/Id' }],
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                required: ['arquivo'],
+                properties: {
+                  arquivo: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'Arquivo PDF, até 10MB.',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: 'PDF salvo',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/CurriculoArquivo' },
+              },
+            },
+          },
+          400: { $ref: '#/components/responses/ValidationError' },
+          404: { $ref: '#/components/responses/NotFoundError' },
+        },
+      },
+    },
+    '/curriculos/{id}/pdf/{arquivoId}/download': {
+      get: {
+        tags: ['Curriculos'],
+        summary: 'Baixa um PDF de currículo',
+        parameters: [
+          { $ref: '#/components/parameters/Id' },
+          { $ref: '#/components/parameters/ArquivoId' },
+        ],
+        responses: {
+          200: {
+            description: 'Arquivo PDF',
+            content: {
+              'application/pdf': {
+                schema: { type: 'string', format: 'binary' },
+              },
+            },
+          },
+          404: { $ref: '#/components/responses/NotFoundError' },
+        },
+      },
+    },
+    '/curriculos/{id}/pdf/{arquivoId}': {
+      delete: {
+        tags: ['Curriculos'],
+        summary: 'Remove um PDF de currículo',
+        parameters: [
+          { $ref: '#/components/parameters/Id' },
+          { $ref: '#/components/parameters/ArquivoId' },
+        ],
+        responses: {
+          204: { description: 'PDF removido' },
+          404: { $ref: '#/components/responses/NotFoundError' },
+        },
+      },
+    },
     '/vagas': {
       get: {
         tags: ['Vagas'],
@@ -563,6 +654,12 @@ export const swaggerDocument = {
         name: 'limit',
         in: 'query',
         schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+      },
+      ArquivoId: {
+        name: 'arquivoId',
+        in: 'path',
+        required: true,
+        schema: { type: 'string', format: 'uuid' },
       },
     },
     responses: {
@@ -851,9 +948,26 @@ export const swaggerDocument = {
                 type: 'array',
                 items: { $ref: '#/components/schemas/Escolaridade' },
               },
+              arquivos: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/CurriculoArquivo' },
+              },
             },
           },
         ],
+      },
+      CurriculoArquivo: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          curriculoId: { type: 'string', format: 'uuid' },
+          nomeOriginal: { type: 'string', example: 'curriculo.pdf' },
+          nomeArquivo: { type: 'string', example: 'uuid.pdf' },
+          caminho: { type: 'string', example: 'uploads/curriculos/uuid.pdf' },
+          mimeType: { type: 'string', example: 'application/pdf' },
+          tamanho: { type: 'integer', example: 245760 },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
       },
       CurriculoInput: {
         type: 'object',
