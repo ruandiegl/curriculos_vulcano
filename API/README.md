@@ -49,6 +49,11 @@ GET    /api/curriculos/:id
 PUT    /api/curriculos/:id
 DELETE /api/curriculos/:id
 
+GET    /api/curriculos/:id/pdf
+POST   /api/curriculos/:id/pdf
+GET    /api/curriculos/:id/pdf/:arquivoId/download
+DELETE /api/curriculos/:id/pdf/:arquivoId
+
 GET    /api/vagas
 POST   /api/vagas
 GET    /api/vagas/:id
@@ -105,3 +110,22 @@ GET /api/curriculos?cursoAtivo=true
 ```
 
 A busca olha dados do curriculo e relações: usuário, endereço, atuações, cursos, experiências e escolaridade.
+
+## Upload de PDF do currículo
+
+As rotas são protegidas por JWT. Envie o arquivo em `multipart/form-data` no campo `arquivo`.
+
+```txt
+POST /api/curriculos/:id/pdf
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+```
+
+Regras:
+
+```txt
+Campo: arquivo
+Tipo: application/pdf
+Extensão: .pdf
+Limite: 10MB
+```

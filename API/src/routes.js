@@ -1,17 +1,20 @@
 import express from 'express';
 import { AuthController } from './app/controllers/AuthController.js';
+import { CurriculoArquivoController } from './app/controllers/CurriculoArquivoController.js';
 import { CandidaturaController } from './app/controllers/CandidaturaController.js';
 import { CurriculoController } from './app/controllers/CurriculoController.js';
 import { UsuarioController } from './app/controllers/UsuarioController.js';
 import { VagaController } from './app/controllers/VagaController.js';
 import { privateRoutes } from './app/middlewares/Auth.js';
 import { asyncHandler } from './app/middlewares/asyncHandler.js';
+import { uploadCurriculoPdf } from './app/middlewares/uploadCurriculoPdf.js';
 
 export const router = express.Router();
 
 const auth = new AuthController();
 const usuarios = new UsuarioController();
 const curriculos = new CurriculoController();
+const curriculoArquivos = new CurriculoArquivoController();
 const vagas = new VagaController();
 const candidaturas = new CandidaturaController();
 
@@ -32,6 +35,14 @@ router.delete('/usuarios/:id', asyncHandler(usuarios.delete));
 
 router.get('/curriculos', asyncHandler(curriculos.index));
 router.post('/curriculos', asyncHandler(curriculos.store));
+router.get('/curriculos/:id/pdf', asyncHandler(curriculoArquivos.index));
+router.post(
+  '/curriculos/:id/pdf',
+  uploadCurriculoPdf.single('arquivo'),
+  asyncHandler(curriculoArquivos.store),
+);
+router.get('/curriculos/:id/pdf/:arquivoId/download', asyncHandler(curriculoArquivos.download));
+router.delete('/curriculos/:id/pdf/:arquivoId', asyncHandler(curriculoArquivos.delete));
 router.get('/curriculos/:id', asyncHandler(curriculos.show));
 router.put('/curriculos/:id', asyncHandler(curriculos.update));
 router.delete('/curriculos/:id', asyncHandler(curriculos.delete));

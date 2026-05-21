@@ -80,6 +80,17 @@ CREATE TABLE escolaridades (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE curriculo_arquivos (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    curriculo_id UUID NOT NULL REFERENCES curriculos(id) ON DELETE CASCADE,
+    nome_original TEXT NOT NULL,
+    nome_arquivo TEXT NOT NULL,
+    caminho TEXT NOT NULL,
+    mime_type TEXT NOT NULL,
+    tamanho INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
 CREATE TABLE vagas (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     titulo TEXT NOT NULL,
@@ -114,6 +125,7 @@ CREATE INDEX idx_atuacoes_curriculo_id ON atuacoes(curriculo_id);
 CREATE INDEX idx_cursos_curriculo_id ON cursos(curriculo_id);
 CREATE INDEX idx_experiencias_curriculo_id ON experiencias(curriculo_id);
 CREATE INDEX idx_escolaridades_curriculo_id ON escolaridades(curriculo_id);
+CREATE INDEX idx_curriculo_arquivos_curriculo_id ON curriculo_arquivos(curriculo_id);
 CREATE INDEX idx_candidaturas_usuario_id ON candidaturas(usuario_id);
 CREATE INDEX idx_candidaturas_vaga_id ON candidaturas(vaga_id);
 

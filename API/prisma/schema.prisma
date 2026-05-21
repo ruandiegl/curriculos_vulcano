@@ -52,8 +52,23 @@ model Curriculo {
   cursos        Curso[]
   experiencias  Experiencia[]
   escolaridades Escolaridade[]
+  arquivos      CurriculoArquivo[]
 
   @@map("curriculos")
+}
+
+model CurriculoArquivo {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  curriculoId  String    @map("curriculo_id") @db.Uuid
+  nomeOriginal String    @map("nome_original")
+  nomeArquivo  String    @map("nome_arquivo")
+  caminho      String
+  mimeType     String    @map("mime_type")
+  tamanho      Int
+  createdAt    DateTime  @default(now()) @map("created_at")
+  curriculo    Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
+
+  @@map("curriculo_arquivos")
 }
 
 model Endereco {

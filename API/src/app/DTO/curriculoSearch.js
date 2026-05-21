@@ -77,4 +77,5 @@ export const curriculoInclude = {
   cursos: true,
   experiencias: true,
   escolaridades: true,
+  arquivos: true,
 };
