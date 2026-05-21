@@ -70,25 +70,25 @@ export default function Profile() {
         <Card>
           <CardTitle>Formações Acadêmicas</CardTitle>
           <CardDescription>Não há formações acadêmicas cadastradas</CardDescription>
-          <ActionLink onClick={() => {}}>Adicionar formação Acadêmicas &rarr;</ActionLink>
+          <ActionLink onClick={() => navigate('/new-education')}>Adicionar formação Acadêmicas &rarr;</ActionLink>
         </Card>
 
         <Card>
           <CardTitle>Experiências Profissionais</CardTitle>
           <CardDescription>Não há experiências profissionais cadastradas</CardDescription>
-          <ActionLink onClick={() => {}}>Adicionar Experiência Profissional &rarr;</ActionLink>
+          <ActionLink onClick={() => navigate('/new-experience')}>Adicionar Experiência Profissional &rarr;</ActionLink>
         </Card>
 
         <Card>
           <CardTitle>Habilidades e Conhecimentos</CardTitle>
           <CardDescription>Não há habilidades e conhecimentos cadastrados</CardDescription>
-          <ActionLink onClick={() => {}}>Adicionar Habilidades e Conhecimentos &rarr;</ActionLink>
+          <ActionLink onClick={() => navigate('/new-skill')}>Adicionar Habilidades e Conhecimentos &rarr;</ActionLink>
         </Card>
 
         <Card>
           <CardTitle>Cursos e Certificações</CardTitle>
           <CardDescription>Não há cursos ou certificações cadastrados</CardDescription>
-          <ActionLink onClick={() => {}}>Adicionar Cursos ou Certificações &rarr;</ActionLink>
+          <ActionLink onClick={() => navigate('/new-certification')}>Adicionar Cursos ou Certificações &rarr;</ActionLink>
         </Card>
       </Main>
 
