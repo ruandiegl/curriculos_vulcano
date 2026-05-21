@@ -175,7 +175,7 @@ export default function NewAddress() {
       });
 
       sessionStorage.removeItem(PENDING_CURRICULUM_STORAGE_KEY);
-      navigate(`/view/${updated.id}`);
+      navigate(`/profile`);
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
         setMessage(
