@@ -8,6 +8,7 @@ import Register from '../pages/register/index.tsx';
 import View from '../pages/view/index.tsx';
 import NewCurriculum from '../pages/newCurriculum/index.tsx';
 import NewAddress from '../pages/newAddress/index.tsx';
+import Profile from '../pages/Profile/index.tsx';
 
 type PrivateRouteProps = {
   children: ReactNode;
@@ -63,6 +64,12 @@ export function AppRoutes() {
       path="/newAddress" element={
         <PrivateRoute>  
           <NewAddress />
+        </PrivateRoute>
+      } />
+      <Route
+      path="/profile" element={
+        <PrivateRoute>
+          <Profile />
         </PrivateRoute>
       } />
 
