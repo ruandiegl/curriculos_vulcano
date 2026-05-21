@@ -64,7 +64,7 @@ export default function Profile() {
         <Card>
           <CardTitle>Currículo em PDF</CardTitle>
           <CardDescription>Não há currículo em PDF cadastrado</CardDescription>
-          <ActionLink onClick={() => {}}>Adicionar Currículo em PDF &rarr;</ActionLink>
+          <ActionLink onClick={() => navigate('/upload-pdf')}>Adicionar Currículo em PDF &rarr;</ActionLink>
         </Card>
 
         <Card>
