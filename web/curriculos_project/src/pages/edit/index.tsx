@@ -72,7 +72,7 @@ function formFromCurriculo(curriculo: Curriculo): FormState {
 export default function Edit() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [form, setForm] = useState<FormState | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -107,6 +107,8 @@ export default function Edit() {
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((current) => (current ? { ...current, [field]: value } : current));
   }
+
+  const homePath = user?.tipo === 'admin' ? '/dashboard' : '/profile';
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -172,12 +174,12 @@ export default function Edit() {
     <Page>
       <Header>
         <HeaderContent>
-          <Brand href="/dashboard">
+          <Brand href={homePath}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink href="/dashboard">Gerenciar Curriculos</NavLink>
+            <NavLink href={homePath}>{user?.tipo === 'admin' ? 'Gerenciar Curriculos' : 'Inicio'}</NavLink>
             <NavLink href="#">Gerenciar Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -249,19 +251,21 @@ export default function Edit() {
                   </Select>
                 </Field>
 
-                <Field>
-                  <Label>Status</Label>
-                  <Select
-                    value={form.status}
-                    onChange={(e) => updateField('status', e.target.value as CurriculoStatus)}
-                  >
-                    {statusLabels.map((item) => (
-                      <option key={item.status} value={item.status}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
+                {user?.tipo === 'admin' && (
+                  <Field>
+                    <Label>Status</Label>
+                    <Select
+                      value={form.status}
+                      onChange={(e) => updateField('status', e.target.value as CurriculoStatus)}
+                    >
+                      {statusLabels.map((item) => (
+                        <option key={item.status} value={item.status}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                )}
 
                 {form.possuiCnh === 'Sim' && (
                   <>
@@ -308,7 +312,7 @@ export default function Edit() {
 
       <Footer>
         <FooterContent>
-          <Brand href="/dashboard">
+          <Brand href={homePath}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
           <Copyright>© 2023 Multi Publicidade</Copyright>

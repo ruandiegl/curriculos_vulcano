@@ -1,6 +1,10 @@
+import axios from 'axios';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/useAuth';
+import { addEscolaridade } from '../../services/curriculos';
 import {
   ActionButtons,
   BackButton,
@@ -25,10 +29,46 @@ import {
 export default function NewEducation() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const [curso, setCurso] = useState('');
+  const [escola, setEscola] = useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataTermino, setDataTermino] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   function handleLogout() {
     signOut();
     navigate('/');
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage('');
+
+    if (!escola.trim()) {
+      setMessage('Informe a escola ou formacao.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await addEscolaridade({
+        curso: curso.trim() || null,
+        escola: escola.trim(),
+        dataInicio: dataInicio || null,
+        dataTermino: dataTermino || null,
+      });
+      navigate('/profile');
+    } catch (error) {
+      if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel cadastrar.');
+        return;
+      }
+
+      setMessage('Nao foi possivel cadastrar. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -51,38 +91,56 @@ export default function NewEducation() {
 
       <Main>
         <Section>
-          <SectionTitle>Cadastrar Formação Acadêmica</SectionTitle>
-          
-          <FormGrid>
-            <InputGroup>
-              <label>Curso</label>
-              <input type="text" placeholder="Nome do Curso" />
-            </InputGroup>
+          <SectionTitle>Cadastrar Formacao Academica</SectionTitle>
+          {message && <SectionTitle>{message}</SectionTitle>}
 
-            <InputGroup>
-              <label>Escola</label>
-              <input type="text" placeholder="Escola" />
-            </InputGroup>
+          <form onSubmit={handleSubmit}>
+            <FormGrid>
+              <InputGroup>
+                <label>Curso</label>
+                <input
+                  type="text"
+                  placeholder="Nome do Curso"
+                  value={curso}
+                  onChange={(event) => setCurso(event.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <label>Escola/Formacao</label>
+                <input
+                  type="text"
+                  placeholder="Escola ou formacao"
+                  value={escola}
+                  onChange={(event) => setEscola(event.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <label>Data de Inicio</label>
+                <input
+                  type="date"
+                  value={dataInicio}
+                  onChange={(event) => setDataInicio(event.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <label>Data de Termino</label>
+                <input
+                  type="date"
+                  value={dataTermino}
+                  onChange={(event) => setDataTermino(event.target.value)}
+                />
+              </InputGroup>
+            </FormGrid>
 
-            <InputGroup>
-              <label>Data de Início</label>
-              <input type="text" placeholder="Data de Início" />
-            </InputGroup>
-
-            <InputGroup>
-              <label>Data de Término</label>
-              <input type="text" placeholder="Data de Término" />
-            </InputGroup>
-          </FormGrid>
-
-          <ActionButtons>
-            <SubmitButton type="button">
-              Cadastrar Formação
-            </SubmitButton>
-            <BackButton type="button" onClick={() => navigate('/profile')}>
-              Voltar
-            </BackButton>
-          </ActionButtons>
+            <ActionButtons>
+              <SubmitButton type="submit" disabled={loading}>
+                {loading ? 'Salvando...' : 'Cadastrar Formacao'}
+              </SubmitButton>
+              <BackButton type="button" onClick={() => navigate('/profile')}>
+                Voltar
+              </BackButton>
+            </ActionButtons>
+          </form>
         </Section>
       </Main>
 
@@ -91,7 +149,7 @@ export default function NewEducation() {
           <Brand onClick={() => navigate('/profile')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
-          <Copyright>© 2023 Multi Publicidade</Copyright>
+          <Copyright>(c) 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
     </Page>

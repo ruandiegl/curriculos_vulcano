@@ -34,7 +34,7 @@ import {
 export default function View() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [curriculo, setCurriculo] = useState<Curriculo | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingStatus, setSavingStatus] = useState(false);
@@ -85,17 +85,18 @@ export default function View() {
 
   const firstAddress = curriculo?.enderecos?.[0];
   const possuiCNH = curriculo?.possuiCnh ? 'Sim' : 'Nao';
+  const homePath = user?.tipo === 'admin' ? '/dashboard' : '/profile';
 
   return (
     <Page>
       <Header>
         <HeaderContent>
-          <Brand href="/dashboard">
+          <Brand href={homePath}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink href="/dashboard">Gerenciar Curriculos</NavLink>
+            <NavLink href={homePath}>{user?.tipo === 'admin' ? 'Gerenciar Curriculos' : 'Inicio'}</NavLink>
             <NavLink href="#">Gerenciar Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -115,17 +116,19 @@ export default function View() {
                   {getStatusLabel(curriculo.status)}
                 </span>
               </StatusLabel>
-              <StatusSelect
-                value={curriculo.status}
-                disabled={savingStatus}
-                onChange={(event) => handleStatusChange(event.target.value as CurriculoStatus)}
-              >
-                {statusLabels.map((item) => (
-                  <option key={item.status} value={item.status}>
-                    {item.label}
-                  </option>
-                ))}
-              </StatusSelect>
+              {user?.tipo === 'admin' && (
+                <StatusSelect
+                  value={curriculo.status}
+                  disabled={savingStatus}
+                  onChange={(event) => handleStatusChange(event.target.value as CurriculoStatus)}
+                >
+                  {statusLabels.map((item) => (
+                    <option key={item.status} value={item.status}>
+                      {item.label}
+                    </option>
+                  ))}
+                </StatusSelect>
+              )}
             </>
           )}
         </StatusWrapper>
@@ -238,7 +241,7 @@ export default function View() {
 
               <ActionButtons>
                 <ActionButton href={`/edit/${curriculo.id}`}>Alterar Curriculo</ActionButton>
-                <ActionButton href="/dashboard">Voltar</ActionButton>
+                <ActionButton href={homePath}>Voltar</ActionButton>
               </ActionButtons>
             </Section>
           </>
@@ -247,7 +250,7 @@ export default function View() {
 
       <Footer>
         <FooterContent>
-          <Brand href="/dashboard">
+          <Brand href={homePath}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
           <Copyright>© 2023 Multi Publicidade</Copyright>

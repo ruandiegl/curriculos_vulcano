@@ -35,6 +35,7 @@ http://localhost:3001/api/docs.json
 
 ```txt
 POST   /api/login/register
+POST   /api/login/register-admin
 POST   /api/login
 
 GET    /api/usuarios
@@ -99,6 +100,24 @@ Use o token retornado nas rotas protegidas:
 ```txt
 Authorization: Bearer <token>
 ```
+
+## Criar administrador
+
+Para criar um administrador pelo Swagger, configure uma chave no `.env`:
+
+```txt
+ADMIN_CREATE_SECRET=sua-chave-forte
+```
+
+Depois acesse o Swagger em `/api/docs`, clique em `Authorize` e informe essa chave no campo `adminSecretAuth`.
+
+Rota:
+
+```txt
+POST /api/login/register-admin
+```
+
+Tambem e possivel usar um token Bearer de outro usuario admin ja existente.
 
 ## Busca de curriculos
 

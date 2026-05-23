@@ -10,6 +10,7 @@ type User = {
   nome?: string;
   email?: string;
   tipo?: string;
+  possuiCurriculo?: boolean;
   iat?: number;
   exp?: number;
 };
@@ -27,6 +28,7 @@ type AuthProviderProps = {
 
 type TokenPayload = {
   id: string;
+  tipo?: string;
   iat?: number;
   exp?: number;
 };
@@ -47,14 +49,15 @@ function getUserFromToken(token: string) {
   return {
     ...storedUserData,
     id: decoded.id,
+    tipo: storedUserData.tipo ?? decoded.tipo,
     iat: decoded.iat,
     exp: decoded.exp,
   };
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
- const [user, setUser] = useState<User | null>(() => {
-  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  const [user, setUser] = useState<User | null>(() => {
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
     if (!token) return null;
     try {
       const storedUser = getUserFromToken(token);
@@ -69,7 +72,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.removeItem(USER_STORAGE_KEY);
       return null;
     }
-});
+  });
 
   const value = useMemo<AuthContextType>(
     () => ({

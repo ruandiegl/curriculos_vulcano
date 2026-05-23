@@ -1,6 +1,10 @@
+import axios from 'axios';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/useAuth';
+import { addCurso } from '../../services/curriculos';
 import {
   ActionButtons,
   BackButton,
@@ -25,10 +29,44 @@ import {
 export default function NewCertification() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const [nome, setNome] = useState('');
+  const [instituicao, setInstituicao] = useState('');
+  const [cargaHoraria, setCargaHoraria] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   function handleLogout() {
     signOut();
     navigate('/');
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage('');
+
+    if (!nome.trim()) {
+      setMessage('Informe o nome do curso ou certificado.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await addCurso({
+        nome: nome.trim(),
+        instituicao: instituicao.trim() || null,
+        cargaHoraria: cargaHoraria.trim() || null,
+      });
+      navigate('/profile');
+    } catch (error) {
+      if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel cadastrar.');
+        return;
+      }
+
+      setMessage('Nao foi possivel cadastrar. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -52,30 +90,48 @@ export default function NewCertification() {
       <Main>
         <Section>
           <SectionTitle>Cadastrar Cursos/Certificados</SectionTitle>
-          
-          <FormGrid>
-            <InputGroup>
-              <label>Curso/Certificado</label>
-              <input type="text" placeholder="Nome do Curso ou Certificado" />
-            </InputGroup>
-            <InputGroup>
-              <label>Instituição</label>
-              <input type="text" placeholder="Instituição" />
-            </InputGroup>
-            <InputGroup>
-              <label>Carga Horária</label>
-              <input type="text" placeholder="Carga Horária" />
-            </InputGroup>
-          </FormGrid>
+          {message && <SectionTitle>{message}</SectionTitle>}
 
-          <ActionButtons>
-            <SubmitButton type="button">
-              Cadastrar Curso/Certificado
-            </SubmitButton>
-            <BackButton type="button" onClick={() => navigate('/profile')}>
-              Voltar
-            </BackButton>
-          </ActionButtons>
+          <form onSubmit={handleSubmit}>
+            <FormGrid>
+              <InputGroup>
+                <label>Curso/Certificado</label>
+                <input
+                  type="text"
+                  placeholder="Nome do Curso ou Certificado"
+                  value={nome}
+                  onChange={(event) => setNome(event.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <label>Instituicao</label>
+                <input
+                  type="text"
+                  placeholder="Instituicao"
+                  value={instituicao}
+                  onChange={(event) => setInstituicao(event.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <label>Carga Horaria</label>
+                <input
+                  type="text"
+                  placeholder="Carga Horaria"
+                  value={cargaHoraria}
+                  onChange={(event) => setCargaHoraria(event.target.value)}
+                />
+              </InputGroup>
+            </FormGrid>
+
+            <ActionButtons>
+              <SubmitButton type="submit" disabled={loading}>
+                {loading ? 'Salvando...' : 'Cadastrar Curso/Certificado'}
+              </SubmitButton>
+              <BackButton type="button" onClick={() => navigate('/profile')}>
+                Voltar
+              </BackButton>
+            </ActionButtons>
+          </form>
         </Section>
       </Main>
 
@@ -84,7 +140,7 @@ export default function NewCertification() {
           <Brand onClick={() => navigate('/profile')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
-          <Copyright>© 2023 Multi Publicidade</Copyright>
+          <Copyright>(c) 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
     </Page>

@@ -21,6 +21,6 @@ app.get('/api/docs.json', (req, res) => {
 app.use('/api', router);
 app.use(errorHandler);
 
-app.listen(port, () => {
-  console.log(`Server is running on port http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server is running on port http://0.0.0.0:${port}`);
 });

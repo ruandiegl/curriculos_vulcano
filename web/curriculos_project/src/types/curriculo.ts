@@ -7,12 +7,19 @@ export type CurriculoRelation = {
   instituicao?: string | null;
   empresa?: string | null;
   cargo?: string | null;
+  curso?: string | null;
+  cargaHoraria?: string | null;
+  dataInicio?: string | null;
+  dataTermino?: string | null;
+  funcoes?: string | null;
   escola?: string | null;
   cidade?: string | null;
   estado?: string | null;
   bairro?: string | null;
   rua?: string | null;
   numero?: string | null;
+  nomeOriginal?: string | null;
+  createdAt?: string | null;
 };
 
 export type Curriculo = {
@@ -38,6 +45,7 @@ export type Curriculo = {
   cursos?: CurriculoRelation[];
   experiencias?: CurriculoRelation[];
   escolaridades?: CurriculoRelation[];
+  arquivos?: CurriculoRelation[];
 };
 
 export type CurriculosResponse = {

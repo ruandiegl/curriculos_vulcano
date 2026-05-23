@@ -14,6 +14,7 @@ export const swaggerDocument = {
   tags: [
     { name: 'Health' },
     { name: 'Auth' },
+    { name: 'Admin' },
     { name: 'Usuarios' },
     { name: 'Curriculos' },
     { name: 'Vagas' },
@@ -95,6 +96,36 @@ export const swaggerDocument = {
             },
           },
           400: { $ref: '#/components/responses/ValidationError' },
+          409: { $ref: '#/components/responses/ConflictError' },
+        },
+      },
+    },
+    '/login/register-admin': {
+      post: {
+        tags: ['Admin'],
+        summary: 'Cria um usuario administrador',
+        description:
+          'Rota protegida. Use um token Bearer de admin existente ou a chave x-admin-secret configurada no .env para criar o primeiro administrador.',
+        security: [{ bearerAuth: [] }, { adminSecretAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/RegisterAdminInput' },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: 'Administrador criado',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/RegisterAdminResponse' },
+              },
+            },
+          },
+          400: { $ref: '#/components/responses/ValidationError' },
+          403: { $ref: '#/components/responses/ForbiddenError' },
           409: { $ref: '#/components/responses/ConflictError' },
         },
       },
@@ -637,6 +668,11 @@ export const swaggerDocument = {
         scheme: 'bearer',
         bearerFormat: 'JWT',
       },
+      adminSecretAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'x-admin-secret',
+      },
     },
     parameters: {
       Id: {
@@ -681,6 +717,14 @@ export const swaggerDocument = {
       },
       NotFoundError: {
         description: 'Registro nao encontrado',
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+          },
+        },
+      },
+      ForbiddenError: {
+        description: 'Acesso negado',
         content: {
           'application/json': {
             schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -743,6 +787,9 @@ export const swaggerDocument = {
           cpf: { type: 'string', nullable: true, example: '12345678900' },
         },
       },
+      RegisterAdminInput: {
+        allOf: [{ $ref: '#/components/schemas/RegisterInput' }],
+      },
       LoginResponse: {
         type: 'object',
         properties: {
@@ -759,6 +806,20 @@ export const swaggerDocument = {
             properties: {
               nome: { type: 'string', example: 'Usuario' },
               email: { type: 'string', format: 'email', example: 'usuario@email.com' },
+            },
+          },
+        },
+      },
+      RegisterAdminResponse: {
+        type: 'object',
+        properties: {
+          usuario: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              nome: { type: 'string', example: 'Administrador' },
+              email: { type: 'string', format: 'email', example: 'admin@email.com' },
+              tipo: { type: 'string', example: 'admin' },
             },
           },
         },

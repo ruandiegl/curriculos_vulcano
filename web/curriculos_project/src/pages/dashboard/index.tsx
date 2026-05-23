@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/useAuth';
 import { deleteCurriculo, listCurriculos } from '../../services/curriculos';
@@ -37,16 +36,32 @@ import {
 } from './styles';
 
 const PAGE_SIZE = 20;
+const DASHBOARD_SEARCH_STORAGE_KEY = 'dashboardSearch';
+const DASHBOARD_APPLIED_SEARCH_STORAGE_KEY = 'dashboardAppliedSearch';
+const DASHBOARD_PAGE_STORAGE_KEY = 'dashboardPage';
+
+function getStoredValue(key: string) {
+  return sessionStorage.getItem(key) ?? '';
+}
+
+function getInitialPage(searchParams: URLSearchParams) {
+  return Number(searchParams.get('page') ?? getStoredValue(DASHBOARD_PAGE_STORAGE_KEY)) || 1;
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { signOut } = useAuth();
   const [curriculos, setCurriculos] = useState<Curriculo[]>([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => getInitialPage(searchParams));
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState('');
-  const [appliedSearch, setAppliedSearch] = useState('');
+  const [search, setSearch] = useState(
+    () => searchParams.get('search') ?? getStoredValue(DASHBOARD_SEARCH_STORAGE_KEY),
+  );
+  const [appliedSearch, setAppliedSearch] = useState(
+    () => searchParams.get('search') ?? getStoredValue(DASHBOARD_APPLIED_SEARCH_STORAGE_KEY),
+  );
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -95,21 +110,45 @@ export default function Dashboard() {
     };
   }, [page, appliedSearch]);
 
+  useEffect(() => {
+    sessionStorage.setItem(DASHBOARD_SEARCH_STORAGE_KEY, search);
+  }, [search]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setPage(1);
+      setAppliedSearch(search.trim());
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [search]);
+
+  useEffect(() => {
+    sessionStorage.setItem(DASHBOARD_APPLIED_SEARCH_STORAGE_KEY, appliedSearch);
+    sessionStorage.setItem(DASHBOARD_PAGE_STORAGE_KEY, String(page));
+
+    const nextParams = new URLSearchParams();
+
+    if (appliedSearch) {
+      nextParams.set('search', appliedSearch);
+    }
+
+    if (page > 1) {
+      nextParams.set('page', String(page));
+    }
+
+    setSearchParams(nextParams, { replace: true });
+  }, [appliedSearch, page, setSearchParams]);
+
   function handleSignOut() {
     signOut();
     navigate('/');
   }
 
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setPage(1);
-    setAppliedSearch(search.trim());
-  }
-
   function handleClearSearch() {
     setSearch('');
-    setAppliedSearch('');
-    setPage(1);
   }
 
   async function handleDelete(curriculo: Curriculo) {
@@ -147,7 +186,7 @@ export default function Dashboard() {
           <SectionCategory>Curriculos</SectionCategory>
           <SectionTitle>Gerenciar Curriculos</SectionTitle>
 
-          <SearchContainer onSubmit={handleSearch}>
+          <SearchContainer onSubmit={(event) => event.preventDefault()}>
             <SearchInputWrapper>
               <SearchInput
                 type="text"
