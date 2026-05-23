@@ -24,6 +24,8 @@ router.get('/health', (req, res) => {
 
 router.post('/login', asyncHandler(auth.login));
 router.post('/login/register', asyncHandler(auth.register));
+router.post('/login/forgot-password', asyncHandler(auth.forgotPassword));
+router.post('/login/reset-password', asyncHandler(auth.resetPassword));
 router.post('/login/register-admin', adminCreationRoutes, asyncHandler(auth.registerAdmin));
 
 router.use(privateRoutes);

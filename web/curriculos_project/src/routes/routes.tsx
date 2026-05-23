@@ -5,6 +5,8 @@ import Dashboard from '../pages/dashboard/index.tsx';
 import Edit from '../pages/edit/index.tsx';
 import Login from '../pages/Login/index.tsx';
 import Register from '../pages/register/index.tsx';
+import ForgotPassword from '../pages/ForgotPassword/index.tsx';
+import ResetPassword from '../pages/ResetPassword/index.tsx';
 import View from '../pages/view/index.tsx';
 import NewCurriculum from '../pages/newCurriculum/index.tsx';
 import NewAddress from '../pages/newAddress/index.tsx';
@@ -76,6 +78,8 @@ export function AppRoutes() {
         }
       />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route
         path="/view/:id"
         element={

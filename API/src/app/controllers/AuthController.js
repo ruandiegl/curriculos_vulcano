@@ -1,10 +1,17 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UsuarioRepository } from '../Repositories/UsuarioRepository.js';
-import { loginSchema, registerSchema } from '../validators/authValidator.js';
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from '../validators/authValidator.js';
+import { sendPasswordResetEmail } from '../services/mailService.js';
 
 const repository = new UsuarioRepository();
 const fakeHash = '$2b$10$C8h7Kx6dL0U0uD3bY4QbCu0K4IVhSR2UQWhZbb7FZQ4y6UwX0EJ1S';
+const forgotPasswordMessage = 'Se o email existir, enviaremos instrucoes para redefinir a senha.';
 
 function getJwtSecret() {
   if (!process.env.JWT_SECRET) {
@@ -14,6 +21,27 @@ function getJwtSecret() {
   }
 
   return process.env.JWT_SECRET;
+}
+
+function getPasswordResetSecret() {
+  return process.env.PASSWORD_RESET_SECRET ?? getJwtSecret();
+}
+
+function getFrontendUrl() {
+  return (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+}
+
+function createPasswordResetToken(user) {
+  return jwt.sign(
+    {
+      sub: user.id,
+      email: user.email,
+      purpose: 'password-reset',
+      passHash: user.passHash,
+    },
+    getPasswordResetSecret(),
+    { expiresIn: process.env.PASSWORD_RESET_EXPIRES_IN ?? '1h' },
+  );
 }
 
 function sanitizeUser(user) {
@@ -98,5 +126,49 @@ export class AuthController {
         { expiresIn: '5d' },
       ),
     });
+  }
+
+  async forgotPassword(req, res) {
+    const { email } = forgotPasswordSchema.parse(req.body);
+    const user = await repository.findByEmailWithPassword(email);
+
+    if (user?.passHash) {
+      const token = createPasswordResetToken(user);
+      const resetUrl = `${getFrontendUrl()}/reset-password?token=${encodeURIComponent(token)}`;
+
+      await sendPasswordResetEmail({
+        to: user.email,
+        nome: user.nome,
+        resetUrl,
+      });
+    }
+
+    return res.status(200).json({ message: forgotPasswordMessage });
+  }
+
+  async resetPassword(req, res) {
+    const { token, password } = resetPasswordSchema.parse(req.body);
+    let payload;
+
+    try {
+      payload = jwt.verify(token, getPasswordResetSecret());
+    } catch {
+      return res.status(400).json({ message: 'Link de redefinicao invalido ou expirado.' });
+    }
+
+    if (payload.purpose !== 'password-reset' || !payload.sub || !payload.email || !payload.passHash) {
+      return res.status(400).json({ message: 'Link de redefinicao invalido ou expirado.' });
+    }
+
+    const user = await repository.findByEmailWithPassword(payload.email);
+
+    if (!user || user.id !== payload.sub || user.passHash !== payload.passHash) {
+      return res.status(400).json({ message: 'Link de redefinicao invalido ou expirado.' });
+    }
+
+    const passHash = await bcrypt.hash(password, 10);
+    await repository.updatePassword(user.id, passHash);
+
+    return res.status(200).json({ message: 'Senha redefinida com sucesso.' });
   }
 }
