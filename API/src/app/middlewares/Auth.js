@@ -1,6 +1,17 @@
 import jwt from 'jsonwebtoken';
 
+const publicRoutes = new Set([
+  '/login',
+  '/login/register',
+  '/login/forgot-password',
+  '/login/reset-password',
+]);
+
 export function privateRoutes(req, res, next) {
+  if (publicRoutes.has(req.path)) {
+    return next();
+  }
+
   const authToken = req.headers.authorization;
 
   if (!authToken) {
