@@ -70,6 +70,14 @@ export class UsuarioRepository {
     });
   }
 
+  updatePassword(id, passHash) {
+    return prisma.usuario.update({
+      where: { id },
+      data: { passHash },
+      select: usuarioSafeSelect,
+    });
+  }
+
   delete(id) {
     return prisma.usuario.delete({ where: { id } });
   }

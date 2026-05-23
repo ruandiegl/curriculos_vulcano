@@ -129,7 +129,15 @@ export default function Login() {
             {loading ? 'Entrando...' : 'Login'}
           </LoginButton>
 
-          <ForgotLink href="#">Esqueci minha senha</ForgotLink>
+          <ForgotLink
+            href="/forgot-password"
+            onClick={(event) => {
+              event.preventDefault();
+              navigate('/forgot-password');
+            }}
+          >
+            Esqueci minha senha
+          </ForgotLink>
 
           <SignupText>
             Não tem uma conta?{' '}
