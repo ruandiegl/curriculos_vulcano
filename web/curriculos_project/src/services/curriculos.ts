@@ -43,6 +43,27 @@ export type AtuacaoPayload = {
   prioridade?: number | null;
 };
 
+export type CursoPayload = {
+  nome: string;
+  instituicao?: string | null;
+  cargaHoraria?: string | null;
+};
+
+export type ExperienciaPayload = {
+  empresa: string;
+  cargo?: string | null;
+  dataInicio?: string | null;
+  dataTermino?: string | null;
+  funcoes?: string | null;
+};
+
+export type EscolaridadePayload = {
+  curso?: string | null;
+  escola: string;
+  dataInicio?: string | null;
+  dataTermino?: string | null;
+};
+
 export type CurriculoCreatePayload = Omit<CurriculoUpdatePayload, 'nome'> & {
   nome: string;
 };
@@ -64,6 +85,11 @@ export async function getCurriculo(id: string) {
   return response.data;
 }
 
+export async function getMeuCurriculo() {
+  const response = await api.get<Curriculo>('/curriculos/me');
+  return response.data;
+}
+
 export async function createCurriculo(payload: CurriculoCreatePayload) {
   const response = await api.post<Curriculo>('/curriculos', payload);
   return response.data;
@@ -76,4 +102,24 @@ export async function updateCurriculo(id: string, payload: CurriculoUpdatePayloa
 
 export async function deleteCurriculo(id: string) {
   await api.delete(`/curriculos/${id}`);
+}
+
+export async function addCurso(payload: CursoPayload) {
+  const response = await api.post<Curriculo>('/curriculos/me/cursos', payload);
+  return response.data;
+}
+
+export async function addExperiencia(payload: ExperienciaPayload) {
+  const response = await api.post<Curriculo>('/curriculos/me/experiencias', payload);
+  return response.data;
+}
+
+export async function addEscolaridade(payload: EscolaridadePayload) {
+  const response = await api.post<Curriculo>('/curriculos/me/escolaridades', payload);
+  return response.data;
+}
+
+export async function addAtuacao(payload: AtuacaoPayload) {
+  const response = await api.post<Curriculo>('/curriculos/me/atuacoes', payload);
+  return response.data;
 }

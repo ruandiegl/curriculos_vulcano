@@ -27,7 +27,7 @@ export class AuthController {
     const existingUser = await repository.findByEmailWithPassword(payload.email);
 
     if (existingUser) {
-      return res.status(400).json({ message: 'Email já cadastrado.' });
+      return res.status(409).json({ message: 'Email já cadastrado.' });
     }
 
     const passHash = await bcrypt.hash(payload.password, 10);
@@ -44,6 +44,34 @@ export class AuthController {
       usuario: {
         nome: user.nome,
         email: user.email,
+      },
+    });
+  }
+
+  async registerAdmin(req, res) {
+    const payload = registerSchema.parse(req.body);
+    const existingUser = await repository.findByEmailWithPassword(payload.email);
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'Email já cadastrado.' });
+    }
+
+    const passHash = await bcrypt.hash(payload.password, 10);
+    const user = await repository.create({
+      firebaseUid: payload.firebaseUid ?? `local:${payload.email}`,
+      nome: payload.nome,
+      email: payload.email,
+      cpf: payload.cpf,
+      tipo: 'admin',
+      passHash,
+    });
+
+    return res.status(201).json({
+      usuario: {
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        tipo: user.tipo,
       },
     });
   }

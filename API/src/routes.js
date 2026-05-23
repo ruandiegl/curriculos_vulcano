@@ -5,7 +5,7 @@ import { CandidaturaController } from './app/controllers/CandidaturaController.j
 import { CurriculoController } from './app/controllers/CurriculoController.js';
 import { UsuarioController } from './app/controllers/UsuarioController.js';
 import { VagaController } from './app/controllers/VagaController.js';
-import { privateRoutes } from './app/middlewares/Auth.js';
+import { adminCreationRoutes, privateRoutes } from './app/middlewares/Auth.js';
 import { asyncHandler } from './app/middlewares/asyncHandler.js';
 import { uploadCurriculoPdf } from './app/middlewares/uploadCurriculoPdf.js';
 
@@ -24,6 +24,7 @@ router.get('/health', (req, res) => {
 
 router.post('/login', asyncHandler(auth.login));
 router.post('/login/register', asyncHandler(auth.register));
+router.post('/login/register-admin', adminCreationRoutes, asyncHandler(auth.registerAdmin));
 
 router.use(privateRoutes);
 
@@ -35,6 +36,11 @@ router.delete('/usuarios/:id', asyncHandler(usuarios.delete));
 
 router.get('/curriculos', asyncHandler(curriculos.index));
 router.post('/curriculos', asyncHandler(curriculos.store));
+router.get('/curriculos/me', asyncHandler(curriculos.me));
+router.post('/curriculos/me/cursos', asyncHandler(curriculos.storeCurso));
+router.post('/curriculos/me/experiencias', asyncHandler(curriculos.storeExperiencia));
+router.post('/curriculos/me/escolaridades', asyncHandler(curriculos.storeEscolaridade));
+router.post('/curriculos/me/atuacoes', asyncHandler(curriculos.storeAtuacao));
 router.get('/curriculos/:id/pdf', asyncHandler(curriculoArquivos.index));
 router.post(
   '/curriculos/:id/pdf',

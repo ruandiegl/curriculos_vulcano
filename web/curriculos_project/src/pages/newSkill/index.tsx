@@ -1,6 +1,10 @@
+import axios from 'axios';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/useAuth';
+import { addAtuacao } from '../../services/curriculos';
 import {
   ActionButtons,
   BackButton,
@@ -25,10 +29,38 @@ import {
 export default function NewSkill() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const [nome, setNome] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   function handleLogout() {
     signOut();
     navigate('/');
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage('');
+
+    if (!nome.trim()) {
+      setMessage('Informe uma habilidade ou conhecimento.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await addAtuacao({ nome: nome.trim(), prioridade: null });
+      navigate('/profile');
+    } catch (error) {
+      if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel cadastrar.');
+        return;
+      }
+
+      setMessage('Nao foi possivel cadastrar. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -52,22 +84,30 @@ export default function NewSkill() {
       <Main>
         <Section>
           <SectionTitle>Cadastrar Habilidades</SectionTitle>
-          
-          <FormGrid>
-            <InputGroup>
-              <label>Habilidade/Conhecimento</label>
-              <input type="text" placeholder="Habilidade ou Conhecimento" />
-            </InputGroup>
-          </FormGrid>
+          {message && <SectionTitle>{message}</SectionTitle>}
 
-          <ActionButtons>
-            <SubmitButton type="button">
-              Cadastrar Habilidade
-            </SubmitButton>
-            <BackButton type="button" onClick={() => navigate('/profile')}>
-              Voltar
-            </BackButton>
-          </ActionButtons>
+          <form onSubmit={handleSubmit}>
+            <FormGrid>
+              <InputGroup>
+                <label>Habilidade/Conhecimento</label>
+                <input
+                  type="text"
+                  placeholder="Habilidade ou conhecimento"
+                  value={nome}
+                  onChange={(event) => setNome(event.target.value)}
+                />
+              </InputGroup>
+            </FormGrid>
+
+            <ActionButtons>
+              <SubmitButton type="submit" disabled={loading}>
+                {loading ? 'Salvando...' : 'Cadastrar Habilidade'}
+              </SubmitButton>
+              <BackButton type="button" onClick={() => navigate('/profile')}>
+                Voltar
+              </BackButton>
+            </ActionButtons>
+          </form>
         </Section>
       </Main>
 
@@ -76,7 +116,7 @@ export default function NewSkill() {
           <Brand onClick={() => navigate('/profile')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
-          <Copyright>© 2023 Multi Publicidade</Copyright>
+          <Copyright>(c) 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
     </Page>

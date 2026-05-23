@@ -1,6 +1,10 @@
+import axios from 'axios';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/useAuth';
+import { addExperiencia } from '../../services/curriculos';
 import {
   ActionButtons,
   BackButton,
@@ -25,10 +29,48 @@ import {
 export default function NewExperience() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const [empresa, setEmpresa] = useState('');
+  const [cargo, setCargo] = useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataTermino, setDataTermino] = useState('');
+  const [funcoes, setFuncoes] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   function handleLogout() {
     signOut();
     navigate('/');
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage('');
+
+    if (!empresa.trim()) {
+      setMessage('Informe o nome da empresa.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await addExperiencia({
+        empresa: empresa.trim(),
+        cargo: cargo.trim() || null,
+        dataInicio: dataInicio || null,
+        dataTermino: dataTermino || null,
+        funcoes: funcoes.trim() || null,
+      });
+      navigate('/profile');
+    } catch (error) {
+      if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel cadastrar.');
+        return;
+      }
+
+      setMessage('Nao foi possivel cadastrar. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -51,39 +93,64 @@ export default function NewExperience() {
 
       <Main>
         <Section>
-          <SectionTitle>Cadastrar Experiência Profissional</SectionTitle>
-          
-          <FormGrid>
-            <InputGroup>
-              <label>Empresa</label>
-              <input type="text" placeholder="Empresa" />
-            </InputGroup>
-            <InputGroup>
-              <label>Cargo</label>
-              <input type="text" placeholder="Cargo" />
-            </InputGroup>
-            <InputGroup>
-              <label>Data de Início</label>
-              <input type="text" placeholder="Data de Início" />
-            </InputGroup>
-            <InputGroup>
-              <label>Data de Término</label>
-              <input type="text" placeholder="Data de Término" />
-            </InputGroup>
-            <InputGroup>
-              <label>Funções</label>
-              <textarea placeholder="Funções" />
-            </InputGroup>
-          </FormGrid>
+          <SectionTitle>Cadastrar Experiencia Profissional</SectionTitle>
+          {message && <SectionTitle>{message}</SectionTitle>}
 
-          <ActionButtons>
-            <SubmitButton type="button">
-              Cadastrar Experiência
-            </SubmitButton>
-            <BackButton type="button" onClick={() => navigate('/profile')}>
-              Voltar
-            </BackButton>
-          </ActionButtons>
+          <form onSubmit={handleSubmit}>
+            <FormGrid>
+              <InputGroup>
+                <label>Empresa</label>
+                <input
+                  type="text"
+                  placeholder="Empresa"
+                  value={empresa}
+                  onChange={(event) => setEmpresa(event.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <label>Cargo</label>
+                <input
+                  type="text"
+                  placeholder="Cargo"
+                  value={cargo}
+                  onChange={(event) => setCargo(event.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <label>Data de Inicio</label>
+                <input
+                  type="date"
+                  value={dataInicio}
+                  onChange={(event) => setDataInicio(event.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <label>Data de Termino</label>
+                <input
+                  type="date"
+                  value={dataTermino}
+                  onChange={(event) => setDataTermino(event.target.value)}
+                />
+              </InputGroup>
+              <InputGroup>
+                <label>Funcoes</label>
+                <textarea
+                  placeholder="Funcoes"
+                  value={funcoes}
+                  onChange={(event) => setFuncoes(event.target.value)}
+                />
+              </InputGroup>
+            </FormGrid>
+
+            <ActionButtons>
+              <SubmitButton type="submit" disabled={loading}>
+                {loading ? 'Salvando...' : 'Cadastrar Experiencia'}
+              </SubmitButton>
+              <BackButton type="button" onClick={() => navigate('/profile')}>
+                Voltar
+              </BackButton>
+            </ActionButtons>
+          </form>
         </Section>
       </Main>
 
@@ -92,7 +159,7 @@ export default function NewExperience() {
           <Brand onClick={() => navigate('/profile')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
-          <Copyright>© 2023 Multi Publicidade</Copyright>
+          <Copyright>(c) 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
     </Page>

@@ -26,8 +26,21 @@ type LoginResponse = {
     nome?: string;
     email?: string;
     tipo?: string;
+    possuiCurriculo?: boolean;
   };
 };
+
+function getLoginRedirectPath(user?: LoginResponse['user']) {
+  if (user?.tipo === 'admin') {
+    return '/dashboard';
+  }
+
+  if (user?.possuiCurriculo) {
+    return '/profile';
+  }
+
+  return '/newCurriculum';
+}
 
 export default function Login() {
   const navigate = useNavigate();
@@ -55,7 +68,7 @@ export default function Login() {
       });
 
       signIn(response.data.token, response.data.user);
-      navigate('/newCurriculum');
+      navigate(getLoginRedirectPath(response.data.user), { replace: true });
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
         setErrorMessage(

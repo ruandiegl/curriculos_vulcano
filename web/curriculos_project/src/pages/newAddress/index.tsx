@@ -161,7 +161,7 @@ export default function NewAddress() {
 
     try {
       setLoading(true);
-      const updated = await updateCurriculo(curriculoId, {
+      await updateCurriculo(curriculoId, {
         enderecos: [
           {
             rua: nullable(form.rua),

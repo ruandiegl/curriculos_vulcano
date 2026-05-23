@@ -1,8 +1,26 @@
 import { CurriculoRepository } from '../Repositories/CurriculoRepository.js';
 import { getPagination, paginatedResponse } from '../DTO/pagination.js';
-import { curriculoSchema, curriculoUpdateSchema } from '../validators/curriculoValidator.js';
+import {
+  atuacaoSchema,
+  curriculoSchema,
+  curriculoUpdateSchema,
+  cursoSchema,
+  escolaridadeSchema,
+  experienciaSchema,
+} from '../validators/curriculoValidator.js';
 
 const repository = new CurriculoRepository();
+
+async function findCurrentUserCurriculo(req, res) {
+  const curriculo = await repository.findByUsuarioId(req.userId);
+
+  if (!curriculo) {
+    res.status(404).json({ message: 'Crie seu curriculo antes de cadastrar este item.' });
+    return null;
+  }
+
+  return curriculo;
+}
 
 export class CurriculoController {
   async index(req, res) {
@@ -25,6 +43,16 @@ export class CurriculoController {
     return res.json(curriculo);
   }
 
+  async me(req, res) {
+    const curriculo = await repository.findByUsuarioId(req.userId);
+
+    if (!curriculo) {
+      return res.status(404).json({ message: 'Curriculo nao encontrado para este usuario.' });
+    }
+
+    return res.json(curriculo);
+  }
+
   async store(req, res) {
     const payload = curriculoSchema.parse(req.body);
     const curriculo = await repository.create(payload);
@@ -37,8 +65,45 @@ export class CurriculoController {
     return res.json(curriculo);
   }
 
+  async storeCurso(req, res) {
+    const curriculo = await findCurrentUserCurriculo(req, res);
+    if (!curriculo) return undefined;
+
+    const payload = cursoSchema.parse(req.body);
+    const updated = await repository.appendRelation(curriculo.id, 'cursos', payload);
+    return res.status(201).json(updated);
+  }
+
+  async storeExperiencia(req, res) {
+    const curriculo = await findCurrentUserCurriculo(req, res);
+    if (!curriculo) return undefined;
+
+    const payload = experienciaSchema.parse(req.body);
+    const updated = await repository.appendRelation(curriculo.id, 'experiencias', payload);
+    return res.status(201).json(updated);
+  }
+
+  async storeEscolaridade(req, res) {
+    const curriculo = await findCurrentUserCurriculo(req, res);
+    if (!curriculo) return undefined;
+
+    const payload = escolaridadeSchema.parse(req.body);
+    const updated = await repository.appendRelation(curriculo.id, 'escolaridades', payload);
+    return res.status(201).json(updated);
+  }
+
+  async storeAtuacao(req, res) {
+    const curriculo = await findCurrentUserCurriculo(req, res);
+    if (!curriculo) return undefined;
+
+    const payload = atuacaoSchema.parse(req.body);
+    const updated = await repository.appendRelation(curriculo.id, 'atuacoes', payload);
+    return res.status(201).json(updated);
+  }
+
   async delete(req, res) {
     await repository.delete(req.params.id);
     return res.status(204).send();
   }
+
 }

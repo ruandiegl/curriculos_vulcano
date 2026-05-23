@@ -54,6 +54,14 @@ export class CurriculoRepository {
     });
   }
 
+  findByUsuarioId(usuarioId) {
+    return prisma.curriculo.findFirst({
+      where: { usuarioId },
+      orderBy: [{ createdAt: 'desc' }],
+      include: curriculoInclude,
+    });
+  }
+
   async create(payload) {
     const { data, relations } = splitCurriculoPayload(payload);
 
@@ -101,6 +109,22 @@ export class CurriculoRepository {
           ...(relations.experiencias ? { experiencias: { create: relations.experiencias } } : {}),
           ...(relations.escolaridades ? { escolaridades: { create: relations.escolaridades } } : {}),
         },
+        include: curriculoInclude,
+      });
+    });
+  }
+
+  async appendRelation(id, key, payload) {
+    return prisma.$transaction(async (tx) => {
+      await tx[relationDelegate[key]].create({
+        data: {
+          ...payload,
+          curriculoId: id,
+        },
+      });
+
+      return tx.curriculo.findUnique({
+        where: { id },
         include: curriculoInclude,
       });
     });

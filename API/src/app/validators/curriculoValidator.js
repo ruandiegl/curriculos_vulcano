@@ -19,15 +19,22 @@ export const atuacaoSchema = z.object({
 export const cursoSchema = z.object({
   nome: z.string().min(1),
   instituicao: nullableText,
+  cargaHoraria: nullableText,
 });
 
 export const experienciaSchema = z.object({
   empresa: z.string().min(1),
   cargo: nullableText,
+  dataInicio: z.coerce.date().optional().nullable(),
+  dataTermino: z.coerce.date().optional().nullable(),
+  funcoes: nullableText,
 });
 
 export const escolaridadeSchema = z.object({
+  curso: nullableText,
   escola: z.string().min(1),
+  dataInicio: z.coerce.date().optional().nullable(),
+  dataTermino: z.coerce.date().optional().nullable(),
 });
 
 export const curriculoSchema = z.object({

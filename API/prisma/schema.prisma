@@ -98,12 +98,13 @@ model Atuacao {
 }
 
 model Curso {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  curriculoId String    @map("curriculo_id") @db.Uuid
-  nome        String
-  instituicao String?
-  createdAt   DateTime  @default(now()) @map("created_at")
-  curriculo   Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  curriculoId  String    @map("curriculo_id") @db.Uuid
+  nome         String
+  instituicao  String?
+  cargaHoraria String?   @map("carga_horaria")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  curriculo    Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
 
   @@map("cursos")
 }
@@ -113,6 +114,9 @@ model Experiencia {
   curriculoId String    @map("curriculo_id") @db.Uuid
   empresa     String
   cargo       String?
+  dataInicio  DateTime? @map("data_inicio") @db.Date
+  dataTermino DateTime? @map("data_termino") @db.Date
+  funcoes     String?
   createdAt   DateTime  @default(now()) @map("created_at")
   curriculo   Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
 
@@ -122,7 +126,10 @@ model Experiencia {
 model Escolaridade {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   curriculoId String    @map("curriculo_id") @db.Uuid
+  curso       String?
   escola      String
+  dataInicio  DateTime? @map("data_inicio") @db.Date
+  dataTermino DateTime? @map("data_termino") @db.Date
   createdAt   DateTime  @default(now()) @map("created_at")
   curriculo   Curriculo @relation(fields: [curriculoId], references: [id], onDelete: Cascade)
 

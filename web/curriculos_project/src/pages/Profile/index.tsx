@@ -1,6 +1,9 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/useAuth';
+import { getMeuCurriculo } from '../../services/curriculos';
+import type { Curriculo, CurriculoRelation } from '../../types/curriculo';
 import {
   ActionLink,
   Brand,
@@ -21,9 +24,65 @@ import {
   UserInfo,
 } from './styles';
 
+function formatEmpty(value?: string | null) {
+  return value?.trim() || 'Nao informado';
+}
+
+function formatDate(value?: string | null) {
+  if (!value) return '';
+  return new Date(value).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+}
+
+function renderRelations(items: CurriculoRelation[] | undefined, getLabel: (item: CurriculoRelation) => string) {
+  if (!items?.length) {
+    return null;
+  }
+
+  return (
+    <UserInfo>
+      {items.map((item) => (
+        <InfoText key={item.id}>{getLabel(item)}</InfoText>
+      ))}
+    </UserInfo>
+  );
+}
+
 export default function Profile() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const [curriculo, setCurriculo] = useState<Curriculo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadProfile() {
+      try {
+        setLoading(true);
+        const data = await getMeuCurriculo();
+        if (mounted) {
+          setCurriculo(data);
+          setMessage('');
+        }
+      } catch {
+        if (mounted) {
+          setCurriculo(null);
+          setMessage('Nao foi possivel carregar os dados do curriculo.');
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   function handleLogout() {
     signOut();
@@ -51,44 +110,98 @@ export default function Profile() {
       <Main>
         <Card>
           <CardTitle>Dados Pessoais</CardTitle>
-          <CardDescription>Confira os dados de seu Currículo</CardDescription>
-          <UserInfo>
-            <InfoText>Nome: ruan diego dos santos</InfoText>
-            <InfoText>Email: teste@geral.com</InfoText>
-            <InfoText>CPF: 000.000.000-00</InfoText>
-          </UserInfo>
-          <ActionLink onClick={() => {}}>Ver Currículo &rarr;</ActionLink>
-          <ActionLink onClick={() => {}}>Alterar Currículo &rarr;</ActionLink>
+          <CardDescription>
+            {loading ? 'Carregando dados do curriculo...' : message || 'Confira os dados de seu curriculo'}
+          </CardDescription>
+          {curriculo && (
+            <UserInfo>
+              <InfoText>Nome: {formatEmpty(curriculo.nome)}</InfoText>
+              <InfoText>Email: {formatEmpty(curriculo.email)}</InfoText>
+              <InfoText>CPF: {formatEmpty(curriculo.cpf)}</InfoText>
+              <InfoText>Celular: {formatEmpty(curriculo.celular)}</InfoText>
+              <InfoText>Status: {curriculo.status}</InfoText>
+            </UserInfo>
+          )}
+          {curriculo && (
+            <>
+              <ActionLink onClick={() => navigate(`/view/${curriculo.id}`)}>Ver Curriculo &rarr;</ActionLink>
+              <ActionLink onClick={() => navigate(`/edit/${curriculo.id}`)}>Alterar Curriculo &rarr;</ActionLink>
+            </>
+          )}
+          {!loading && !curriculo && (
+            <ActionLink onClick={() => navigate('/newCurriculum')}>Cadastrar curriculo &rarr;</ActionLink>
+          )}
         </Card>
 
         <Card>
-          <CardTitle>Currículo em PDF</CardTitle>
-          <CardDescription>Não há currículo em PDF cadastrado</CardDescription>
-          <ActionLink onClick={() => navigate('/upload-pdf')}>Adicionar Currículo em PDF &rarr;</ActionLink>
+          <CardTitle>Curriculo em PDF</CardTitle>
+          <CardDescription>
+            {curriculo?.arquivos?.length
+              ? `${curriculo.arquivos.length} arquivo(s) cadastrado(s)`
+              : 'Nao ha curriculo em PDF cadastrado'}
+          </CardDescription>
+          {renderRelations(curriculo?.arquivos, (arquivo) => formatEmpty(arquivo.nomeOriginal ?? arquivo.nome))}
+          <ActionLink onClick={() => navigate('/upload-pdf')}>Adicionar curriculo em PDF &rarr;</ActionLink>
         </Card>
 
         <Card>
-          <CardTitle>Formações Acadêmicas</CardTitle>
-          <CardDescription>Não há formações acadêmicas cadastradas</CardDescription>
-          <ActionLink onClick={() => navigate('/new-education')}>Adicionar formação Acadêmicas &rarr;</ActionLink>
+          <CardTitle>Formacoes Academicas</CardTitle>
+          <CardDescription>
+            {curriculo?.escolaridades?.length
+              ? 'Formacoes cadastradas'
+              : 'Nao ha formacoes academicas cadastradas'}
+          </CardDescription>
+          {renderRelations(curriculo?.escolaridades, (escolaridade) => {
+            const period = [formatDate(escolaridade.dataInicio), formatDate(escolaridade.dataTermino)]
+              .filter(Boolean)
+              .join(' ate ');
+            return [
+              escolaridade.curso,
+              escolaridade.escola,
+              period,
+            ].filter(Boolean).join(' - ') || 'Nao informado';
+          })}
+          <ActionLink onClick={() => navigate('/new-education')}>Adicionar formacao academica &rarr;</ActionLink>
         </Card>
 
         <Card>
-          <CardTitle>Experiências Profissionais</CardTitle>
-          <CardDescription>Não há experiências profissionais cadastradas</CardDescription>
-          <ActionLink onClick={() => navigate('/new-experience')}>Adicionar Experiência Profissional &rarr;</ActionLink>
+          <CardTitle>Experiencias Profissionais</CardTitle>
+          <CardDescription>
+            {curriculo?.experiencias?.length
+              ? 'Experiencias cadastradas'
+              : 'Nao ha experiencias profissionais cadastradas'}
+          </CardDescription>
+          {renderRelations(curriculo?.experiencias, (experiencia) =>
+            [
+              experiencia.empresa,
+              experiencia.cargo,
+              [formatDate(experiencia.dataInicio), formatDate(experiencia.dataTermino)].filter(Boolean).join(' ate '),
+              experiencia.funcoes,
+            ].filter(Boolean).join(' - ') || 'Nao informado',
+          )}
+          <ActionLink onClick={() => navigate('/new-experience')}>Adicionar experiencia profissional &rarr;</ActionLink>
         </Card>
 
         <Card>
           <CardTitle>Habilidades e Conhecimentos</CardTitle>
-          <CardDescription>Não há habilidades e conhecimentos cadastrados</CardDescription>
-          <ActionLink onClick={() => navigate('/new-skill')}>Adicionar Habilidades e Conhecimentos &rarr;</ActionLink>
+          <CardDescription>
+            {curriculo?.atuacoes?.length
+              ? 'Habilidades cadastradas'
+              : 'Nao ha habilidades e conhecimentos cadastrados'}
+          </CardDescription>
+          {renderRelations(curriculo?.atuacoes, (atuacao) => formatEmpty(atuacao.nome))}
+          <ActionLink onClick={() => navigate('/new-skill')}>Adicionar habilidade ou conhecimento &rarr;</ActionLink>
         </Card>
 
         <Card>
-          <CardTitle>Cursos e Certificações</CardTitle>
-          <CardDescription>Não há cursos ou certificações cadastrados</CardDescription>
-          <ActionLink onClick={() => navigate('/new-certification')}>Adicionar Cursos ou Certificações &rarr;</ActionLink>
+          <CardTitle>Cursos e Certificacoes</CardTitle>
+          <CardDescription>
+            {curriculo?.cursos?.length ? 'Cursos cadastrados' : 'Nao ha cursos ou certificacoes cadastrados'}
+          </CardDescription>
+          {renderRelations(curriculo?.cursos, (curso) =>
+            [curso.nome, curso.instituicao, curso.cargaHoraria].filter(Boolean).join(' - ') || 'Nao informado',
+          )}
+          <ActionLink onClick={() => navigate('/new-certification')}>Adicionar curso ou certificacao &rarr;</ActionLink>
         </Card>
       </Main>
 
@@ -97,7 +210,7 @@ export default function Profile() {
           <Brand onClick={() => navigate('/profile')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
-          <Copyright>© 2023 Multi Publicidade</Copyright>
+          <Copyright>(c) 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
     </Page>
