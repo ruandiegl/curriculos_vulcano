@@ -16,6 +16,7 @@ import NewSkill from '../pages/newSkill/index.tsx';
 import NewExperience from '../pages/newExperience/index.tsx';
 import NewEducation from '../pages/newEducation/index.tsx';
 import UploadPDF from '../pages/UploadPDF/index.tsx';
+import NewJob from '../pages/newJob/index.tsx';
 
 type RouteGuardProps = {
   children: ReactNode;
@@ -157,6 +158,14 @@ export function AppRoutes() {
         element={
           <PrivateRoute>
             <NewCertification />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/newJob"
+        element={
+          <PrivateRoute adminOnly>
+            <NewJob />
           </PrivateRoute>
         }
       />

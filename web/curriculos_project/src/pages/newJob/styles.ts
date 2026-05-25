@@ -89,70 +89,142 @@ export const LogoutButton = styled.button`
 `;
 
 export const Main = styled.main`
-  width: min(1000px, calc(100% - 48px));
+  width: min(1200px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 60px 0 80px;
-  flex: 1;
+  padding: 66px 0 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
-export const Greeting = styled.div`
-  margin-bottom: 40px;
-  
-  p {
+export const SectionTitleWrapper = styled.div`
+  text-align: center;
+  margin-bottom: 34px;
+
+  span {
+    display: block;
+    margin-bottom: 4px;
     color: #64748b;
-    font-size: 18px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  h1 {
+    margin: 0;
+    color: #063e66;
+    font-size: 28px;
+    line-height: 1.2;
     font-weight: 500;
-    margin: 4px 0;
   }
 `;
 
-export const Section = styled.section`
-  background: #111827; /* Dark navy from image */
-  padding: 50px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-`;
-
-export const SectionTitle = styled.h2`
-  color: #fff;
-  font-size: 24px;
-  font-weight: 700;
+export const TableSection = styled.section`
+  width: min(100%, 930px);
   margin-bottom: 40px;
 `;
 
-export const FormAlert = styled.div`
-  width: 100%;
-  margin: -18px 0 32px;
-  padding: 14px 18px;
-  border: 1px solid rgba(248, 113, 113, 0.85);
-  border-left: 5px solid #ef4444;
-  border-radius: 8px;
-  background: rgba(127, 29, 29, 0.92);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1.45;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+export const TableWrapper = styled.div`
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
 `;
 
-export const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 36px 30px;
+export const Table = styled.table`
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  text-align: left;
 
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
+  thead {
+    background: #2f3b4f;
+    color: #fff;
   }
+
+  th,
+  td {
+    border: 1px solid #fff;
+  }
+
+  th {
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  td {
+    padding: 8px 12px;
+    background: #4b586d;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  tbody tr:hover td {
+    background: #56647a;
+  }
+`;
+
+export const ActionButtons = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+export const ActionButton = styled.button`
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+
+  &:hover {
+    color: #ff8424;
+  }
+`;
+
+export const OpenFormButton = styled.button`
+  height: 40px;
+  padding: 0 30px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #063e66;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 40px;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+`;
+
+export const FormSection = styled.section`
+  width: min(100%, 800px);
+  background: #434e61; /* Adjusted navy blue/grey from image */
+  padding: 50px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+`;
+
+export const FormGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 36px 30px;
 
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
 `;
 
-export const Field = styled.div`
+export const Field = styled.div<{ $fullWidth?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  grid-column: ${({ $fullWidth }) => ($fullWidth ? '1 / -1' : 'auto')};
 `;
 
 export const Label = styled.label`
@@ -179,9 +251,9 @@ export const Input = styled.input`
   }
 `;
 
-export const Select = styled.select`
+export const TextArea = styled.textarea`
   width: 100%;
-  height: 36px;
+  min-height: 80px;
   background: transparent;
   border: none;
   border-bottom: 1.5px solid #fff;
@@ -189,51 +261,50 @@ export const Select = styled.select`
   font-size: 15px;
   font-weight: 500;
   outline: none;
-  cursor: pointer;
-  
-  option {
-    background: #111827;
-    color: #fff;
+  padding: 8px 2px;
+  resize: vertical;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
   }
 `;
 
-export const RadioGroup = styled.div`
+export const FormActionButtons = styled.div`
   display: flex;
-  align-items: center;
   gap: 20px;
-  height: 36px;
-`;
-
-export const RadioLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-
-  input {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-  }
-`;
-
-export const ActionButtons = styled.div`
-  display: flex;
   margin-top: 50px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
 `;
 
 export const SubmitButton = styled.button`
-  height: 48px;
-  padding: 0 50px;
+  height: 45px;
+  padding: 0 40px;
   border: 0;
   border-radius: 999px;
   background: #fff;
   color: #063e66;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+`;
+
+export const CloseButton = styled.button`
+  height: 45px;
+  padding: 0 40px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #063e66;
+  cursor: pointer;
+  font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
 

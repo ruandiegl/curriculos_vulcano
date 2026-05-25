@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { useAuth } from '../../hooks/useAuth';
+import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { getMeuCurriculo } from '../../services/curriculos';
 import type { Curriculo, CurriculoRelation } from '../../types/curriculo';
 import {
@@ -49,7 +49,7 @@ function renderRelations(items: CurriculoRelation[] | undefined, getLabel: (item
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { requestLogout, logoutModal } = useConfirmLogout();
   const [curriculo, setCurriculo] = useState<Curriculo | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -85,8 +85,7 @@ export default function Profile() {
   }, []);
 
   function handleLogout() {
-    signOut();
-    navigate('/');
+    requestLogout();
   }
 
   return (
@@ -213,6 +212,7 @@ export default function Profile() {
           <Copyright>(c) 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
+      {logoutModal}
     </Page>
   );
 }

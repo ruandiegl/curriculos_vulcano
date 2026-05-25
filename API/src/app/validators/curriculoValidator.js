@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { emailSchema } from './emailValidator.js';
 
 const nullableText = z.string().optional().nullable();
 
@@ -44,7 +45,7 @@ export const curriculoSchema = z.object({
   rg: nullableText,
   nascimento: z.coerce.date().optional().nullable(),
   estadoCivil: nullableText,
-  email: z.string().email().optional().nullable(),
+  email: emailSchema.optional().nullable(),
   celular: nullableText,
   telefone: nullableText,
   possuiCnh: z.boolean().optional(),

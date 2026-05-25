@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { useAuth } from '../../hooks/useAuth';
+import { useConfirmLogout } from '../../hooks/useConfirmLogout';
+import { ConfirmModal } from '../../components/ConfirmModal';
 import { deleteCurriculo, listCurriculos } from '../../services/curriculos';
 import type { Curriculo } from '../../types/curriculo';
 import { formatList, statusLabels } from '../../utils/status';
@@ -51,7 +52,7 @@ function getInitialPage(searchParams: URLSearchParams) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { signOut } = useAuth();
+  const { requestLogout, logoutModal } = useConfirmLogout();
   const [curriculos, setCurriculos] = useState<Curriculo[]>([]);
   const [page, setPage] = useState(() => getInitialPage(searchParams));
   const [totalPages, setTotalPages] = useState(1);
@@ -63,6 +64,8 @@ export default function Dashboard() {
     () => searchParams.get('search') ?? getStoredValue(DASHBOARD_APPLIED_SEARCH_STORAGE_KEY),
   );
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Curriculo | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
 
   const pages = useMemo(() => {
@@ -143,24 +146,29 @@ export default function Dashboard() {
   }, [appliedSearch, page, setSearchParams]);
 
   function handleSignOut() {
-    signOut();
-    navigate('/');
+    requestLogout();
   }
 
   function handleClearSearch() {
     setSearch('');
   }
 
-  async function handleDelete(curriculo: Curriculo) {
-    const confirmed = window.confirm(`Apagar o curriculo de ${curriculo.nome}?`);
-
-    if (!confirmed) {
+  async function confirmDelete() {
+    if (!deleteTarget) {
       return;
     }
 
-    await deleteCurriculo(curriculo.id);
-    setCurriculos((items) => items.filter((item) => item.id !== curriculo.id));
-    setTotal((currentTotal) => Math.max(currentTotal - 1, 0));
+    try {
+      setDeleting(true);
+      await deleteCurriculo(deleteTarget.id);
+      setCurriculos((items) => items.filter((item) => item.id !== deleteTarget.id));
+      setTotal((currentTotal) => Math.max(currentTotal - 1, 0));
+      setDeleteTarget(null);
+    } catch {
+      setErrorMessage('Nao foi possivel apagar este curriculo.');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
@@ -173,7 +181,7 @@ export default function Dashboard() {
 
           <HeaderNav>
             <NavLink href="#">Gerenciar Curriculos</NavLink>
-            <NavLink href="#">Gerenciar Vagas</NavLink>
+            <NavLink href="/newJob">Gerenciar Vagas</NavLink>
             <LogoutButton type="button" onClick={handleSignOut}>
               Sair
             </LogoutButton>
@@ -213,7 +221,7 @@ export default function Dashboard() {
 
           <TableWrapper>
             {loading && <StateMessage>Carregando curriculos...</StateMessage>}
-            {!loading && errorMessage && <StateMessage>{errorMessage}</StateMessage>}
+            {!loading && errorMessage && <StateMessage $variant="error">{errorMessage}</StateMessage>}
             {!loading && !errorMessage && curriculos.length === 0 && (
               <StateMessage>Nenhum curriculo encontrado.</StateMessage>
             )}
@@ -237,7 +245,7 @@ export default function Dashboard() {
                       <td>{formatList(item.atuacoes)}</td>
                       <td>
                         <ActionButtons>
-                          <ActionButton type="button" onClick={() => handleDelete(item)}>
+                          <ActionButton type="button" onClick={() => setDeleteTarget(item)}>
                             Apagar
                           </ActionButton>
                           <ActionLink type="button" onClick={() => navigate(`/edit/${item.id}`)}>
@@ -284,6 +292,18 @@ export default function Dashboard() {
           <StateMessage>{total} curriculos encontrados. Limite de {PAGE_SIZE} por pagina.</StateMessage>
         </TableSection>
       </Main>
+
+      {deleteTarget && (
+        <ConfirmModal
+          title="Apagar curriculo?"
+          description={`Esta ação irá remover o curriculo de ${deleteTarget.nome}. Depois de confirmar, nao sera possivel desfazer.`}
+          confirmLabel="Apagar"
+          loading={deleting}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={confirmDelete}
+        />
+      )}
+      {logoutModal}
     </Page>
   );
 }

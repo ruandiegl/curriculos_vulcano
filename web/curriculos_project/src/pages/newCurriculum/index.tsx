@@ -3,15 +3,19 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { useAuth } from '../../hooks/useAuth';
 import { PENDING_CURRICULUM_STORAGE_KEY, createCurriculo } from '../../services/curriculos';
 import type { CurriculoCreatePayload } from '../../services/curriculos';
 import { formatCnh, formatCpf, formatPhone, formatRg, onlyDigits } from '../../utils/masks';
+import { initialForm, jobRoles, validateNewCurriculumForm } from './validation';
+import type { FormState } from './validation';
 import {
   ActionButtons,
   Brand,
   Copyright,
   Field,
+  FormAlert,
   Footer,
   FooterContent,
   Grid,
@@ -33,86 +37,20 @@ import {
   SubmitButton,
 } from './styles';
 
-const jobRoles = [
-  'FISCAL',
-  'FINANCEIRO',
-  'SOLDADOR TIG',
-  'SOLDADOR MIG/MAG',
-  'MECANICO DE MANUTENCAO',
-  'MECANICO DE MONTAGEM',
-  'RECURSOS HUMANOS',
-  'SEGURANCA DO TRABALHO',
-  'ELETRICISTA',
-  'QUALIDADE',
-  'CONTROLADORIA',
-  'ENGENHARIA',
-  'COMPRAS',
-  'ALMOXARIFADO',
-  'LOGISTICA',
-  'LIMPEZA',
-  'CONSTRUCAO CIVIL',
-  'TRANSPORTE / MOTORISTA',
-  'AJUDANTE',
-  'ESMERILHADOR',
-  'OPERADOR DE EMPILHADEIRA',
-  'OPERADOR DE PONTE ROLANTE',
-  'OPERADOR DE MANDRILHADORA',
-  'PINTOR DE VEICULOS',
-  'MACARIQUEIRO',
-  'DESENHISTA PROJETISTA',
-  'OPERADOR DE MAQUINAS OPERATRIZES',
-];
-
-type FormState = {
-  nome: string;
-  celular: string;
-  nascimento: string;
-  estadoCivil: string;
-  rg: string;
-  telefone: string;
-  cpf: string;
-  possuiCnh: string;
-  cursoAtivo: string;
-  atuacaoPrincipal: string;
-  atuacaoSecundaria: string;
-  atuacaoTerciaria: string;
-  numeroCnh: string;
-  vencimentoCnh: string;
-  categoriaCnh: string;
-};
-
-const initialForm: FormState = {
-  nome: '',
-  celular: '',
-  nascimento: '',
-  estadoCivil: 'Solteiro',
-  rg: '',
-  telefone: '',
-  cpf: '',
-  possuiCnh: 'Nao',
-  cursoAtivo: 'Nao',
-  atuacaoPrincipal: '',
-  atuacaoSecundaria: '',
-  atuacaoTerciaria: '',
-  numeroCnh: '',
-  vencimentoCnh: '',
-  categoriaCnh: 'A',
-};
-
 function nullable(value: string) {
   return value.trim() || null;
 }
 
 export default function NewCurriculum() {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const { requestLogout, logoutModal } = useConfirmLogout();
   const [form, setForm] = useState<FormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
   function handleLogout() {
-    signOut();
-    navigate('/');
+    requestLogout();
   }
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
@@ -151,38 +89,9 @@ export default function NewCurriculum() {
     event.preventDefault();
     setMessage('');
 
-    if (form.nome.trim().length < 2) {
-      setMessage('Informe o nome completo para continuar.');
-      return;
-    }
-
-    if (!form.atuacaoPrincipal) {
-      setMessage('Selecione ao menos uma area de atuacao.');
-      return;
-    }
-
-    if (form.cpf && onlyDigits(form.cpf).length !== 11) {
-      setMessage('Informe um CPF com 11 digitos.');
-      return;
-    }
-
-    if (form.rg && onlyDigits(form.rg).length < 7) {
-      setMessage('Informe um RG valido.');
-      return;
-    }
-
-    if (form.celular && onlyDigits(form.celular).length !== 11) {
-      setMessage('Informe um celular com DDD e 9 digitos.');
-      return;
-    }
-
-    if (form.telefone && ![10, 11].includes(onlyDigits(form.telefone).length)) {
-      setMessage('Informe um telefone com DDD.');
-      return;
-    }
-
-    if (form.possuiCnh === 'Sim' && form.numeroCnh && onlyDigits(form.numeroCnh).length !== 11) {
-      setMessage('Informe a CNH com 11 digitos.');
+    const validationMessage = validateNewCurriculumForm(form);
+    if (validationMessage) {
+      setMessage(validationMessage);
       return;
     }
 
@@ -233,17 +142,18 @@ export default function NewCurriculum() {
 
         <Section>
           <SectionTitle>Dados Pessoais</SectionTitle>
-          {message && <Label>{message}</Label>}
+          {message && <FormAlert role="alert">{message}</FormAlert>}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <Grid>
               <Field>
                 <Label>Nome Completo</Label>
                 <Input
                   type="text"
-                  placeholder="ruan diego dos santos"
+                  placeholder="Nome"
                   value={form.nome}
                   onChange={(e) => updateField('nome', e.target.value)}
+                  required
                 />
               </Field>
               <Field>
@@ -253,6 +163,7 @@ export default function NewCurriculum() {
                   placeholder="(24) 99999-9999"
                   value={form.celular}
                   onChange={(e) => updateField('celular', formatPhone(e.target.value))}
+                  required
                 />
               </Field>
               <Field>
@@ -261,12 +172,13 @@ export default function NewCurriculum() {
                   type="date"
                   value={form.nascimento}
                   onChange={(e) => updateField('nascimento', e.target.value)}
+                  required
                 />
               </Field>
 
               <Field>
                 <Label>Estado Civil</Label>
-                <Select value={form.estadoCivil} onChange={(e) => updateField('estadoCivil', e.target.value)}>
+                <Select value={form.estadoCivil} onChange={(e) => updateField('estadoCivil', e.target.value)} required>
                   <option value="Solteiro">Solteiro</option>
                   <option value="Casado">Casado</option>
                   <option value="Divorciado">Divorciado</option>
@@ -280,6 +192,7 @@ export default function NewCurriculum() {
                   placeholder="00.000.000-0"
                   value={form.rg}
                   onChange={(e) => updateField('rg', formatRg(e.target.value))}
+                  required
                 />
               </Field>
               <Field>
@@ -289,6 +202,7 @@ export default function NewCurriculum() {
                   placeholder="(24) 3333-33333"
                   value={form.telefone}
                   onChange={(e) => updateField('telefone', formatPhone(e.target.value))}
+                  required
                 />
               </Field>
 
@@ -299,6 +213,7 @@ export default function NewCurriculum() {
                   placeholder="000.000.000-00"
                   value={form.cpf}
                   onChange={(e) => updateField('cpf', formatCpf(e.target.value))}
+                  required
                 />
               </Field>
               <Field>
@@ -354,7 +269,7 @@ export default function NewCurriculum() {
 
               <Field>
                 <Label>Cargo/Area de Atuacao desejado</Label>
-                <Select value={form.atuacaoPrincipal} onChange={(e) => updateField('atuacaoPrincipal', e.target.value)}>
+                <Select value={form.atuacaoPrincipal} onChange={(e) => updateField('atuacaoPrincipal', e.target.value)} required>
                   <option value="" disabled>
                     Selecione
                   </option>
@@ -367,7 +282,7 @@ export default function NewCurriculum() {
               </Field>
               <Field>
                 <Label>Cargo/Area de Atuacao secundario</Label>
-                <Select value={form.atuacaoSecundaria} onChange={(e) => updateField('atuacaoSecundaria', e.target.value)}>
+                <Select value={form.atuacaoSecundaria} onChange={(e) => updateField('atuacaoSecundaria', e.target.value)} required>
                   <option value="">Selecione</option>
                   {jobRoles.map((role) => (
                     <option key={role} value={role}>
@@ -378,7 +293,7 @@ export default function NewCurriculum() {
               </Field>
               <Field>
                 <Label>Cargo/Area de Atuacao terciario</Label>
-                <Select value={form.atuacaoTerciaria} onChange={(e) => updateField('atuacaoTerciaria', e.target.value)}>
+                <Select value={form.atuacaoTerciaria} onChange={(e) => updateField('atuacaoTerciaria', e.target.value)} required>
                   <option value="">Selecione</option>
                   {jobRoles.map((role) => (
                     <option key={role} value={role}>
@@ -397,6 +312,7 @@ export default function NewCurriculum() {
                       placeholder="00000000000000000000"
                       value={form.numeroCnh}
                       onChange={(e) => updateField('numeroCnh', formatCnh(e.target.value))}
+                      required
                     />
                   </Field>
                   <Field>
@@ -405,11 +321,12 @@ export default function NewCurriculum() {
                       type="date"
                       value={form.vencimentoCnh}
                       onChange={(e) => updateField('vencimentoCnh', e.target.value)}
+                      required
                     />
                   </Field>
                   <Field>
                     <Label>Categoria da CNH</Label>
-                    <Select value={form.categoriaCnh} onChange={(e) => updateField('categoriaCnh', e.target.value)}>
+                    <Select value={form.categoriaCnh} onChange={(e) => updateField('categoriaCnh', e.target.value)} required>
                       <option value="A">A</option>
                       <option value="B">B</option>
                       <option value="C">C</option>
@@ -439,6 +356,7 @@ export default function NewCurriculum() {
           <Copyright>© 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
+      {logoutModal}
     </Page>
   );
 }

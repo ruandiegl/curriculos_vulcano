@@ -1,20 +1,21 @@
 import { z } from 'zod';
+import { emailSchema } from './emailValidator.js';
 
 export const registerSchema = z.object({
   nome: z.string().min(2),
-  email: z.string().email(),
+  email: emailSchema,
   password: z.string().min(6),
   firebaseUid: z.string().min(1).optional(),
   cpf: z.string().optional().nullable(),
 });
 
 export const loginSchema = z.object({
-  email: z.string().email(),
+  email: emailSchema,
   password: z.string().min(1),
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email(),
+  email: emailSchema,
 });
 
 export const resetPasswordSchema = z.object({

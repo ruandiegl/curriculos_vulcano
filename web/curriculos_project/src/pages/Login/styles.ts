@@ -173,11 +173,16 @@ export const LoginButton = styled.button`
 export const FormMessage = styled.p`
   width: 100%;
   margin: -12px 0 18px;
-  color: #dc2626;
+  padding: 12px 14px;
+  border: 1px solid #fecdd3;
+  border-left: 5px solid #dc2626;
+  border-radius: 7px;
+  background: #fff1f2;
+  color: #991b1b;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.4;
-  text-align: center;
+  text-align: left;
 `;
 
 export const LoginIcon = styled.span`

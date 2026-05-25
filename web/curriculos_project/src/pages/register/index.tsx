@@ -3,13 +3,22 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { PRIVACY_POLICY_VERSION, privacyPolicySections } from '../../content/privacyPolicy';
 import { api } from '../../services/api';
+import { isValidEmail, normalizeEmail } from '../../utils/email';
 import {
   Brand,
   Card,
+  ConsentBox,
   Field,
   FormMessage,
   Form,
+  ModalBackdrop,
+  PolicyActions,
+  PolicyButton,
+  PolicyContent,
+  PolicyHeader,
+  PolicyModal,
   RegisterButton,
   ReturnButton,
   LoginIcon,
@@ -22,7 +31,8 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [policyOpen, setPolicyOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,8 +47,19 @@ export default function Register() {
       return;
     }
 
+    if (!isValidEmail(email)) {
+      setErrorMessage('Informe um email valido.');
+      return;
+    }
+
     if (password.length < 6) {
       setErrorMessage('A senha deve ter no minimo 6 caracteres.');
+      return;
+    }
+
+    if (!privacyAccepted) {
+      setErrorMessage('Leia e aceite a Politica de Privacidade para continuar.');
+      setPolicyOpen(true);
       return;
     }
 
@@ -47,8 +68,10 @@ export default function Register() {
 
       await api.post('/login/register', {
         nome: name,
-        email,
+        email: normalizeEmail(email),
         password,
+        privacyPolicyAccepted: true,
+        privacyPolicyVersion: PRIVACY_POLICY_VERSION,
       });
 
       setSuccessMessage('Cadastro realizado com sucesso. Redirecionando para o login...');
@@ -114,21 +137,26 @@ export default function Register() {
             />
           </Field>
 
-          <Field>
-            <span>Telefone</span>
+          <ConsentBox>
             <input
-              type="tel"
-              placeholder="Telefone"
-              autoComplete="tel"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
+              id="privacy-policy"
+              type="checkbox"
+              checked={privacyAccepted}
+              onChange={(event) => setPrivacyAccepted(event.target.checked)}
             />
-          </Field>
+            <label htmlFor="privacy-policy">
+              Li e aceito a{' '}
+              <button type="button" onClick={() => setPolicyOpen(true)}>
+                Politica de Privacidade
+              </button>{' '}
+              da Metalurgica Vulcano.
+            </label>
+          </ConsentBox>
 
           {errorMessage && <FormMessage role="alert">{errorMessage}</FormMessage>}
           {successMessage && <FormMessage $success>{successMessage}</FormMessage>}
 
-          <RegisterButton type="submit" disabled={loading}>
+          <RegisterButton type="submit" disabled={loading || !privacyAccepted}>
             <LoginIcon aria-hidden="true">
               <span className="head" />
               <span className="body" />
@@ -149,6 +177,44 @@ export default function Register() {
 
         <PhotoPanel />
       </Card>
+
+      {policyOpen && (
+        <ModalBackdrop role="presentation">
+          <PolicyModal role="dialog" aria-modal="true" aria-labelledby="privacy-policy-title">
+            <PolicyHeader>
+              <h2 id="privacy-policy-title">Politica de Privacidade</h2>
+              <span>Versao {PRIVACY_POLICY_VERSION}</span>
+            </PolicyHeader>
+
+            <PolicyContent>
+              {privacyPolicySections.map((section) => (
+                <section key={section.title}>
+                  <h3>{section.title}</h3>
+                  {section.paragraphs.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                </section>
+              ))}
+            </PolicyContent>
+
+            <PolicyActions>
+              <PolicyButton type="button" $secondary onClick={() => setPolicyOpen(false)}>
+                Fechar
+              </PolicyButton>
+              <PolicyButton
+                type="button"
+                onClick={() => {
+                  setPrivacyAccepted(true);
+                  setPolicyOpen(false);
+                  setErrorMessage('');
+                }}
+              >
+                Aceito e continuar
+              </PolicyButton>
+            </PolicyActions>
+          </PolicyModal>
+        </ModalBackdrop>
+      )}
     </Page>
   );
 }

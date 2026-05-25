@@ -167,13 +167,14 @@ export const ClearButton = styled.button`
   }
 `;
 
-export const StateMessage = styled.div`
+export const StateMessage = styled.div<{ $variant?: 'error' | 'default' }>`
   padding: 30px 16px;
-  background: rgba(75, 88, 109, 0.96);
-  color: #fff;
+  border-left: ${({ $variant }) => ($variant === 'error' ? '5px solid #dc2626' : '0')};
+  background: ${({ $variant }) => ($variant === 'error' ? '#fff1f2' : 'rgba(75, 88, 109, 0.96)')};
+  color: ${({ $variant }) => ($variant === 'error' ? '#991b1b' : '#fff')};
   font-size: 13px;
-  font-weight: 700;
-  text-align: center;
+  font-weight: 800;
+  text-align: ${({ $variant }) => ($variant === 'error' ? 'left' : 'center')};
 `;
 
 export const TableSection = styled.section`

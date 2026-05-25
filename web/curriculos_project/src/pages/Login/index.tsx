@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../services/api';
+import { isValidEmail, normalizeEmail } from '../../utils/email';
 import {
   Brand,
   Card,
@@ -59,11 +60,16 @@ export default function Login() {
       return;
     }
 
+    if (!isValidEmail(email)) {
+      setErrorMessage('Informe um email valido.');
+      return;
+    }
+
     try {
       setLoading(true);
 
       const response = await api.post<LoginResponse>('/login', {
-        email,
+        email: normalizeEmail(email),
         password,
       });
 
