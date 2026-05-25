@@ -1,14 +1,22 @@
-import { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { ConfirmModal } from '../../components/ConfirmModal';
+import { FeedbackMessage } from '../../components/FeedbackMessage';
+import { useConfirmLogout } from '../../hooks/useConfirmLogout';
+import { createVaga, deleteVaga, getVaga, listVagas, updateVaga } from '../../services/vagas';
+import type { VagaPayload } from '../../services/vagas';
+import type { Vaga } from '../../types/vaga';
+import { formatList, getStatusLabel } from '../../utils/status';
 import {
   ActionButton,
   ActionButtons,
   Brand,
   CloseButton,
   Copyright,
+  DetailGrid,
+  EmptyState,
   Field,
   Footer,
   FooterContent,
@@ -25,7 +33,11 @@ import {
   NavLink,
   OpenFormButton,
   Page,
+  SearchBar,
+  SearchInput,
   SectionTitleWrapper,
+  Select,
+  StatusBadge,
   SubmitButton,
   Table,
   TableSection,
@@ -33,67 +45,184 @@ import {
   TextArea,
 } from './styles';
 
-interface Job {
-  id: number;
-  title: string;
-  area: string;
-  count: number;
-  candidates: number;
+const PAGE_SIZE = 20;
+
+type FormState = {
+  titulo: string;
+  cidade: string;
+  estado: string;
+  descricao: string;
+  ativa: string;
+};
+
+const initialForm: FormState = {
+  titulo: '',
+  cidade: '',
+  estado: '',
+  descricao: '',
+  ativa: 'true',
+};
+
+function toForm(vaga: Vaga): FormState {
+  return {
+    titulo: vaga.titulo ?? '',
+    cidade: vaga.cidade ?? '',
+    estado: vaga.estado ?? '',
+    descricao: vaga.descricao ?? '',
+    ativa: vaga.ativa ? 'true' : 'false',
+  };
 }
 
-const initialJobs: Job[] = [
-  { id: 1, title: 'Desenvolvedor Frontend', area: 'TI', count: 2, candidates: 15 },
-  { id: 2, title: 'Analista de RH', area: 'Recursos Humanos', count: 1, candidates: 8 },
-];
+function nullable(value: string) {
+  return value.trim() || null;
+}
+
+function buildPayload(form: FormState): VagaPayload {
+  return {
+    titulo: form.titulo.trim(),
+    cidade: nullable(form.cidade),
+    estado: nullable(form.estado),
+    descricao: nullable(form.descricao),
+    ativa: form.ativa === 'true',
+  };
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
+    return error.response?.data?.message ?? error.response?.data?.error ?? fallback;
+  }
+
+  return fallback;
+}
 
 export default function NewJob() {
   const navigate = useNavigate();
   const { requestLogout, logoutModal } = useConfirmLogout();
-  const [jobs, setJobs] = useState<Job[]>(initialJobs);
+  const [vagas, setVagas] = useState<Vaga[]>([]);
+  const [selectedVaga, setSelectedVaga] = useState<Vaga | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<Job | null>(null);
-  
-  // Form state
-  const [title, setTitle] = useState('');
-  const [area, setArea] = useState('');
-  const [count, setCount] = useState('');
-  const [description, setDescription] = useState('');
+  const [editingVaga, setEditingVaga] = useState<Vaga | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Vaga | null>(null);
+  const [form, setForm] = useState<FormState>(initialForm);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const candidates = useMemo(() => selectedVaga?.candidaturas ?? [], [selectedVaga]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      loadVagas(search);
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [search]);
+
+  async function loadVagas(searchValue = search) {
+    try {
+      setLoading(true);
+      setMessage('');
+      const response = await listVagas({ page: 1, limit: PAGE_SIZE, search: searchValue.trim() });
+      setVagas(response.data);
+    } catch (error) {
+      setMessage(getErrorMessage(error, 'Nao foi possivel carregar as vagas.'));
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function handleLogout() {
     requestLogout();
   }
 
-  function confirmDeleteJob() {
-    if (deleteTarget) {
-      setJobs(jobs.filter((job) => job.id !== deleteTarget.id));
-      setDeleteTarget(null);
-    }
+  function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
+    setForm((current) => ({ ...current, [field]: value }));
   }
 
-  function handleRegisterJob() {
-    if (!title || !area || !count) {
-      alert('Por favor, preencha os campos obrigatórios.');
+  function openCreateForm() {
+    setEditingVaga(null);
+    setForm(initialForm);
+    setMessage('');
+    setShowForm(true);
+  }
+
+  function openEditForm(vaga: Vaga) {
+    setEditingVaga(vaga);
+    setForm(toForm(vaga));
+    setMessage('');
+    setShowForm(true);
+  }
+
+  function closeForm() {
+    setShowForm(false);
+    setEditingVaga(null);
+    setForm(initialForm);
+  }
+
+  async function handleSaveVaga() {
+    setMessage('');
+
+    if (form.titulo.trim().length < 2) {
+      setMessage('Informe o nome da vaga para continuar.');
       return;
     }
 
-    const newJob: Job = {
-      id: Date.now(),
-      title,
-      area,
-      count: Number(count),
-      candidates: 0
-    };
+    try {
+      setSaving(true);
 
-    setJobs([...jobs, newJob]);
-    setShowForm(false);
-    resetForm();
+      if (editingVaga) {
+        const updated = await updateVaga(editingVaga.id, buildPayload(form));
+        setVagas((items) => items.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)));
+        if (selectedVaga?.id === updated.id) {
+          setSelectedVaga((current) => (current ? { ...current, ...updated } : current));
+        }
+      } else {
+        const created = await createVaga(buildPayload(form));
+        setVagas((items) => [created, ...items]);
+      }
+
+      closeForm();
+    } catch (error) {
+      setMessage(getErrorMessage(error, 'Nao foi possivel salvar a vaga.'));
+    } finally {
+      setSaving(false);
+    }
   }
 
-  function resetForm() {
-    setTitle('');
-    setArea('');
-    setCount('');
-    setDescription('');
+  async function confirmDeleteJob() {
+    if (!deleteTarget) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      await deleteVaga(deleteTarget.id);
+      setVagas((items) => items.filter((item) => item.id !== deleteTarget.id));
+      if (selectedVaga?.id === deleteTarget.id) {
+        setSelectedVaga(null);
+      }
+      setDeleteTarget(null);
+    } catch (error) {
+      setMessage(getErrorMessage(error, 'Nao foi possivel excluir a vaga.'));
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleViewVaga(vaga: Vaga) {
+    try {
+      setLoadingDetails(true);
+      setMessage('');
+      const details = await getVaga(vaga.id);
+      setSelectedVaga(details);
+    } catch (error) {
+      setMessage(getErrorMessage(error, 'Nao foi possivel carregar os detalhes da vaga.'));
+    } finally {
+      setLoadingDetails(false);
+    }
   }
 
   return (
@@ -105,7 +234,7 @@ export default function NewJob() {
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/dashboard')}>Gerenciar Currículos</NavLink>
+            <NavLink onClick={() => navigate('/dashboard')}>Gerenciar Curriculos</NavLink>
             <NavLink onClick={() => navigate('/newJob')}>Gerenciar Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -120,88 +249,214 @@ export default function NewJob() {
           <h1>Gerenciar Vagas</h1>
         </SectionTitleWrapper>
 
+        {message && <FeedbackMessage>{message}</FeedbackMessage>}
+
+        <SearchBar>
+          <SearchInput
+            type="text"
+            placeholder="Buscar vaga"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <OpenFormButton type="button" onClick={openCreateForm}>
+            Cadastrar Vaga
+          </OpenFormButton>
+        </SearchBar>
+
         <TableSection>
           <TableWrapper>
             <Table>
               <thead>
                 <tr>
                   <th>Vaga</th>
-                  <th>N. de vagas</th>
-                  <th>Atuação</th>
+                  <th>Local</th>
+                  <th>Status</th>
                   <th>Candidatos</th>
-                  <th>Ações</th>
+                  <th>Acoes</th>
                 </tr>
               </thead>
               <tbody>
-                {jobs.map((job) => (
-                  <tr key={job.id}>
-                    <td>{job.title}</td>
-                    <td>{job.count}</td>
-                    <td>{job.area}</td>
-                    <td>{job.candidates}</td>
-                    <td>
-                      <ActionButtons>
-                        <ActionButton onClick={() => setDeleteTarget(job)}>Excluir</ActionButton>
-                        <ActionButton onClick={() => {}}>Editar</ActionButton>
-                      </ActionButtons>
-                    </td>
+                {loading && (
+                  <tr>
+                    <td colSpan={5}>Carregando vagas...</td>
                   </tr>
-                ))}
+                )}
+
+                {!loading && vagas.length === 0 && (
+                  <tr>
+                    <td colSpan={5}>Nenhuma vaga encontrada.</td>
+                  </tr>
+                )}
+
+                {!loading &&
+                  vagas.map((vaga) => (
+                    <tr key={vaga.id}>
+                      <td>{vaga.titulo}</td>
+                      <td>{[vaga.cidade, vaga.estado].filter(Boolean).join(' / ') || '-'}</td>
+                      <td>
+                        <StatusBadge $active={vaga.ativa}>{vaga.ativa ? 'Ativa' : 'Inativa'}</StatusBadge>
+                      </td>
+                      <td>{vaga.candidaturas?.length ?? 0}</td>
+                      <td>
+                        <ActionButtons>
+                          <ActionButton type="button" onClick={() => handleViewVaga(vaga)}>
+                            Ver
+                          </ActionButton>
+                          <ActionButton type="button" onClick={() => openEditForm(vaga)}>
+                            Editar
+                          </ActionButton>
+                          <ActionButton type="button" onClick={() => setDeleteTarget(vaga)}>
+                            Excluir
+                          </ActionButton>
+                        </ActionButtons>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </Table>
           </TableWrapper>
         </TableSection>
 
-        {!showForm && (
-          <OpenFormButton onClick={() => setShowForm(true)}>
-            Cadastrar Vaga
-          </OpenFormButton>
-        )}
-
         {showForm && (
           <FormSection>
+            <SectionTitleWrapper>
+              <span>{editingVaga ? 'Editar' : 'Cadastro'}</span>
+              <h1>{editingVaga ? 'Alterar Vaga' : 'Cadastrar Vaga'}</h1>
+            </SectionTitleWrapper>
+
             <FormGrid>
               <Field>
                 <Label>Nome da Vaga</Label>
-                <Input 
-                  placeholder="Nome da vaga" 
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                <Input
+                  placeholder="Nome da vaga"
+                  value={form.titulo}
+                  onChange={(event) => updateField('titulo', event.target.value)}
                 />
               </Field>
               <Field>
-                <Label>Área de Atuação</Label>
-                <Input 
-                  placeholder="Área de atuação" 
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
+                <Label>Cidade</Label>
+                <Input
+                  placeholder="Cidade"
+                  value={form.cidade}
+                  onChange={(event) => updateField('cidade', event.target.value)}
                 />
               </Field>
               <Field>
-                <Label>Número de vagas</Label>
-                <Input 
-                  placeholder="Número de vagas" 
-                  type="number"
-                  value={count}
-                  onChange={(e) => setCount(e.target.value)}
+                <Label>Estado</Label>
+                <Input
+                  placeholder="UF"
+                  value={form.estado}
+                  onChange={(event) => updateField('estado', event.target.value.toUpperCase().slice(0, 2))}
                 />
+              </Field>
+              <Field>
+                <Label>Status</Label>
+                <Select value={form.ativa} onChange={(event) => updateField('ativa', event.target.value)}>
+                  <option value="true">Ativa</option>
+                  <option value="false">Inativa</option>
+                </Select>
               </Field>
               <Field $fullWidth>
-                <Label>Descrição da vaga</Label>
-                <TextArea 
-                  placeholder="Descrição da vaga" 
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                <Label>Descricao da vaga</Label>
+                <TextArea
+                  placeholder="Descricao da vaga"
+                  value={form.descricao}
+                  onChange={(event) => updateField('descricao', event.target.value)}
                 />
               </Field>
             </FormGrid>
 
             <FormActionButtons>
-              <SubmitButton onClick={handleRegisterJob}>
-                Cadastrar Vaga
+              <SubmitButton type="button" disabled={saving} onClick={handleSaveVaga}>
+                {saving ? 'Salvando...' : editingVaga ? 'Salvar Alteracoes' : 'Cadastrar Vaga'}
               </SubmitButton>
-              <CloseButton onClick={() => setShowForm(false)}>
+              <CloseButton type="button" onClick={closeForm}>
                 Fechar
+              </CloseButton>
+            </FormActionButtons>
+          </FormSection>
+        )}
+
+        {selectedVaga && (
+          <FormSection>
+            <SectionTitleWrapper>
+              <span>{loadingDetails ? 'Carregando detalhes' : 'Detalhes da vaga'}</span>
+              <h1>{selectedVaga.titulo}</h1>
+            </SectionTitleWrapper>
+
+            <DetailGrid>
+              <div>
+                <strong>Status</strong>
+                <span>{selectedVaga.ativa ? 'Ativa' : 'Inativa'}</span>
+              </div>
+              <div>
+                <strong>Local</strong>
+                <span>{[selectedVaga.cidade, selectedVaga.estado].filter(Boolean).join(' / ') || '-'}</span>
+              </div>
+              <div>
+                <strong>Candidatos</strong>
+                <span>{candidates.length}</span>
+              </div>
+              <div>
+                <strong>Descricao</strong>
+                <span>{selectedVaga.descricao || '-'}</span>
+              </div>
+            </DetailGrid>
+
+            <TableWrapper>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Candidato</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Atuacao</th>
+                    <th>Status Curriculo</th>
+                    <th>Acoes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {candidates.length === 0 && (
+                    <tr>
+                      <td colSpan={6}>Nenhuma candidatura encontrada para esta vaga.</td>
+                    </tr>
+                  )}
+
+                  {candidates.map((candidatura) => {
+                    const curriculo = candidatura.usuario?.curriculos?.[0];
+
+                    return (
+                      <tr key={candidatura.id}>
+                        <td>{curriculo?.nome ?? candidatura.usuario?.nome ?? '-'}</td>
+                        <td>{curriculo?.email ?? candidatura.usuario?.email ?? '-'}</td>
+                        <td>{curriculo?.celular ?? curriculo?.telefone ?? '-'}</td>
+                        <td>{formatList(curriculo?.atuacoes)}</td>
+                        <td>{curriculo?.status ? getStatusLabel(curriculo.status) : '-'}</td>
+                        <td>
+                          {curriculo ? (
+                            <ActionButton type="button" onClick={() => navigate(`/view/${curriculo.id}`)}>
+                              Ver Curriculo
+                            </ActionButton>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            </TableWrapper>
+
+            {candidates.length === 0 && (
+              <EmptyState>
+                Nenhum candidato se candidatou a esta vaga ate o momento.
+              </EmptyState>
+            )}
+
+            <FormActionButtons>
+              <CloseButton type="button" onClick={() => setSelectedVaga(null)}>
+                Fechar detalhes
               </CloseButton>
             </FormActionButtons>
           </FormSection>
@@ -213,15 +468,16 @@ export default function NewJob() {
           <Brand onClick={() => navigate('/dashboard')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
-          <Copyright>© 2023 Multi Publicidade</Copyright>
+          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
 
       {deleteTarget && (
         <ConfirmModal
           title="Excluir vaga?"
-          description={`Esta acao vai remover a vaga "${deleteTarget.title}". Depois de confirmar, nao sera possivel desfazer.`}
+          description={`Esta acao vai remover a vaga "${deleteTarget.titulo}". Depois de confirmar, nao sera possivel desfazer.`}
           confirmLabel="Excluir"
+          loading={deleting}
           onCancel={() => setDeleteTarget(null)}
           onConfirm={confirmDeleteJob}
         />

@@ -219,7 +219,9 @@ export default function Edit() {
 
           <HeaderNav>
             <NavLink href={homePath}>{user?.tipo === 'admin' ? 'Gerenciar Curriculos' : 'Inicio'}</NavLink>
-            <NavLink href="#">Gerenciar Vagas</NavLink>
+            <NavLink href={user?.tipo === 'admin' ? '/newJob' : '/vagas'}>
+              {user?.tipo === 'admin' ? 'Gerenciar Vagas' : 'Vagas'}
+            </NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
             </LogoutButton>
@@ -354,7 +356,7 @@ export default function Edit() {
           <Brand href={homePath}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
-          <Copyright>© 2023 Multi Publicidade</Copyright>
+          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
 

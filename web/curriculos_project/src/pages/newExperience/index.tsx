@@ -83,7 +83,7 @@ export default function NewExperience() {
 
           <HeaderNav>
             <NavLink onClick={() => navigate('/profile')}>Inicio</NavLink>
-            <NavLink onClick={() => {}}>Vagas</NavLink>
+            <NavLink onClick={() => navigate('/vagas')}>Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
             </LogoutButton>
@@ -159,7 +159,7 @@ export default function NewExperience() {
           <Brand onClick={() => navigate('/profile')}>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
-          <Copyright>(c) 2023 Multi Publicidade</Copyright>
+          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
       {logoutModal}
