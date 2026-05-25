@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { useAuth } from '../../hooks/useAuth';
 import { getCurriculo, updateCurriculo } from '../../services/curriculos';
 import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
@@ -33,8 +34,8 @@ import {
 
 export default function View() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const { requestLogout, logoutModal } = useConfirmLogout();
   const [curriculo, setCurriculo] = useState<Curriculo | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingStatus, setSavingStatus] = useState(false);
@@ -61,8 +62,7 @@ export default function View() {
   }, [id]);
 
   function handleLogout() {
-    signOut();
-    navigate('/');
+    requestLogout();
   }
 
   async function handleStatusChange(status: CurriculoStatus) {
@@ -256,6 +256,7 @@ export default function View() {
           <Copyright>© 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
+      {logoutModal}
     </Page>
   );
 }

@@ -3,7 +3,8 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { useAuth } from '../../hooks/useAuth';
+import { FeedbackMessage } from '../../components/FeedbackMessage';
+import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { addAtuacao } from '../../services/curriculos';
 import {
   ActionButtons,
@@ -28,14 +29,13 @@ import {
 
 export default function NewSkill() {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { requestLogout, logoutModal } = useConfirmLogout();
   const [nome, setNome] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
   function handleLogout() {
-    signOut();
-    navigate('/');
+    requestLogout();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -84,7 +84,7 @@ export default function NewSkill() {
       <Main>
         <Section>
           <SectionTitle>Cadastrar Habilidades</SectionTitle>
-          {message && <SectionTitle>{message}</SectionTitle>}
+          {message && <FeedbackMessage>{message}</FeedbackMessage>}
 
           <form onSubmit={handleSubmit}>
             <FormGrid>
@@ -119,6 +119,7 @@ export default function NewSkill() {
           <Copyright>(c) 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
+      {logoutModal}
     </Page>
   );
 }

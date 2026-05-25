@@ -115,7 +115,8 @@ export const SectionTitle = styled.h2`
 export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px 20px;
+  gap: 28px 20px;
+  align-items: start;
 
   @media (max-width: 900px) {
     grid-template-columns: repeat(2, 1fr);
@@ -130,6 +131,7 @@ export const DataItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 `;
 
 export const Label = styled.span`
@@ -140,14 +142,17 @@ export const Label = styled.span`
 
 export const Value = styled.span`
   width: 100%;
-  height: 34px;
+  min-height: 34px;
   border-bottom: 1.5px solid #fff;
   color: #fff;
   font-size: 14px;
   font-weight: 500;
   display: flex;
-  align-items: center;
-  padding: 0 2px;
+  align-items: flex-start;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  padding: 7px 2px 8px;
+  white-space: normal;
 `;
 
 export const ActionButtons = styled.div`

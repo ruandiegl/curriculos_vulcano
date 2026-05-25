@@ -2,9 +2,13 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { useConfirmLogout } from '../../hooks/useConfirmLogout';
+import { ConfirmModal } from '../../components/ConfirmModal';
+import { FeedbackMessage } from '../../components/FeedbackMessage';
 import { useAuth } from '../../hooks/useAuth';
 import { getCurriculo, updateCurriculo } from '../../services/curriculos';
 import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
+import { isAtLeastAge } from '../../utils/date';
 import { formatCnh, formatCpf, formatPhone, formatRg, onlyDigits } from '../../utils/masks';
 import { statusLabels } from '../../utils/status';
 import {
@@ -72,10 +76,12 @@ function formFromCurriculo(curriculo: Curriculo): FormState {
 export default function Edit() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const { requestLogout, logoutModal } = useConfirmLogout();
   const [form, setForm] = useState<FormState | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -100,8 +106,7 @@ export default function Edit() {
   }, [id]);
 
   function handleLogout() {
-    signOut();
-    navigate('/');
+    requestLogout();
   }
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
@@ -109,36 +114,69 @@ export default function Edit() {
   }
 
   const homePath = user?.tipo === 'admin' ? '/dashboard' : '/profile';
+  const messageVariant = message.toLowerCase().includes('sucesso') ? 'success' : 'error';
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function validateForm() {
+    if (!form) {
+      return false;
+    }
+
+    if (form.nome.trim().length < 2) {
+      setMessage('Informe o nome completo para continuar.');
+      return false;
+    }
+
+    if (form.nascimento && !isAtLeastAge(form.nascimento, 16)) {
+      setMessage('O candidato deve ter pelo menos 16 anos para cadastrar o curriculo.');
+      return false;
+    }
+
+    if (form.cpf && onlyDigits(form.cpf).length !== 11) {
+      setMessage('Informe um CPF com 11 digitos.');
+      return false;
+    }
+
+    if (form.rg && onlyDigits(form.rg).length < 7) {
+      setMessage('Informe um RG valido.');
+      return false;
+    }
+
+    if (form.celular && onlyDigits(form.celular).length !== 11) {
+      setMessage('Informe um celular com DDD e 9 digitos.');
+      return false;
+    }
+
+    if (form.telefone && ![10, 11].includes(onlyDigits(form.telefone).length)) {
+      setMessage('Informe um telefone com DDD.');
+      return false;
+    }
+
+    if (form.possuiCnh === 'Sim' && form.numeroCnh && onlyDigits(form.numeroCnh).length !== 11) {
+      setMessage('Informe a CNH com 11 digitos.');
+      return false;
+    }
+
+    return true;
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!id || !form) {
       return;
     }
 
-    if (form.cpf && onlyDigits(form.cpf).length !== 11) {
-      setMessage('Informe um CPF com 11 digitos.');
+    setMessage('');
+
+    if (!validateForm()) {
       return;
     }
 
-    if (form.rg && onlyDigits(form.rg).length < 7) {
-      setMessage('Informe um RG valido.');
-      return;
-    }
+    setConfirmOpen(true);
+  }
 
-    if (form.celular && onlyDigits(form.celular).length !== 11) {
-      setMessage('Informe um celular com DDD e 9 digitos.');
-      return;
-    }
-
-    if (form.telefone && ![10, 11].includes(onlyDigits(form.telefone).length)) {
-      setMessage('Informe um telefone com DDD.');
-      return;
-    }
-
-    if (form.possuiCnh === 'Sim' && form.numeroCnh && onlyDigits(form.numeroCnh).length !== 11) {
-      setMessage('Informe a CNH com 11 digitos.');
+  async function confirmUpdate() {
+    if (!id || !form) {
       return;
     }
 
@@ -163,6 +201,7 @@ export default function Edit() {
       });
 
       setMessage('Curriculo atualizado com sucesso.');
+      setConfirmOpen(false);
     } catch {
       setMessage('Nao foi possivel atualizar o curriculo.');
     } finally {
@@ -191,7 +230,7 @@ export default function Edit() {
       <Main>
         <Section>
           <SectionTitle>{loading ? 'Carregando Curriculo' : 'Dados Pessoais'}</SectionTitle>
-          {message && <Label>{message}</Label>}
+          {message && <FeedbackMessage variant={messageVariant}>{message}</FeedbackMessage>}
 
           {form && (
             <form onSubmit={handleSubmit}>
@@ -318,6 +357,19 @@ export default function Edit() {
           <Copyright>© 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
+
+      {confirmOpen && (
+        <ConfirmModal
+          title="Alterar curriculo?"
+          description="As informacoes deste curriculo serao atualizadas com os dados preenchidos na tela. Confirme para salvar as alteracoes."
+          confirmLabel="Salvar alteracoes"
+          tone="default"
+          loading={saving}
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={confirmUpdate}
+        />
+      )}
+      {logoutModal}
     </Page>
   );
 }

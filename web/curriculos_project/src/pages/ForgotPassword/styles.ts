@@ -25,11 +25,16 @@ export const Description = styled.p`
 export const FormMessage = styled.p<{ $success?: boolean }>`
   width: 100%;
   margin: -12px 0 18px;
-  color: ${({ $success }) => ($success ? '#2f8f75' : '#dc2626')};
+  padding: 12px 14px;
+  border: 1px solid ${({ $success }) => ($success ? '#bbf7d0' : '#fecdd3')};
+  border-left: 5px solid ${({ $success }) => ($success ? '#16a34a' : '#dc2626')};
+  border-radius: 7px;
+  background: ${({ $success }) => ($success ? '#ecfdf5' : '#fff1f2')};
+  color: ${({ $success }) => ($success ? '#166534' : '#991b1b')};
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.4;
-  text-align: center;
+  text-align: left;
 `;
 
 export const ReturnButton = styled.button`

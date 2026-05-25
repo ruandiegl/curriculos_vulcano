@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { useAuth } from '../../hooks/useAuth';
+import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import {
   ActionButtons,
   BackButton,
@@ -23,11 +23,10 @@ import {
 
 export default function UploadPDF() {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { requestLogout, logoutModal } = useConfirmLogout();
 
   function handleLogout() {
-    signOut();
-    navigate('/');
+    requestLogout();
   }
 
   return (
@@ -76,6 +75,7 @@ export default function UploadPDF() {
           <Copyright>© 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
+      {logoutModal}
     </Page>
   );
 }

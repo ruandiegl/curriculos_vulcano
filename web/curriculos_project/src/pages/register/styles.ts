@@ -172,14 +172,151 @@ export const RegisterButton = styled.button`
   }
 `;
 
+export const ConsentBox = styled.div`
+  width: 100%;
+  margin: -2px 0 18px;
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: start;
+  color: #58677a;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+
+  input {
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    accent-color: #ff8424;
+  }
+
+  button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #063e66;
+    cursor: pointer;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+`;
+
+export const ModalBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.68);
+`;
+
+export const PolicyModal = styled.div`
+  width: min(760px, 100%);
+  max-height: min(82vh, 760px);
+  border-radius: 8px;
+  background: #f7fafc;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.32);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
+export const PolicyHeader = styled.div`
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid #dbe4ee;
+
+  h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 20px;
+    font-weight: 900;
+  }
+
+  span {
+    display: block;
+    margin-top: 6px;
+    color: #6b7a90;
+    font-size: 12px;
+    font-weight: 700;
+  }
+`;
+
+export const PolicyContent = styled.div`
+  padding: 24px 28px;
+  overflow: auto;
+  color: #111827;
+
+  section + section {
+    margin-top: 26px;
+  }
+
+  h3 {
+    margin: 0 0 12px;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration: underline;
+  }
+
+  p {
+    margin: 0 0 12px;
+    color: #111827;
+    display: block;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+`;
+
+export const PolicyActions = styled.div`
+  padding: 18px 28px 24px;
+  border-top: 1px solid #dbe4ee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  @media (max-width: 560px) {
+    flex-direction: column;
+  }
+`;
+
+export const PolicyButton = styled.button<{ $secondary?: boolean }>`
+  min-height: 44px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 7px;
+  background: ${({ $secondary }) => ($secondary ? '#e8eef5' : '#ff8424')};
+  color: ${({ $secondary }) => ($secondary ? '#263346' : '#fff')};
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+
+  &:hover {
+    background: ${({ $secondary }) => ($secondary ? '#dce6f0' : '#ff7b17')};
+  }
+`;
+
 export const FormMessage = styled.p<{ $success?: boolean }>`
   width: 100%;
   margin: -6px 0 16px;
-  color: ${({ $success }) => ($success ? '#2f8f75' : '#dc2626')};
+  display: block;
+  padding: 12px 14px;
+  border: 1px solid ${({ $success }) => ($success ? '#bbf7d0' : '#fecdd3')};
+  border-left: 5px solid ${({ $success }) => ($success ? '#16a34a' : '#dc2626')};
+  border-radius: 7px;
+  background: ${({ $success }) => ($success ? '#ecfdf5' : '#fff1f2')};
+  color: ${({ $success }) => ($success ? '#166534' : '#991b1b')};
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.4;
-  text-align: center;
+  text-align: left;
 `;
 
 export const ReturnButton = styled.button`

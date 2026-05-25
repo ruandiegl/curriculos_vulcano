@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { api } from '../../services/api';
+import { isValidEmail, normalizeEmail } from '../../utils/email';
 import {
   Brand,
   Card,
@@ -35,10 +36,15 @@ export default function ForgotPassword() {
       return;
     }
 
+    if (!isValidEmail(email)) {
+      setErrorMessage('Informe um email valido.');
+      return;
+    }
+
     try {
       setLoading(true);
 
-      await api.post('/login/forgot-password', { email });
+      await api.post('/login/forgot-password', { email: normalizeEmail(email) });
 
       setSuccessMessage(
         'Se este email estiver cadastrado, enviaremos um link para redefinir sua senha.',

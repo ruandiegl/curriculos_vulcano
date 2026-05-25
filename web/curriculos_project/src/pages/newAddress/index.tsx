@@ -3,7 +3,8 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { useAuth } from '../../hooks/useAuth';
+import { FeedbackMessage } from '../../components/FeedbackMessage';
+import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { PENDING_CURRICULUM_STORAGE_KEY, updateCurriculo } from '../../services/curriculos';
 import {
   ActionButtons,
@@ -82,7 +83,7 @@ function formatCep(value: string) {
 export default function NewAddress() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { requestLogout, logoutModal } = useConfirmLogout();
   const state = location.state as LocationState | null;
   const initialCurriculoId = state?.curriculoId ?? sessionStorage.getItem(PENDING_CURRICULUM_STORAGE_KEY) ?? '';
   const [form, setForm] = useState<FormState>(initialForm);
@@ -92,10 +93,10 @@ export default function NewAddress() {
   const [message, setMessage] = useState(
     initialCurriculoId ? '' : 'Crie os dados pessoais do curriculo antes de informar o endereco.',
   );
+  const messageVariant = initialCurriculoId ? 'error' : 'info';
 
   function handleLogout() {
-    signOut();
-    navigate('/');
+    requestLogout();
   }
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
@@ -217,7 +218,7 @@ export default function NewAddress() {
 
         <Section>
           <SectionTitle>Endereco</SectionTitle>
-          {message && <Label>{message}</Label>}
+          {message && <FeedbackMessage variant={messageVariant}>{message}</FeedbackMessage>}
 
           <form onSubmit={handleSubmit}>
             <Grid>
@@ -306,6 +307,7 @@ export default function NewAddress() {
           <Copyright>© 2023 Multi Publicidade</Copyright>
         </FooterContent>
       </Footer>
+      {logoutModal}
     </Page>
   );
 }
