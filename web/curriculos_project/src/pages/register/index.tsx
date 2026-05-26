@@ -52,8 +52,8 @@ export default function Register() {
       return;
     }
 
-    if (password.length < 6) {
-      setErrorMessage('A senha deve ter no minimo 6 caracteres.');
+    if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+      setErrorMessage('A senha deve ter no minimo 8 caracteres, incluindo letras e numeros.');
       return;
     }
 

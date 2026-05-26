@@ -1,6 +1,6 @@
 import { UsuarioRepository } from '../Repositories/UsuarioRepository.js';
 import { getPagination, paginatedResponse } from '../DTO/pagination.js';
-import { usuarioSchema, usuarioUpdateSchema } from '../validators/usuarioValidator.js';
+import { usuarioAdminSchema, usuarioAdminUpdateSchema } from '../validators/usuarioValidator.js';
 
 const repository = new UsuarioRepository();
 
@@ -38,13 +38,13 @@ export class UsuarioController {
   }
 
   async store(req, res) {
-    const payload = usuarioSchema.parse(req.body);
+    const payload = usuarioAdminSchema.parse(req.body);
     const usuario = await repository.create(payload);
     return res.status(201).json(usuario);
   }
 
   async update(req, res) {
-    const payload = usuarioUpdateSchema.parse(req.body);
+    const payload = usuarioAdminUpdateSchema.parse(req.body);
     const usuario = await repository.update(req.params.id, payload);
     return res.json(usuario);
   }

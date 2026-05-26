@@ -4,6 +4,8 @@ import {
   atuacaoSchema,
   curriculoSchema,
   curriculoUpdateSchema,
+  curriculoUserCreateSchema,
+  curriculoUserUpdateSchema,
   cursoSchema,
   escolaridadeSchema,
   experienciaSchema,
@@ -62,10 +64,13 @@ export class CurriculoController {
   }
 
   async store(req, res) {
-    const payload = curriculoSchema.parse({
-      ...req.body,
-      usuarioId: req.userTipo === 'admin' ? req.body.usuarioId : req.userId,
-    });
+    const payload = req.userTipo === 'admin'
+      ? curriculoSchema.parse(req.body)
+      : {
+          ...curriculoUserCreateSchema.parse(req.body),
+          usuarioId: req.userId,
+        };
+
     const curriculo = await repository.create(payload);
     return res.status(201).json(curriculo);
   }
@@ -81,7 +86,10 @@ export class CurriculoController {
       return res.status(403).json({ message: 'Acesso permitido apenas ao dono do curriculo.' });
     }
 
-    const payload = curriculoUpdateSchema.parse(req.body);
+    const payload = req.userTipo === 'admin'
+      ? curriculoUpdateSchema.parse(req.body)
+      : curriculoUserUpdateSchema.parse(req.body);
+
     const curriculo = await repository.update(req.params.id, payload);
     return res.json(curriculo);
   }
