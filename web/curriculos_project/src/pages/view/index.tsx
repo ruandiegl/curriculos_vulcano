@@ -3,8 +3,9 @@ import { useParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { useAuth } from '../../hooks/useAuth';
-import { getCurriculo, updateCurriculo } from '../../services/curriculos';
+import { downloadCurriculoArquivo, getCurriculo, updateCurriculo } from '../../services/curriculos';
 import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
+import { downloadCurriculoSistemaPdf } from '../../utils/curriculoPdf';
 import { formatCnh, formatCpf, formatPhone, formatRg, valueOrDash } from '../../utils/masks';
 import { formatList, getStatusColor, getStatusLabel, statusLabels } from '../../utils/status';
 import {
@@ -13,6 +14,8 @@ import {
   Brand,
   Copyright,
   DataItem,
+  DownloadLink,
+  DownloadLinks,
   Footer,
   FooterContent,
   Grid,
@@ -86,6 +89,30 @@ export default function View() {
   const firstAddress = curriculo?.enderecos?.[0];
   const possuiCNH = curriculo?.possuiCnh ? 'Sim' : 'Nao';
   const homePath = user?.tipo === 'admin' ? '/dashboard' : '/profile';
+
+  async function handleDownloadUploadedPdf() {
+    const arquivo = curriculo?.arquivos?.[0];
+
+    if (!curriculo || !arquivo?.id) {
+      setMessage('Este curriculo nao possui PDF enviado pelo usuario.');
+      return;
+    }
+
+    try {
+      setMessage('');
+      const blob = await downloadCurriculoArquivo(curriculo.id, arquivo.id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = arquivo.nomeOriginal ?? `curriculo-${curriculo.nome}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setMessage('Nao foi possivel baixar o PDF enviado pelo usuario.');
+    }
+  }
 
   return (
     <Page>
@@ -245,6 +272,17 @@ export default function View() {
                 <ActionButton href={`/edit/${curriculo.id}`}>Alterar Curriculo</ActionButton>
                 <ActionButton href={homePath}>Voltar</ActionButton>
               </ActionButtons>
+
+              {user?.tipo === 'admin' && (
+                <DownloadLinks>
+                  <DownloadLink as="button" type="button" onClick={() => downloadCurriculoSistemaPdf(curriculo)}>
+                    + Download PDF (Sistema)
+                  </DownloadLink>
+                  <DownloadLink as="button" type="button" onClick={handleDownloadUploadedPdf}>
+                    + Download PDF (Usuario)
+                  </DownloadLink>
+                </DownloadLinks>
+              )}
             </Section>
           </>
         )}

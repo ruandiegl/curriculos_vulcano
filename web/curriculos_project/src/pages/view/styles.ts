@@ -218,10 +218,16 @@ export const DownloadLinks = styled.div`
 `;
 
 export const DownloadLink = styled.a`
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: #2c3547;
   text-decoration: none;
   font-size: 14px;
   font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
 
   &:hover {
     color: #fb7900;

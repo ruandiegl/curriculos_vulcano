@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -16,6 +17,7 @@ import {
   Brand,
   Copyright,
   Field,
+  FieldsetTitle,
   Footer,
   FooterContent,
   Grid,
@@ -49,13 +51,41 @@ type FormState = {
   vencimentoCnh: string;
   categoriaCnh: string;
   status: CurriculoStatus;
+  cep: string;
+  rua: string;
+  cidade: string;
+  numero: string;
+  bairro: string;
+  estado: string;
+  complemento: string;
+};
+
+type ViaCepResponse = {
+  erro?: boolean;
+  logradouro?: string;
+  bairro?: string;
+  localidade?: string;
+  uf?: string;
+  complemento?: string;
 };
 
 function nullable(value: string) {
   return value.trim() || null;
 }
 
+function formatCep(value: string) {
+  const digits = onlyDigits(value).slice(0, 8);
+
+  if (digits.length <= 5) {
+    return digits;
+  }
+
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+}
+
 function formFromCurriculo(curriculo: Curriculo): FormState {
+  const endereco = curriculo.enderecos?.[0];
+
   return {
     nome: curriculo.nome ?? '',
     celular: formatPhone(curriculo.celular),
@@ -70,6 +100,13 @@ function formFromCurriculo(curriculo: Curriculo): FormState {
     vencimentoCnh: curriculo.vencimentoCnh?.slice(0, 10) ?? '',
     categoriaCnh: curriculo.categoriaCnh ?? '',
     status: curriculo.status,
+    cep: '',
+    rua: endereco?.rua ?? '',
+    cidade: endereco?.cidade ?? '',
+    numero: endereco?.numero ?? '',
+    bairro: endereco?.bairro ?? '',
+    estado: endereco?.estado ?? '',
+    complemento: endereco?.complemento ?? '',
   };
 }
 
@@ -111,6 +148,44 @@ export default function Edit() {
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((current) => (current ? { ...current, [field]: value } : current));
+  }
+
+  async function fetchAddressByCep(cep: string) {
+    const digits = onlyDigits(cep);
+
+    if (digits.length !== 8) {
+      return;
+    }
+
+    try {
+      setMessage('');
+      const response = await axios.get<ViaCepResponse>(`https://viacep.com.br/ws/${digits}/json/`);
+
+      if (response.data.erro) {
+        setMessage('CEP nao encontrado. Preencha o endereco manualmente.');
+        return;
+      }
+
+      setForm((current) => current ? {
+        ...current,
+        rua: response.data.logradouro ?? current.rua,
+        bairro: response.data.bairro ?? current.bairro,
+        cidade: response.data.localidade ?? current.cidade,
+        estado: response.data.uf ?? current.estado,
+        complemento: response.data.complemento || current.complemento,
+      } : current);
+    } catch {
+      setMessage('Nao foi possivel buscar o CEP. Preencha o endereco manualmente.');
+    }
+  }
+
+  function handleCepChange(value: string) {
+    const cep = formatCep(value);
+    updateField('cep', cep);
+
+    if (onlyDigits(cep).length === 8) {
+      fetchAddressByCep(cep);
+    }
   }
 
   const homePath = user?.tipo === 'admin' ? '/dashboard' : '/profile';
@@ -198,6 +273,16 @@ export default function Edit() {
         vencimentoCnh: nullable(form.vencimentoCnh),
         categoriaCnh: form.possuiCnh === 'Sim' ? nullable(form.categoriaCnh) : null,
         status: form.status,
+        enderecos: [
+          {
+            rua: nullable(form.rua),
+            numero: nullable(form.numero),
+            complemento: nullable(form.complemento),
+            bairro: nullable(form.bairro),
+            cidade: nullable(form.cidade),
+            estado: nullable(form.estado),
+          },
+        ],
       });
 
       setMessage('Curriculo atualizado com sucesso.');
@@ -236,6 +321,7 @@ export default function Edit() {
 
           {form && (
             <form onSubmit={handleSubmit}>
+              <FieldsetTitle>Dados Pessoais</FieldsetTitle>
               <Grid>
                 <Field>
                   <Label>Nome</Label>
@@ -336,6 +422,50 @@ export default function Edit() {
                     </Field>
                   </>
                 )}
+              </Grid>
+
+              <FieldsetTitle>Endereco</FieldsetTitle>
+              <Grid>
+                <Field>
+                  <Label>CEP</Label>
+                  <Input
+                    type="text"
+                    placeholder="CEP"
+                    value={form.cep}
+                    onChange={(e) => handleCepChange(e.target.value)}
+                    onBlur={(e) => fetchAddressByCep(e.target.value)}
+                  />
+                </Field>
+                <Field>
+                  <Label>Logradouro</Label>
+                  <Input type="text" value={form.rua} onChange={(e) => updateField('rua', e.target.value)} />
+                </Field>
+                <Field>
+                  <Label>Cidade</Label>
+                  <Input type="text" value={form.cidade} onChange={(e) => updateField('cidade', e.target.value)} />
+                </Field>
+
+                <Field>
+                  <Label>Numero</Label>
+                  <Input type="text" value={form.numero} onChange={(e) => updateField('numero', e.target.value)} />
+                </Field>
+                <Field>
+                  <Label>Bairro</Label>
+                  <Input type="text" value={form.bairro} onChange={(e) => updateField('bairro', e.target.value)} />
+                </Field>
+                <Field>
+                  <Label>Estado</Label>
+                  <Input type="text" value={form.estado} onChange={(e) => updateField('estado', e.target.value)} />
+                </Field>
+
+                <Field>
+                  <Label>Complemento</Label>
+                  <Input
+                    type="text"
+                    value={form.complemento}
+                    onChange={(e) => updateField('complemento', e.target.value)}
+                  />
+                </Field>
               </Grid>
 
               <ActionButtons>

@@ -22,6 +22,7 @@ import Jobs from '../pages/jobs/index.tsx';
 type RouteGuardProps = {
   children: ReactNode;
   adminOnly?: boolean;
+  userOnly?: boolean;
 };
 
 function getAuthenticatedPath(user: ReturnType<typeof useAuth>['user']) {
@@ -46,7 +47,7 @@ function PublicRoute({ children }: RouteGuardProps) {
   return children;
 }
 
-function PrivateRoute({ children, adminOnly = false }: RouteGuardProps) {
+function PrivateRoute({ children, adminOnly = false, userOnly = false }: RouteGuardProps) {
   const { isAuthenticated, user } = useAuth();
 
   if (!isAuthenticated) {
@@ -55,6 +56,10 @@ function PrivateRoute({ children, adminOnly = false }: RouteGuardProps) {
 
   if (adminOnly && user?.tipo !== 'admin') {
     return <Navigate to={getAuthenticatedPath(user)} replace />;
+  }
+
+  if (userOnly && user?.tipo === 'admin') {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -101,7 +106,7 @@ export function AppRoutes() {
       <Route
         path="/newCurriculum"
         element={
-          <PrivateRoute>
+          <PrivateRoute userOnly>
             <NewCurriculum />
           </PrivateRoute>
         }
@@ -109,7 +114,7 @@ export function AppRoutes() {
       <Route
         path="/newAddress"
         element={
-          <PrivateRoute>
+          <PrivateRoute userOnly>
             <NewAddress />
           </PrivateRoute>
         }
@@ -117,7 +122,7 @@ export function AppRoutes() {
       <Route
         path="/profile"
         element={
-          <PrivateRoute>
+          <PrivateRoute userOnly>
             <Profile />
           </PrivateRoute>
         }
@@ -125,7 +130,7 @@ export function AppRoutes() {
       <Route
         path="/upload-pdf"
         element={
-          <PrivateRoute>
+          <PrivateRoute userOnly>
             <UploadPDF />
           </PrivateRoute>
         }
@@ -133,7 +138,7 @@ export function AppRoutes() {
       <Route
         path="/new-education"
         element={
-          <PrivateRoute>
+          <PrivateRoute userOnly>
             <NewEducation />
           </PrivateRoute>
         }
@@ -141,7 +146,7 @@ export function AppRoutes() {
       <Route
         path="/new-experience"
         element={
-          <PrivateRoute>
+          <PrivateRoute userOnly>
             <NewExperience />
           </PrivateRoute>
         }
@@ -149,7 +154,7 @@ export function AppRoutes() {
       <Route
         path="/new-skill"
         element={
-          <PrivateRoute>
+          <PrivateRoute userOnly>
             <NewSkill />
           </PrivateRoute>
         }
@@ -157,7 +162,7 @@ export function AppRoutes() {
       <Route
         path="/new-certification"
         element={
-          <PrivateRoute>
+          <PrivateRoute userOnly>
             <NewCertification />
           </PrivateRoute>
         }
@@ -173,7 +178,7 @@ export function AppRoutes() {
       <Route
         path="/vagas"
         element={
-          <PrivateRoute>
+          <PrivateRoute userOnly>
             <Jobs />
           </PrivateRoute>
         }
