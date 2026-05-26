@@ -8,7 +8,7 @@ export class CandidaturaController {
   async index(req, res) {
     const { page, limit, skip, take } = getPagination(req.query);
     const filters = {
-      usuarioId: req.query.usuarioId,
+      usuarioId: req.userTipo === 'admin' ? req.query.usuarioId : req.userId,
       vagaId: req.query.vagaId,
     };
 
@@ -22,11 +22,30 @@ export class CandidaturaController {
 
   async store(req, res) {
     const payload = candidaturaSchema.parse(req.body);
-    const candidatura = await repository.create(payload);
+    const usuarioId = req.userTipo === 'admin' ? payload.usuarioId : req.userId;
+
+    if (!usuarioId) {
+      return res.status(400).json({ message: 'Informe o usuario da candidatura.' });
+    }
+
+    const candidatura = await repository.create({
+      ...payload,
+      usuarioId,
+    });
     return res.status(201).json(candidatura);
   }
 
   async delete(req, res) {
+    const candidatura = await repository.findById(req.params.id);
+
+    if (!candidatura) {
+      return res.status(404).json({ message: 'Candidatura nao encontrada.' });
+    }
+
+    if (req.userTipo !== 'admin' && candidatura.usuarioId !== req.userId) {
+      return res.status(403).json({ message: 'Acesso permitido apenas ao dono da candidatura.' });
+    }
+
     await repository.delete(req.params.id);
     return res.status(204).send();
   }

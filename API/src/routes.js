@@ -5,7 +5,7 @@ import { CandidaturaController } from './app/controllers/CandidaturaController.j
 import { CurriculoController } from './app/controllers/CurriculoController.js';
 import { UsuarioController } from './app/controllers/UsuarioController.js';
 import { VagaController } from './app/controllers/VagaController.js';
-import { adminCreationRoutes, privateRoutes } from './app/middlewares/Auth.js';
+import { adminCreationRoutes, adminRoutes, privateRoutes } from './app/middlewares/Auth.js';
 import { asyncHandler } from './app/middlewares/asyncHandler.js';
 import { uploadCurriculoPdf } from './app/middlewares/uploadCurriculoPdf.js';
 
@@ -30,13 +30,13 @@ router.post('/login/register-admin', adminCreationRoutes, asyncHandler(auth.regi
 
 router.use(privateRoutes);
 
-router.get('/usuarios', asyncHandler(usuarios.index));
-router.post('/usuarios', asyncHandler(usuarios.store));
-router.get('/usuarios/:id', asyncHandler(usuarios.show));
-router.put('/usuarios/:id', asyncHandler(usuarios.update));
-router.delete('/usuarios/:id', asyncHandler(usuarios.delete));
+router.get('/usuarios', adminRoutes, asyncHandler(usuarios.index));
+router.post('/usuarios', adminRoutes, asyncHandler(usuarios.store));
+router.get('/usuarios/:id', adminRoutes, asyncHandler(usuarios.show));
+router.put('/usuarios/:id', adminRoutes, asyncHandler(usuarios.update));
+router.delete('/usuarios/:id', adminRoutes, asyncHandler(usuarios.delete));
 
-router.get('/curriculos', asyncHandler(curriculos.index));
+router.get('/curriculos', adminRoutes, asyncHandler(curriculos.index));
 router.post('/curriculos', asyncHandler(curriculos.store));
 router.get('/curriculos/me', asyncHandler(curriculos.me));
 router.post('/curriculos/me/cursos', asyncHandler(curriculos.storeCurso));
@@ -53,13 +53,13 @@ router.get('/curriculos/:id/pdf/:arquivoId/download', asyncHandler(curriculoArqu
 router.delete('/curriculos/:id/pdf/:arquivoId', asyncHandler(curriculoArquivos.delete));
 router.get('/curriculos/:id', asyncHandler(curriculos.show));
 router.put('/curriculos/:id', asyncHandler(curriculos.update));
-router.delete('/curriculos/:id', asyncHandler(curriculos.delete));
+router.delete('/curriculos/:id', adminRoutes, asyncHandler(curriculos.delete));
 
 router.get('/vagas', asyncHandler(vagas.index));
-router.post('/vagas', asyncHandler(vagas.store));
+router.post('/vagas', adminRoutes, asyncHandler(vagas.store));
 router.get('/vagas/:id', asyncHandler(vagas.show));
-router.put('/vagas/:id', asyncHandler(vagas.update));
-router.delete('/vagas/:id', asyncHandler(vagas.delete));
+router.put('/vagas/:id', adminRoutes, asyncHandler(vagas.update));
+router.delete('/vagas/:id', adminRoutes, asyncHandler(vagas.delete));
 
 router.get('/candidaturas', asyncHandler(candidaturas.index));
 router.post('/candidaturas', asyncHandler(candidaturas.store));
