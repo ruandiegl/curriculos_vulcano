@@ -1,6 +1,7 @@
 import { CandidaturaRepository } from '../Repositories/CandidaturaRepository.js';
 import { getPagination, paginatedResponse } from '../DTO/pagination.js';
 import { candidaturaSchema } from '../validators/candidaturaValidator.js';
+import { auditLog } from '../services/auditLogger.js';
 
 const repository = new CandidaturaRepository();
 
@@ -32,6 +33,11 @@ export class CandidaturaController {
       ...payload,
       usuarioId,
     });
+    auditLog(req, 'candidatura.create', {
+      candidaturaId: candidatura.id,
+      targetUserId: candidatura.usuarioId,
+      vagaId: candidatura.vagaId,
+    });
     return res.status(201).json(candidatura);
   }
 
@@ -47,6 +53,11 @@ export class CandidaturaController {
     }
 
     await repository.delete(req.params.id);
+    auditLog(req, 'candidatura.delete', {
+      candidaturaId: req.params.id,
+      targetUserId: candidatura.usuarioId,
+      vagaId: candidatura.vagaId,
+    });
     return res.status(204).send();
   }
 }

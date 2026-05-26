@@ -7,6 +7,7 @@ import {
   registerSchema,
   resetPasswordSchema,
 } from '../validators/authValidator.js';
+import { auditLog } from '../services/auditLogger.js';
 import { sendPasswordResetEmail } from '../services/mailService.js';
 
 const repository = new UsuarioRepository();
@@ -68,6 +69,11 @@ export class AuthController {
       passHash,
     });
 
+    auditLog(req, 'auth.register_user', {
+      targetUserId: user.id,
+      targetUserTipo: user.tipo,
+    });
+
     return res.status(201).json({
       usuario: {
         nome: user.nome,
@@ -94,6 +100,11 @@ export class AuthController {
       passHash,
     });
 
+    auditLog(req, 'auth.register_admin', {
+      targetUserId: user.id,
+      targetUserTipo: user.tipo,
+    });
+
     return res.status(201).json({
       usuario: {
         id: user.id,
@@ -111,8 +122,17 @@ export class AuthController {
     const passwordMatch = await bcrypt.compare(password, passwordHash);
 
     if (!user || !passwordMatch) {
+      auditLog(req, 'auth.login_failed', {
+        email,
+        reason: user ? 'invalid_password' : 'unknown_user',
+      });
       return res.status(401).json({ message: 'Email ou senha incorretos.' });
     }
+
+    auditLog(req, 'auth.login_success', {
+      targetUserId: user.id,
+      targetUserTipo: user.tipo,
+    });
 
     return res.status(200).json({
       message: 'Login bem sucedido.',
@@ -143,6 +163,12 @@ export class AuthController {
       });
     }
 
+    auditLog(req, 'auth.password_reset_requested', {
+      email,
+      targetUserId: user?.id ?? null,
+      emailExists: Boolean(user?.passHash),
+    });
+
     return res.status(200).json({ message: forgotPasswordMessage });
   }
 
@@ -168,6 +194,10 @@ export class AuthController {
 
     const passHash = await bcrypt.hash(password, 10);
     await repository.updatePassword(user.id, passHash);
+
+    auditLog(req, 'auth.password_reset_completed', {
+      targetUserId: user.id,
+    });
 
     return res.status(200).json({ message: 'Senha redefinida com sucesso.' });
   }

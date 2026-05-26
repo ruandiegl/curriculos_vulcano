@@ -1,6 +1,7 @@
 import { VagaRepository } from '../Repositories/VagaRepository.js';
 import { getPagination, paginatedResponse } from '../DTO/pagination.js';
 import { vagaSchema, vagaUpdateSchema } from '../validators/vagaValidator.js';
+import { auditLog } from '../services/auditLogger.js';
 
 const repository = new VagaRepository();
 
@@ -28,17 +29,23 @@ export class VagaController {
   async store(req, res) {
     const payload = vagaSchema.parse(req.body);
     const vaga = await repository.create(payload);
+    auditLog(req, 'vaga.create', { vagaId: vaga.id });
     return res.status(201).json(vaga);
   }
 
   async update(req, res) {
     const payload = vagaUpdateSchema.parse(req.body);
     const vaga = await repository.update(req.params.id, payload);
+    auditLog(req, 'vaga.update', {
+      vagaId: vaga.id,
+      fields: Object.keys(payload),
+    });
     return res.json(vaga);
   }
 
   async delete(req, res) {
     await repository.delete(req.params.id);
+    auditLog(req, 'vaga.delete', { vagaId: req.params.id });
     return res.status(204).send();
   }
 }
