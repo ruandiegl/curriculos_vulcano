@@ -10,6 +10,7 @@ import {
   escolaridadeSchema,
   experienciaSchema,
 } from '../validators/curriculoValidator.js';
+import { auditLog } from '../services/auditLogger.js';
 
 const repository = new CurriculoRepository();
 
@@ -72,6 +73,10 @@ export class CurriculoController {
         };
 
     const curriculo = await repository.create(payload);
+    auditLog(req, 'curriculo.create', {
+      curriculoId: curriculo.id,
+      targetUserId: curriculo.usuarioId,
+    });
     return res.status(201).json(curriculo);
   }
 
@@ -91,6 +96,11 @@ export class CurriculoController {
       : curriculoUserUpdateSchema.parse(req.body);
 
     const curriculo = await repository.update(req.params.id, payload);
+    auditLog(req, 'curriculo.update', {
+      curriculoId: curriculo.id,
+      targetUserId: curriculo.usuarioId,
+      fields: Object.keys(payload),
+    });
     return res.json(curriculo);
   }
 
@@ -100,6 +110,7 @@ export class CurriculoController {
 
     const payload = cursoSchema.parse(req.body);
     const updated = await repository.appendRelation(curriculo.id, 'cursos', payload);
+    auditLog(req, 'curriculo.curso_add', { curriculoId: curriculo.id });
     return res.status(201).json(updated);
   }
 
@@ -109,6 +120,7 @@ export class CurriculoController {
 
     const payload = experienciaSchema.parse(req.body);
     const updated = await repository.appendRelation(curriculo.id, 'experiencias', payload);
+    auditLog(req, 'curriculo.experiencia_add', { curriculoId: curriculo.id });
     return res.status(201).json(updated);
   }
 
@@ -118,6 +130,7 @@ export class CurriculoController {
 
     const payload = escolaridadeSchema.parse(req.body);
     const updated = await repository.appendRelation(curriculo.id, 'escolaridades', payload);
+    auditLog(req, 'curriculo.escolaridade_add', { curriculoId: curriculo.id });
     return res.status(201).json(updated);
   }
 
@@ -127,11 +140,13 @@ export class CurriculoController {
 
     const payload = atuacaoSchema.parse(req.body);
     const updated = await repository.appendRelation(curriculo.id, 'atuacoes', payload);
+    auditLog(req, 'curriculo.atuacao_add', { curriculoId: curriculo.id });
     return res.status(201).json(updated);
   }
 
   async delete(req, res) {
     await repository.delete(req.params.id);
+    auditLog(req, 'curriculo.delete', { curriculoId: req.params.id });
     return res.status(204).send();
   }
 

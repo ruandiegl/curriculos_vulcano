@@ -1,6 +1,7 @@
-import { stat, unlink } from 'node:fs/promises';
+import { open, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { CurriculoArquivoRepository } from '../Repositories/CurriculoArquivoRepository.js';
+import { auditLog } from '../services/auditLogger.js';
 
 const repository = new CurriculoArquivoRepository();
 
@@ -14,6 +15,18 @@ async function removeUploadedFile(filePath) {
   }
 
   await unlink(filePath).catch(() => {});
+}
+
+async function isPdfFile(filePath) {
+  const file = await open(filePath, 'r');
+
+  try {
+    const buffer = Buffer.alloc(5);
+    const { bytesRead } = await file.read(buffer, 0, buffer.length, 0);
+    return bytesRead === 5 && buffer.toString('ascii') === '%PDF-';
+  } finally {
+    await file.close();
+  }
 }
 
 export class CurriculoArquivoController {
@@ -49,6 +62,11 @@ export class CurriculoArquivoController {
       return res.status(400).json({ message: 'Envie um arquivo PDF no campo "arquivo".' });
     }
 
+    if (!(await isPdfFile(req.file.path))) {
+      await removeUploadedFile(req.file.path);
+      return res.status(400).json({ message: 'O arquivo enviado nao e um PDF valido.' });
+    }
+
     const arquivosAntigos = await repository.listByCurriculo(req.params.id);
     const arquivo = await repository.replaceForCurriculo(req.params.id, {
       curriculoId: req.params.id,
@@ -60,6 +78,13 @@ export class CurriculoArquivoController {
     });
 
     await Promise.all(arquivosAntigos.map((item) => removeUploadedFile(item.caminho)));
+
+    auditLog(req, arquivosAntigos.length ? 'curriculo_pdf.replace' : 'curriculo_pdf.upload', {
+      curriculoId: req.params.id,
+      arquivoId: arquivo.id,
+      previousFileCount: arquivosAntigos.length,
+      size: arquivo.tamanho,
+    });
 
     return res.status(201).json(arquivo);
   }
@@ -77,6 +102,10 @@ export class CurriculoArquivoController {
     }
 
     await stat(arquivo.caminho);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'X-Content-Type-Options': 'nosniff',
+    });
     return res.download(path.resolve(arquivo.caminho), arquivo.nomeOriginal);
   }
 
@@ -95,6 +124,12 @@ export class CurriculoArquivoController {
     const arquivos = await repository.listByCurriculo(req.params.id);
     await repository.deleteByCurriculo(req.params.id);
     await Promise.all(arquivos.map((item) => removeUploadedFile(item.caminho)));
+
+    auditLog(req, 'curriculo_pdf.delete', {
+      curriculoId: req.params.id,
+      arquivoId: req.params.arquivoId,
+      deletedFileCount: arquivos.length,
+    });
 
     return res.status(204).send();
   }

@@ -1,6 +1,7 @@
 import { UsuarioRepository } from '../Repositories/UsuarioRepository.js';
 import { getPagination, paginatedResponse } from '../DTO/pagination.js';
 import { usuarioAdminSchema, usuarioAdminUpdateSchema } from '../validators/usuarioValidator.js';
+import { auditLog } from '../services/auditLogger.js';
 
 const repository = new UsuarioRepository();
 
@@ -40,17 +41,27 @@ export class UsuarioController {
   async store(req, res) {
     const payload = usuarioAdminSchema.parse(req.body);
     const usuario = await repository.create(payload);
+    auditLog(req, 'usuario.create', {
+      targetUserId: usuario.id,
+      targetUserTipo: usuario.tipo,
+    });
     return res.status(201).json(usuario);
   }
 
   async update(req, res) {
     const payload = usuarioAdminUpdateSchema.parse(req.body);
     const usuario = await repository.update(req.params.id, payload);
+    auditLog(req, 'usuario.update', {
+      targetUserId: usuario.id,
+      targetUserTipo: usuario.tipo,
+      fields: Object.keys(payload),
+    });
     return res.json(usuario);
   }
 
   async delete(req, res) {
     await repository.delete(req.params.id);
+    auditLog(req, 'usuario.delete', { targetUserId: req.params.id });
     return res.status(204).send();
   }
 }

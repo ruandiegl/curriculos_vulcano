@@ -4,7 +4,7 @@ import { ZodError } from 'zod';
 export function errorHandler(error, req, res, next) {
   if (error instanceof ZodError) {
     return res.status(400).json({
-      message: 'Dados inválidos.',
+      message: 'Dados invalidos.',
       issues: error.issues.map((issue) => ({
         path: issue.path.join('.'),
         message: issue.message,
@@ -13,10 +13,18 @@ export function errorHandler(error, req, res, next) {
   }
 
   if (error.name === 'MulterError') {
-    return res.status(400).json({ message: 'Arquivo inválido.', code: error.code });
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'O arquivo deve ter no maximo 10 MB.', code: error.code });
+    }
+
+    return res.status(400).json({ message: 'Arquivo invalido.', code: error.code });
   }
 
-  if (error.message === 'Apenas arquivos PDF são permitidos.') {
+  if (
+    error.message === 'Apenas arquivos PDF sao permitidos.' ||
+    error.message === 'Apenas arquivos PDF sÃ£o permitidos.' ||
+    error.message === 'O arquivo enviado nao e um PDF valido.'
+  ) {
     return res.status(400).json({ message: error.message });
   }
 
@@ -29,7 +37,7 @@ export function errorHandler(error, req, res, next) {
     }
 
     if (error.code === 'P2025') {
-      return res.status(404).json({ message: 'Registro não encontrado.' });
+      return res.status(404).json({ message: 'Registro nao encontrado.' });
     }
   }
 
