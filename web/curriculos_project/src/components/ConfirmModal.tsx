@@ -5,6 +5,7 @@ type ConfirmModalProps = {
   description: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  loadingLabel?: string;
   tone?: 'danger' | 'default';
   loading?: boolean;
   onCancel: () => void;
@@ -111,6 +112,7 @@ export function ConfirmModal({
   description,
   confirmLabel = 'Excluir',
   cancelLabel = 'Cancelar',
+  loadingLabel = 'Excluindo...',
   tone = 'danger',
   loading = false,
   onCancel,
@@ -131,7 +133,7 @@ export function ConfirmModal({
             {cancelLabel}
           </Button>
           <Button type="button" $primary $tone={tone} onClick={onConfirm} disabled={loading}>
-            {loading ? 'Excluindo...' : confirmLabel}
+            {loading ? loadingLabel : confirmLabel}
           </Button>
         </Actions>
       </Modal>

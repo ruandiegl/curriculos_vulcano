@@ -122,6 +122,18 @@ export const Grid = styled.div`
   }
 `;
 
+export const FieldsetTitle = styled.h3`
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  margin: 28px 0 20px;
+  text-transform: uppercase;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
 export const Field = styled.div`
   display: flex;
   flex-direction: column;

@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { Curriculo, CurriculoStatus, CurriculosResponse } from '../types/curriculo';
+import type { Curriculo, CurriculoRelation, CurriculoStatus, CurriculosResponse } from '../types/curriculo';
 
 export const PENDING_CURRICULUM_STORAGE_KEY = 'pendingCurriculumId';
 
@@ -102,6 +102,31 @@ export async function updateCurriculo(id: string, payload: CurriculoUpdatePayloa
 
 export async function deleteCurriculo(id: string) {
   await api.delete(`/curriculos/${id}`);
+}
+
+export async function downloadCurriculoArquivo(curriculoId: string, arquivoId: string) {
+  const response = await api.get<Blob>(`/curriculos/${curriculoId}/pdf/${arquivoId}/download`, {
+    responseType: 'blob',
+  });
+
+  return response.data;
+}
+
+export async function listCurriculoArquivos(curriculoId: string) {
+  const response = await api.get<CurriculoRelation[]>(`/curriculos/${curriculoId}/pdf`);
+  return response.data;
+}
+
+export async function uploadCurriculoArquivo(curriculoId: string, arquivo: File) {
+  const formData = new FormData();
+  formData.append('arquivo', arquivo);
+
+  const response = await api.post<CurriculoRelation>(`/curriculos/${curriculoId}/pdf`, formData);
+  return response.data;
+}
+
+export async function deleteCurriculoArquivo(curriculoId: string, arquivoId: string) {
+  await api.delete(`/curriculos/${curriculoId}/pdf/${arquivoId}`);
 }
 
 export async function addCurso(payload: CursoPayload) {

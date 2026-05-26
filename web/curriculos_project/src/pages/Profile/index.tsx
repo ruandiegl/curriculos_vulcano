@@ -118,7 +118,6 @@ export default function Profile() {
               <InfoText>Email: {formatEmpty(curriculo.email)}</InfoText>
               <InfoText>CPF: {formatEmpty(curriculo.cpf)}</InfoText>
               <InfoText>Celular: {formatEmpty(curriculo.celular)}</InfoText>
-              <InfoText>Status: {curriculo.status}</InfoText>
             </UserInfo>
           )}
           {curriculo && (

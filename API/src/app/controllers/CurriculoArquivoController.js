@@ -4,6 +4,10 @@ import { CurriculoArquivoRepository } from '../Repositories/CurriculoArquivoRepo
 
 const repository = new CurriculoArquivoRepository();
 
+function canManageCurriculoArquivo(req, curriculo) {
+  return req.userTipo === 'admin' || curriculo.usuarioId === req.userId;
+}
+
 async function removeUploadedFile(filePath) {
   if (!filePath) {
     return;
@@ -20,6 +24,10 @@ export class CurriculoArquivoController {
       return res.status(404).json({ message: 'Currículo não encontrado.' });
     }
 
+    if (!canManageCurriculoArquivo(req, curriculo)) {
+      return res.status(403).json({ message: 'Acesso permitido apenas ao dono do curriculo.' });
+    }
+
     const arquivos = await repository.listByCurriculo(req.params.id);
     return res.json(arquivos);
   }
@@ -32,11 +40,17 @@ export class CurriculoArquivoController {
       return res.status(404).json({ message: 'Currículo não encontrado.' });
     }
 
+    if (!canManageCurriculoArquivo(req, curriculo)) {
+      await removeUploadedFile(req.file?.path);
+      return res.status(403).json({ message: 'Acesso permitido apenas ao dono do curriculo.' });
+    }
+
     if (!req.file) {
       return res.status(400).json({ message: 'Envie um arquivo PDF no campo "arquivo".' });
     }
 
-    const arquivo = await repository.create({
+    const arquivosAntigos = await repository.listByCurriculo(req.params.id);
+    const arquivo = await repository.replaceForCurriculo(req.params.id, {
       curriculoId: req.params.id,
       nomeOriginal: req.file.originalname,
       nomeArquivo: req.file.filename,
@@ -44,6 +58,8 @@ export class CurriculoArquivoController {
       mimeType: req.file.mimetype,
       tamanho: req.file.size,
     });
+
+    await Promise.all(arquivosAntigos.map((item) => removeUploadedFile(item.caminho)));
 
     return res.status(201).json(arquivo);
   }
@@ -53,6 +69,11 @@ export class CurriculoArquivoController {
 
     if (!arquivo || arquivo.curriculoId !== req.params.id) {
       return res.status(404).json({ message: 'Arquivo não encontrado.' });
+    }
+
+    const curriculo = await repository.findCurriculoById(req.params.id);
+    if (!curriculo || !canManageCurriculoArquivo(req, curriculo)) {
+      return res.status(403).json({ message: 'Acesso permitido apenas ao dono do curriculo.' });
     }
 
     await stat(arquivo.caminho);
@@ -66,8 +87,14 @@ export class CurriculoArquivoController {
       return res.status(404).json({ message: 'Arquivo não encontrado.' });
     }
 
-    await repository.delete(arquivo.id);
-    await removeUploadedFile(arquivo.caminho);
+    const curriculo = await repository.findCurriculoById(req.params.id);
+    if (!curriculo || !canManageCurriculoArquivo(req, curriculo)) {
+      return res.status(403).json({ message: 'Acesso permitido apenas ao dono do curriculo.' });
+    }
+
+    const arquivos = await repository.listByCurriculo(req.params.id);
+    await repository.deleteByCurriculo(req.params.id);
+    await Promise.all(arquivos.map((item) => removeUploadedFile(item.caminho)));
 
     return res.status(204).send();
   }

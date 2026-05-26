@@ -148,22 +148,118 @@ export const FileInputContainer = styled.div`
   }
 `;
 
+export const FileList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const FileListEmpty = styled.div`
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 7px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+`;
+
+export const FileListItem = styled.div`
+  min-height: 70px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+`;
+
+export const FileListName = styled.div`
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+`;
+
+export const FileListMeta = styled.div`
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  font-weight: 700;
+`;
+
+export const FileListActions = styled.div`
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    flex-wrap: wrap;
+  }
+`;
+
+export const FileListButton = styled.button<{ $danger?: boolean }>`
+  min-height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: ${({ $danger }) => ($danger ? '#dc2626' : '#fff')};
+  color: ${({ $danger }) => ($danger ? '#fff' : '#063e66')};
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+
+  &:hover:not(:disabled) {
+    background: ${({ $danger }) => ($danger ? '#b91c1c' : '#f1f5f9')};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+`;
+
 export const ActionButtons = styled.div`
   display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
   margin-top: 10px;
 `;
 
-export const BackButton = styled.button`
+const BaseActionButton = styled.button`
   height: 40px;
   padding: 0 40px;
   border: 0;
   border-radius: 999px;
-  background: #fff;
-  color: #063e66;
   cursor: pointer;
   font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+`;
+
+export const SubmitButton = styled(BaseActionButton)`
+  background: #ff8424;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: #fb7900;
+  }
+`;
+
+export const BackButton = styled(BaseActionButton)`
+  background: #fff;
+  color: #063e66;
 
   &:hover {
     background: #f1f5f9;
