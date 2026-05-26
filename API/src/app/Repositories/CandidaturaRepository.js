@@ -45,6 +45,13 @@ export class CandidaturaRepository {
     });
   }
 
+  findById(id) {
+    return prisma.candidatura.findUnique({
+      where: { id },
+      include: { vaga: true, usuario: true },
+    });
+  }
+
   delete(id) {
     return prisma.candidatura.delete({ where: { id } });
   }

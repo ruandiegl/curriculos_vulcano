@@ -11,6 +11,10 @@ import {
 
 const repository = new CurriculoRepository();
 
+function canAccessCurriculo(req, curriculo) {
+  return req.userTipo === 'admin' || curriculo.usuarioId === req.userId;
+}
+
 async function findCurrentUserCurriculo(req, res) {
   const curriculo = await repository.findByUsuarioId(req.userId);
 
@@ -40,6 +44,10 @@ export class CurriculoController {
       return res.status(404).json({ message: 'Currículo não encontrado.' });
     }
 
+    if (!canAccessCurriculo(req, curriculo)) {
+      return res.status(403).json({ message: 'Acesso permitido apenas ao dono do curriculo.' });
+    }
+
     return res.json(curriculo);
   }
 
@@ -54,12 +62,25 @@ export class CurriculoController {
   }
 
   async store(req, res) {
-    const payload = curriculoSchema.parse(req.body);
+    const payload = curriculoSchema.parse({
+      ...req.body,
+      usuarioId: req.userTipo === 'admin' ? req.body.usuarioId : req.userId,
+    });
     const curriculo = await repository.create(payload);
     return res.status(201).json(curriculo);
   }
 
   async update(req, res) {
+    const current = await repository.findById(req.params.id);
+
+    if (!current) {
+      return res.status(404).json({ message: 'Curriculo nao encontrado.' });
+    }
+
+    if (!canAccessCurriculo(req, current)) {
+      return res.status(403).json({ message: 'Acesso permitido apenas ao dono do curriculo.' });
+    }
+
     const payload = curriculoUpdateSchema.parse(req.body);
     const curriculo = await repository.update(req.params.id, payload);
     return res.json(curriculo);
