@@ -62,3 +62,8 @@ export const curriculoSchema = z.object({
 });
 
 export const curriculoUpdateSchema = curriculoSchema.partial();
+export const curriculoUserCreateSchema = curriculoSchema.omit({
+  usuarioId: true,
+  status: true,
+});
+export const curriculoUserUpdateSchema = curriculoUserCreateSchema.partial();

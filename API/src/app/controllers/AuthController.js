@@ -123,7 +123,7 @@ export class AuthController {
           tipo: user.tipo,
         },
         getJwtSecret(),
-        { expiresIn: '5d' },
+        { expiresIn: process.env.JWT_EXPIRES_IN ?? '1d' },
       ),
     });
   }

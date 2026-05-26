@@ -7,6 +7,7 @@ import { UsuarioController } from './app/controllers/UsuarioController.js';
 import { VagaController } from './app/controllers/VagaController.js';
 import { adminCreationRoutes, adminRoutes, privateRoutes } from './app/middlewares/Auth.js';
 import { asyncHandler } from './app/middlewares/asyncHandler.js';
+import { authRateLimitKey, rateLimiter } from './app/middlewares/rateLimiter.js';
 import { uploadCurriculoPdf } from './app/middlewares/uploadCurriculoPdf.js';
 
 export const router = express.Router();
@@ -17,16 +18,26 @@ const curriculos = new CurriculoController();
 const curriculoArquivos = new CurriculoArquivoController();
 const vagas = new VagaController();
 const candidaturas = new CandidaturaController();
+const authLimiter = rateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  keyGenerator: authRateLimitKey,
+});
+const passwordResetLimiter = rateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  keyGenerator: authRateLimitKey,
+});
 
 router.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-router.post('/login', asyncHandler(auth.login));
-router.post('/login/register', asyncHandler(auth.register));
-router.post('/login/forgot-password', asyncHandler(auth.forgotPassword));
-router.post('/login/reset-password', asyncHandler(auth.resetPassword));
-router.post('/login/register-admin', adminCreationRoutes, asyncHandler(auth.registerAdmin));
+router.post('/login', authLimiter, asyncHandler(auth.login));
+router.post('/login/register', authLimiter, asyncHandler(auth.register));
+router.post('/login/forgot-password', passwordResetLimiter, asyncHandler(auth.forgotPassword));
+router.post('/login/reset-password', passwordResetLimiter, asyncHandler(auth.resetPassword));
+router.post('/login/register-admin', authLimiter, adminCreationRoutes, asyncHandler(auth.registerAdmin));
 
 router.use(privateRoutes);
 

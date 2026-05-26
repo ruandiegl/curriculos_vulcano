@@ -34,7 +34,7 @@ export const Page = styled.main`
 export const Card = styled.section`
   width: 90%;
   min-height: 666px;
-  height: 90vh;
+  height: min(90vh, 760px);
   display: grid;
   grid-template-columns: 530px minmax(0, 1fr);
   overflow: hidden;
@@ -60,14 +60,16 @@ export const Form = styled.form`
   min-width: 0;
   width: 100%;
   height: 100%;
-  padding: 58px 104px 68px;
+  padding: 40px 104px 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background: #fff;
   position: relative;
   z-index: 1;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 
   p {
     display: flex;
@@ -75,8 +77,7 @@ export const Form = styled.form`
     align-items: center;
     text-align: center;
     font-weight: bold;
-    margin-bottom: 8px;
-
+    margin: 0 0 14px;
   }
 
   @media (max-width: 1200px) {
@@ -91,7 +92,7 @@ export const Form = styled.form`
 export const Brand = styled.div`
   width: 251px;
   height: 80px;
-  margin-bottom: 66px;
+  margin-bottom: 34px;
   display: grid;
   place-items: center;
 
@@ -109,7 +110,7 @@ export const Brand = styled.div`
 
 export const Field = styled.label`
   width: 100%;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 
   span {
     position: absolute;
@@ -147,8 +148,9 @@ export const Field = styled.label`
 
 export const RegisterButton = styled.button`
   width: 100%;
+  min-height: 56px;
   height: 56px;
-  margin-top: -6px;
+  margin-top: 0;
   border: 0;
   border-radius: 7px;
   display: inline-flex;
@@ -305,7 +307,7 @@ export const PolicyButton = styled.button<{ $secondary?: boolean }>`
 
 export const FormMessage = styled.p<{ $success?: boolean }>`
   width: 100%;
-  margin: -6px 0 16px;
+  margin: 0 0 14px;
   display: block;
   padding: 12px 14px;
   border: 1px solid ${({ $success }) => ($success ? '#bbf7d0' : '#fecdd3')};
@@ -321,6 +323,7 @@ export const FormMessage = styled.p<{ $success?: boolean }>`
 
 export const ReturnButton = styled.button`
   width: 100%;
+  min-height: 56px;
   height: 56px;
   margin-top: 6px;
   border: 0;

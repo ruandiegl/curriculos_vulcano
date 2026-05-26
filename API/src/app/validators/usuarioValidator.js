@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { emailSchema } from './emailValidator.js';
 
-export const usuarioSchema = z.object({
+export const usuarioAdminSchema = z.object({
   firebaseUid: z.string().min(1),
   nome: z.string().min(2),
   email: emailSchema,
@@ -11,4 +11,11 @@ export const usuarioSchema = z.object({
   horaCheck: z.string().optional().nullable(),
 });
 
-export const usuarioUpdateSchema = usuarioSchema.partial();
+export const usuarioAdminUpdateSchema = usuarioAdminSchema.partial();
+export const usuarioUserUpdateSchema = usuarioAdminSchema.pick({
+  nome: true,
+  email: true,
+  cpf: true,
+}).partial();
+export const usuarioSchema = usuarioAdminSchema;
+export const usuarioUpdateSchema = usuarioAdminUpdateSchema;
