@@ -10,8 +10,12 @@ import { swaggerDocument } from './swagger.js';
 const app = express();
 const port = process.env.PORT || 3001;
 const isProduction = process.env.NODE_ENV === 'production';
-const configuredOrigins = process.env.CORS_ORIGIN
-  ?.split(',')
+const configuredOrigins = [
+  process.env.CORS_ORIGIN,
+  process.env.FRONTEND_URL,
+]
+  .filter(Boolean)
+  .flatMap((origins) => origins.split(','))
   .map((origin) => origin.trim())
   .filter(Boolean);
 const developmentOrigins = [
@@ -31,8 +35,8 @@ function isAllowedDevelopmentOrigin(origin) {
   return /^http:\/\/(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}):(3000|5173)$/.test(origin);
 }
 
-if (isProduction && !configuredOrigins?.length) {
-  throw new Error('CORS_ORIGIN deve ser configurado em producao.');
+if (isProduction && !configuredOrigins.length) {
+  throw new Error('Configure CORS_ORIGIN ou FRONTEND_URL em producao com o dominio permitido do frontend.');
 }
 
 app.use(helmet());
