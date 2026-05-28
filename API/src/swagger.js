@@ -7,7 +7,7 @@ export const swaggerDocument = {
   },
   servers: [
     {
-      url: 'http://localhost:3001/api',
+      url: process.env.API_PUBLIC_URL ?? 'http://localhost:3001/api',
       description: 'Ambiente local',
     },
   ],
