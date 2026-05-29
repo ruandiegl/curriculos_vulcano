@@ -5,6 +5,8 @@ const publicRoutes = new Set([
   '/login/register',
   '/login/forgot-password',
   '/login/reset-password',
+  '/login/recovery-match',
+  '/login/setup-password',
 ]);
 
 export function privateRoutes(req, res, next) {

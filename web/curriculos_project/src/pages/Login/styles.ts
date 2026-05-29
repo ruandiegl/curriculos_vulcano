@@ -262,6 +262,66 @@ export const SignupText = styled.p`
   }
 `;
 
+export const ModalBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.48);
+`;
+
+export const RecoveryModal = styled.div`
+  width: min(100%, 420px);
+  padding: 28px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+  color: #30384a;
+
+  h2 {
+    margin: 0 0 12px;
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: #667085;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+`;
+
+export const ModalActions = styled.div`
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 420px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const ModalButton = styled.button<{ $secondary?: boolean }>`
+  min-height: 46px;
+  border: ${({ $secondary }) => ($secondary ? '1px solid #d7dee8' : '0')};
+  border-radius: 7px;
+  background: ${({ $secondary }) => ($secondary ? '#fff' : '#ff8424')};
+  color: ${({ $secondary }) => ($secondary ? '#475467' : '#fff')};
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+
+  &:hover {
+    background: ${({ $secondary }) => ($secondary ? '#f8fafc' : '#ff7b17')};
+  }
+`;
+
 export const PhotoPanel = styled.div`
   min-width: 0;
   height: 100%;

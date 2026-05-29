@@ -15,8 +15,12 @@ import {
   FormMessage,
   LoginButton,
   LoginIcon,
+  ModalActions,
+  ModalBackdrop,
+  ModalButton,
   Page,
   PhotoPanel,
+  RecoveryModal,
   SignupText,
 } from './styles';
 
@@ -29,6 +33,12 @@ type LoginResponse = {
     tipo?: string;
     possuiCurriculo?: boolean;
   };
+};
+
+type LoginErrorResponse = {
+  code?: string;
+  message?: string;
+  error?: string;
 };
 
 function getLoginRedirectPath(user?: LoginResponse['user']) {
@@ -49,6 +59,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
@@ -76,7 +87,12 @@ export default function Login() {
       signIn(response.data.token, response.data.user);
       navigate(getLoginRedirectPath(response.data.user), { replace: true });
     } catch (error) {
-      if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
+      if (axios.isAxiosError<LoginErrorResponse>(error)) {
+        if (error.response?.data?.code === 'PASSWORD_SETUP_REQUIRED') {
+          setShowRecoveryModal(true);
+          return;
+        }
+
         setErrorMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
@@ -155,6 +171,29 @@ export default function Login() {
 
         <PhotoPanel />
       </Card>
+
+      {showRecoveryModal && (
+        <ModalBackdrop role="presentation">
+          <RecoveryModal role="dialog" aria-modal="true" aria-labelledby="recovery-modal-title">
+            <h2 id="recovery-modal-title">Crie sua senha de acesso</h2>
+            <p>
+              Encontramos seu cadastro antigo. Para acessar a plataforma, confirme seus dados e
+              crie uma senha nova.
+            </p>
+            <ModalActions>
+              <ModalButton
+                type="button"
+                onClick={() => navigate('/recover-acces', { state: { email: normalizeEmail(email) } })}
+              >
+                Continuar
+              </ModalButton>
+              <ModalButton type="button" $secondary onClick={() => setShowRecoveryModal(false)}>
+                Agora nao
+              </ModalButton>
+            </ModalActions>
+          </RecoveryModal>
+        </ModalBackdrop>
+      )}
     </Page>
   );
 }

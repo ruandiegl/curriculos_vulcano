@@ -46,5 +46,12 @@ export function errorHandler(error, req, res, next) {
   }
 
   console.error(error);
+  if (process.env.NODE_ENV === 'development') {
+    return res.status(500).json({
+      message: 'Erro interno do servidor.',
+      detail: error.message,
+    });
+  }
+
   return res.status(500).json({ message: 'Erro interno do servidor.' });
 }
