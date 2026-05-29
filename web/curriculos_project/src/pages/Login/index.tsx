@@ -88,7 +88,13 @@ export default function Login() {
       navigate(getLoginRedirectPath(response.data.user), { replace: true });
     } catch (error) {
       if (axios.isAxiosError<LoginErrorResponse>(error)) {
-        if (error.response?.data?.code === 'PASSWORD_SETUP_REQUIRED') {
+        const responseMessage = error.response?.data?.message ?? '';
+
+        if (
+          error.response?.data?.code === 'PASSWORD_SETUP_REQUIRED' ||
+          responseMessage.toLowerCase().includes('precisa criar uma senha')
+        ) {
+          setErrorMessage('');
           setShowRecoveryModal(true);
           return;
         }
