@@ -130,6 +130,58 @@ export const swaggerDocument = {
         },
       },
     },
+    '/login/recovery-match': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Confirma dados para criacao de senha de usuario migrado',
+        security: [],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/RecoveryMatchInput' },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Dados confirmados',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/RecoveryMatchResponse' },
+              },
+            },
+          },
+          400: { $ref: '#/components/responses/ValidationError' },
+        },
+      },
+    },
+    '/login/setup-password': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Cria senha para usuario migrado apos validacao por dados',
+        security: [],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/SetupPasswordInput' },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Senha criada com sucesso',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/MessageResponse' },
+              },
+            },
+          },
+          400: { $ref: '#/components/responses/ValidationError' },
+        },
+      },
+    },
     '/usuarios': {
       get: {
         tags: ['Usuarios'],
@@ -789,6 +841,36 @@ export const swaggerDocument = {
       },
       RegisterAdminInput: {
         allOf: [{ $ref: '#/components/schemas/RegisterInput' }],
+      },
+      RecoveryMatchInput: {
+        type: 'object',
+        required: ['email', 'nome', 'cpf', 'nascimento'],
+        properties: {
+          email: { type: 'string', format: 'email', example: 'usuario@email.com' },
+          nome: { type: 'string', example: 'Ruan Diego' },
+          cpf: { type: 'string', example: '12345678900' },
+          nascimento: { type: 'string', format: 'date', example: '1990-01-31' },
+        },
+      },
+      RecoveryMatchResponse: {
+        type: 'object',
+        properties: {
+          recoveryToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+        },
+      },
+      SetupPasswordInput: {
+        type: 'object',
+        required: ['token', 'password'],
+        properties: {
+          token: { type: 'string' },
+          password: { type: 'string', format: 'password', example: 'NovaSenha123' },
+        },
+      },
+      MessageResponse: {
+        type: 'object',
+        properties: {
+          message: { type: 'string', example: 'Operacao realizada com sucesso.' },
+        },
       },
       LoginResponse: {
         type: 'object',

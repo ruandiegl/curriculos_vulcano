@@ -55,6 +55,18 @@ export class UsuarioRepository {
     return prisma.usuario.findUnique({ where: { email } });
   }
 
+  findRecoveryCandidateByEmail(email) {
+    return prisma.usuario.findUnique({
+      where: { email },
+      include: {
+        curriculos: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+      },
+    });
+  }
+
   create(data) {
     return prisma.usuario.create({
       data: normalizeUsuario(data),

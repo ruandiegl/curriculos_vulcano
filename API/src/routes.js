@@ -37,6 +37,8 @@ router.post('/login', authLimiter, asyncHandler(auth.login));
 router.post('/login/register', authLimiter, asyncHandler(auth.register));
 router.post('/login/forgot-password', passwordResetLimiter, asyncHandler(auth.forgotPassword));
 router.post('/login/reset-password', passwordResetLimiter, asyncHandler(auth.resetPassword));
+router.post('/login/recovery-match', passwordResetLimiter, asyncHandler(auth.recoveryMatch));
+router.post('/login/setup-password', passwordResetLimiter, asyncHandler(auth.setupPassword));
 router.post('/login/register-admin', authLimiter, adminCreationRoutes, asyncHandler(auth.registerAdmin));
 
 router.use(privateRoutes);
