@@ -112,9 +112,9 @@ export const SearchBar = styled.div`
 `;
 
 export const SearchInput = styled.input`
-  width: 52px;
-  flex: 1 1 360px;
-  height: 42px;
+  width: min(100%, 360px);
+  flex: 0 1 360px;
+  height: 50px;
   padding: 0 18px;
   border: 1.5px solid #8da0b8;
   border-radius: 999px;
@@ -135,7 +135,9 @@ export const SearchInput = styled.input`
   }
 
   @media (max-width: 640px) {
-    width: 100%;
+    width: min(100%, 360px);
+    flex: none;
+    align-self: center;
   }
 `;
 
