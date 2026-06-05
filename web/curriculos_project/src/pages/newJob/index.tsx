@@ -143,6 +143,7 @@ export default function NewJob() {
   }
 
   function openCreateForm() {
+    setSelectedVaga(null);
     setEditingVaga(null);
     setForm(initialForm);
     setMessage('');
@@ -150,6 +151,7 @@ export default function NewJob() {
   }
 
   function openEditForm(vaga: Vaga) {
+    setSelectedVaga(null);
     setEditingVaga(vaga);
     setForm(toForm(vaga));
     setMessage('');
@@ -214,6 +216,9 @@ export default function NewJob() {
 
   async function handleViewVaga(vaga: Vaga) {
     try {
+      setShowForm(false);
+      setEditingVaga(null);
+      setForm(initialForm);
       setLoadingDetails(true);
       setMessage('');
       const details = await getVaga(vaga.id);

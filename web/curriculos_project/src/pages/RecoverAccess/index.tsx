@@ -11,7 +11,6 @@ import {
   Card,
   Description,
   Field,
-  Form,
   FormMessage,
   LoginButton,
   LoginIcon,
@@ -19,6 +18,7 @@ import {
   PhotoPanel,
   ReturnButton,
 } from '../ForgotPassword/styles';
+import { RecoveryForm } from './styles';
 
 type LocationState = {
   email?: string;
@@ -139,7 +139,7 @@ export default function RecoverAccess() {
   return (
     <Page>
       <Card>
-        <Form onSubmit={isPasswordStep ? handleSetupPassword : handleMatch}>
+        <RecoveryForm onSubmit={isPasswordStep ? handleSetupPassword : handleMatch}>
           <Brand>
             <img src={logo} alt="Metalurgica Vulcano" />
           </Brand>
@@ -240,7 +240,7 @@ export default function RecoverAccess() {
           <ReturnButton type="button" onClick={() => navigate('/')}>
             Voltar ao login
           </ReturnButton>
-        </Form>
+        </RecoveryForm>
 
         <PhotoPanel />
       </Card>
