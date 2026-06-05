@@ -68,7 +68,7 @@ export default function Profile() {
       } catch {
         if (mounted) {
           setCurriculo(null);
-          setMessage('Nao foi possivel carregar os dados do curriculo.');
+          setMessage('Não foi possivel carregar os dados do curriculo.');
         }
       } finally {
         if (mounted) {
@@ -136,18 +136,18 @@ export default function Profile() {
           <CardDescription>
             {curriculo?.arquivos?.length
               ? `${curriculo.arquivos.length} arquivo(s) cadastrado(s)`
-              : 'Nao ha curriculo em PDF cadastrado'}
+              : 'Não há curriculo em PDF cadastrado'}
           </CardDescription>
           {renderRelations(curriculo?.arquivos, (arquivo) => formatEmpty(arquivo.nomeOriginal ?? arquivo.nome))}
           <ActionLink onClick={() => navigate('/upload-pdf')}>Adicionar curriculo em PDF &rarr;</ActionLink>
         </Card>
 
         <Card>
-          <CardTitle>Formacoes Academicas</CardTitle>
+          <CardTitle>Formações Academicas</CardTitle>
           <CardDescription>
             {curriculo?.escolaridades?.length
               ? 'Formacoes cadastradas'
-              : 'Nao ha formacoes academicas cadastradas'}
+              : 'Não há formações academicas cadastradas'}
           </CardDescription>
           {renderRelations(curriculo?.escolaridades, (escolaridade) => {
             const period = [formatDate(escolaridade.dataInicio), formatDate(escolaridade.dataTermino)]
@@ -157,16 +157,16 @@ export default function Profile() {
               escolaridade.curso,
               escolaridade.escola,
               period,
-            ].filter(Boolean).join(' - ') || 'Nao informado';
+            ].filter(Boolean).join(' - ') || 'Não informado';
           })}
-          <ActionLink onClick={() => navigate('/new-education')}>Adicionar formacao academica &rarr;</ActionLink>
+          <ActionLink onClick={() => navigate('/new-education')}>Adicionar formação academica &rarr;</ActionLink>
         </Card>
 
         <Card>
-          <CardTitle>Experiencias Profissionais</CardTitle>
+          <CardTitle>Experiências Profissionais</CardTitle>
           <CardDescription>
             {curriculo?.experiencias?.length
-              ? 'Experiencias cadastradas'
+              ? 'Experiências cadastradas'
               : 'Nao ha experiencias profissionais cadastradas'}
           </CardDescription>
           {renderRelations(curriculo?.experiencias, (experiencia) =>
@@ -175,9 +175,9 @@ export default function Profile() {
               experiencia.cargo,
               [formatDate(experiencia.dataInicio), formatDate(experiencia.dataTermino)].filter(Boolean).join(' ate '),
               experiencia.funcoes,
-            ].filter(Boolean).join(' - ') || 'Nao informado',
+            ].filter(Boolean).join(' - ') || 'Não informado',
           )}
-          <ActionLink onClick={() => navigate('/new-experience')}>Adicionar experiencia profissional &rarr;</ActionLink>
+          <ActionLink onClick={() => navigate('/new-experience')}>Adicionar experiência profissional &rarr;</ActionLink>
         </Card>
 
         <Card>
@@ -185,21 +185,21 @@ export default function Profile() {
           <CardDescription>
             {curriculo?.atuacoes?.length
               ? 'Habilidades cadastradas'
-              : 'Nao ha habilidades e conhecimentos cadastrados'}
+              : 'Nao há habilidades e conhecimentos cadastrados'}
           </CardDescription>
           {renderRelations(curriculo?.atuacoes, (atuacao) => formatEmpty(atuacao.nome))}
           <ActionLink onClick={() => navigate('/new-skill')}>Adicionar habilidade ou conhecimento &rarr;</ActionLink>
         </Card>
 
         <Card>
-          <CardTitle>Cursos e Certificacoes</CardTitle>
+          <CardTitle>Cursos e Certificações</CardTitle>
           <CardDescription>
-            {curriculo?.cursos?.length ? 'Cursos cadastrados' : 'Nao ha cursos ou certificacoes cadastrados'}
+            {curriculo?.cursos?.length ? 'Cursos cadastrados' : 'Nao há cursos ou certificações cadastrados'}
           </CardDescription>
           {renderRelations(curriculo?.cursos, (curso) =>
             [curso.nome, curso.instituicao, curso.cargaHoraria].filter(Boolean).join(' - ') || 'Nao informado',
           )}
-          <ActionLink onClick={() => navigate('/new-certification')}>Adicionar curso ou certificacao &rarr;</ActionLink>
+          <ActionLink onClick={() => navigate('/new-certification')}>Adicionar curso ou certificação &rarr;</ActionLink>
         </Card>
       </Main>
 

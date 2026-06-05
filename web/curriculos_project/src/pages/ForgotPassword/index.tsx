@@ -37,7 +37,7 @@ export default function ForgotPassword() {
     }
 
     if (!isValidEmail(email)) {
-      setErrorMessage('Informe um email valido.');
+      setErrorMessage('Informe um email válido.');
       return;
     }
 

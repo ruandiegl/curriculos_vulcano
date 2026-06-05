@@ -79,7 +79,7 @@ export default function Jobs() {
       const response = await listVagas({ page: 1, limit: PAGE_SIZE, search: search.trim(), ativa: true });
       setVagas(response.data);
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Nao foi possivel carregar as vagas.'));
+      setMessage(getErrorMessage(error, 'Não foi possivel carregar as vagas.'));
     } finally {
       setLoading(false);
     }
@@ -112,7 +112,7 @@ export default function Jobs() {
       setAppliedJobIds((items) => [...items, vaga.id]);
       setSuccessMessage('Candidatura realizada com sucesso.');
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Nao foi possivel registrar sua candidatura.'));
+      setMessage(getErrorMessage(error, 'Não foi possivel registrar sua candidatura.'));
     } finally {
       setApplyingId('');
     }
@@ -162,7 +162,7 @@ export default function Jobs() {
         {!loading && vagas.length === 0 && (
           <Card>
             <CardTitle>Nenhuma vaga encontrada</CardTitle>
-            <CardDescription>No momento nao ha vagas ativas para essa busca.</CardDescription>
+            <CardDescription>No momento nao há vagas ativas para essa busca.</CardDescription>
           </Card>
         )}
 
