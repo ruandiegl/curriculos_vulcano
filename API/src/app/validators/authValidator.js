@@ -25,9 +25,7 @@ export const forgotPasswordSchema = z.object({
 
 export const recoveryMatchSchema = z.object({
   email: emailSchema,
-  nome: z.string().trim().min(2, 'Informe seu nome.'),
   cpf: z.string().trim().min(11, 'Informe seu CPF.'),
-  nascimento: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, 'Informe a data no formato AAAA-MM-DD.'),
 });
 
 export const resetPasswordSchema = z.object({
