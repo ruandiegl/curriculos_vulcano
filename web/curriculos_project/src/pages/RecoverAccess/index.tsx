@@ -33,9 +33,7 @@ export default function RecoverAccess() {
   const location = useLocation();
   const state = location.state as LocationState | null;
   const [email, setEmail] = useState(state?.email ?? '');
-  const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
-  const [nascimento, setNascimento] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [recoveryToken, setRecoveryToken] = useState('');
@@ -50,8 +48,8 @@ export default function RecoverAccess() {
     setErrorMessage('');
     setSuccessMessage('');
 
-    if (!email || !nome || !cpf || !nascimento) {
-      setErrorMessage('Informe email, nome, CPF e data de nascimento.');
+    if (!email || !cpf) {
+      setErrorMessage('Informe email e CPF.');
       return;
     }
 
@@ -69,9 +67,7 @@ export default function RecoverAccess() {
       setLoading(true);
       const response = await api.post<RecoveryMatchResponse>('/login/recovery-match', {
         email: normalizeEmail(email),
-        nome,
         cpf: onlyDigits(cpf),
-        nascimento,
       });
 
       setRecoveryToken(response.data.recoveryToken);
@@ -148,7 +144,7 @@ export default function RecoverAccess() {
           <Description>
             {isPasswordStep
               ? 'Digite uma nova senha para concluir a recuperacao de acesso.'
-              : 'Confirme seus dados para criar a senha da sua conta.'}
+              : 'Confirme seu email e CPF para criar a senha da sua conta.'}
           </Description>
 
           {!isPasswordStep ? (
@@ -165,17 +161,6 @@ export default function RecoverAccess() {
               </Field>
 
               <Field>
-                <span>Nome</span>
-                <input
-                  type="text"
-                  placeholder="Nome completo"
-                  autoComplete="name"
-                  value={nome}
-                  onChange={(event) => setNome(event.target.value)}
-                />
-              </Field>
-
-              <Field>
                 <span>CPF</span>
                 <input
                   type="text"
@@ -184,17 +169,6 @@ export default function RecoverAccess() {
                   autoComplete="off"
                   value={cpf}
                   onChange={(event) => setCpf(formatCpf(event.target.value))}
-                />
-              </Field>
-
-              <Field>
-                <span>Data de nascimento</span>
-                <input
-                  type="date"
-                  placeholder="Data de nascimento"
-                  autoComplete="bday"
-                  value={nascimento}
-                  onChange={(event) => setNascimento(event.target.value)}
                 />
               </Field>
             </>

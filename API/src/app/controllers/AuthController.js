@@ -69,48 +69,12 @@ function onlyDigits(value) {
   return String(value ?? '').replace(/\D/g, '');
 }
 
-function normalizeName(value) {
-  return String(value ?? '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, ' ');
-}
-
-function namesMatch(inputName, savedName) {
-  const input = normalizeName(inputName);
-  const saved = normalizeName(savedName);
-
-  if (!input || !saved) {
-    return false;
-  }
-
-  return saved === input || saved.startsWith(`${input} `) || saved.includes(` ${input} `);
-}
-
-function dateOnly(value) {
-  if (!value) {
-    return null;
-  }
-
-  if (value instanceof Date) {
-    return value.toISOString().slice(0, 10);
-  }
-
-  return String(value).slice(0, 10);
-}
-
 function recoveryDataMatches(payload, user) {
   const curriculo = user.curriculos?.[0];
   const payloadCpf = onlyDigits(payload.cpf);
   const savedCpf = onlyDigits(user.cpf) || onlyDigits(curriculo?.cpf);
-  const savedBirthDate = dateOnly(curriculo?.nascimento);
 
-  return (
-    namesMatch(payload.nome, user.nome) ||
-    namesMatch(payload.nome, curriculo?.nome)
-  ) && payloadCpf === savedCpf && payload.nascimento === savedBirthDate;
+  return payloadCpf.length === 11 && payloadCpf === savedCpf;
 }
 
 function sanitizeUser(user) {
@@ -286,7 +250,7 @@ export class AuthController {
     const payload = recoveryMatchSchema.parse(req.body);
     const user = await repository.findRecoveryCandidateByEmail(payload.email);
 
-    if (!user || user.passHash || !recoveryDataMatches(payload, user)) {
+    if (!user || !recoveryDataMatches(payload, user)) {
       auditLog(req, 'auth.password_setup_match_failed', {
         email: payload.email,
         targetUserId: user?.id ?? null,
@@ -319,8 +283,8 @@ export class AuthController {
 
     const user = await repository.findByEmailWithPassword(payload.email);
 
-    if (!user || user.id !== payload.sub || user.passHash) {
-      return res.status(400).json({ message: 'Nao foi possivel criar senha para este usuario.' });
+    if (!user || user.id !== payload.sub || user.passHash !== payload.passHash) {
+      return res.status(400).json({ message: 'Nao foi possivel redefinir senha para este usuario.' });
     }
 
     const passHash = await bcrypt.hash(password, 10);
@@ -330,6 +294,6 @@ export class AuthController {
       targetUserId: user.id,
     });
 
-    return res.status(200).json({ message: 'Senha criada com sucesso.' });
+    return res.status(200).json({ message: 'Senha redefinida com sucesso.' });
   }
 }
