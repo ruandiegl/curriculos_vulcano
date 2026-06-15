@@ -7,6 +7,7 @@ type ListCurriculosParams = {
   page: number;
   limit: number;
   search?: string;
+  status?: CurriculoStatus;
 };
 
 export type CurriculoUpdatePayload = Partial<{
@@ -68,12 +69,13 @@ export type CurriculoCreatePayload = Omit<CurriculoUpdatePayload, 'nome'> & {
   nome: string;
 };
 
-export async function listCurriculos({ page, limit, search }: ListCurriculosParams) {
+export async function listCurriculos({ page, limit, search, status }: ListCurriculosParams) {
   const response = await api.get<CurriculosResponse>('/curriculos', {
     params: {
       page,
       limit,
       ...(search ? { search } : {}),
+      ...(status ? { status } : {}),
     },
   });
 

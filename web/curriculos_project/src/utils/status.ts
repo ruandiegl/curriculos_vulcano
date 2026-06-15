@@ -14,7 +14,7 @@ export function getStatusLabel(status: CurriculoStatus) {
 export function getStatusColor(status: string) {
   const colors: Record<string, string> = {
     desconsiderado: '#dc2626',
-    entrevistado: '#fde047',
+    entrevistado: '#4f46e5',
     selecionado: '#2f8f75',
     visualizado: '#2f70ad',
   };
