@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { AdminLayout } from '../../components/AdminLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { FeedbackMessage } from '../../components/FeedbackMessage';
@@ -188,7 +189,8 @@ export default function Edit() {
     }
   }
 
-  const homePath = user?.tipo === 'admin' ? '/dashboard' : '/profile';
+  const isAdmin = user?.tipo === 'admin';
+  const homePath = isAdmin ? '/dashboard' : '/profile';
   const messageVariant = message.toLowerCase().includes('sucesso') ? 'success' : 'error';
 
   function validateForm() {
@@ -294,26 +296,7 @@ export default function Edit() {
     }
   }
 
-  return (
-    <Page>
-      <Header>
-        <HeaderContent>
-          <Brand href={homePath}>
-            <img src={logo} alt="Metalurgica Vulcano" />
-          </Brand>
-
-          <HeaderNav>
-            <NavLink href={homePath}>{user?.tipo === 'admin' ? 'Gerenciar Curriculos' : 'Inicio'}</NavLink>
-            <NavLink href={user?.tipo === 'admin' ? '/newJob' : '/vagas'}>
-              {user?.tipo === 'admin' ? 'Gerenciar Vagas' : 'Vagas'}
-            </NavLink>
-            <LogoutButton type="button" onClick={handleLogout}>
-              Sair
-            </LogoutButton>
-          </HeaderNav>
-        </HeaderContent>
-      </Header>
-
+  const mainContent = (
       <Main>
         <Section>
           <SectionTitle>{loading ? 'Carregando Curriculo' : 'Dados Pessoais'}</SectionTitle>
@@ -378,7 +361,7 @@ export default function Edit() {
                   </Select>
                 </Field>
 
-                {user?.tipo === 'admin' && (
+                {isAdmin && (
                   <Field>
                     <Label>Status</Label>
                     <Select
@@ -480,16 +463,10 @@ export default function Edit() {
           )}
         </Section>
       </Main>
+  );
 
-      <Footer>
-        <FooterContent>
-          <Brand href={homePath}>
-            <img src={logo} alt="Metalurgica Vulcano" />
-          </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
-        </FooterContent>
-      </Footer>
-
+  const modals = (
+    <>
       {confirmOpen && (
         <ConfirmModal
           title="Alterar curriculo?"
@@ -501,6 +478,47 @@ export default function Edit() {
           onConfirm={confirmUpdate}
         />
       )}
+    </>
+  );
+
+  if (isAdmin) {
+    return (
+      <AdminLayout activeSection="curriculos">
+        {mainContent}
+        {modals}
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <Page>
+      <Header>
+        <HeaderContent>
+          <Brand href={homePath}>
+            <img src={logo} alt="Metalurgica Vulcano" />
+          </Brand>
+
+          <HeaderNav>
+            <NavLink href={homePath}>Inicio</NavLink>
+            <NavLink href="/vagas">Vagas</NavLink>
+            <LogoutButton type="button" onClick={handleLogout}>
+              Sair
+            </LogoutButton>
+          </HeaderNav>
+        </HeaderContent>
+      </Header>
+
+      {mainContent}
+
+      <Footer>
+        <FooterContent>
+          <Brand href={homePath}>
+            <img src={logo} alt="Metalurgica Vulcano" />
+          </Brand>
+          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+        </FooterContent>
+      </Footer>
+      {modals}
       {logoutModal}
     </Page>
   );

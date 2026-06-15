@@ -89,7 +89,7 @@ export const LogoutButton = styled.button`
 export const Main = styled.main`
   width: min(1000px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 60px 0 80px;
+  padding: 32px 0 64px;
   flex: 1;
 `;
 
@@ -98,18 +98,19 @@ export const BackLink = styled.a`
 `;
 
 export const Section = styled.section`
-  background: #778899; /* Dark blue-greyish color from image */
-  padding: 40px;
-  margin-bottom: 40px;
+  background: #fff;
+  padding: 24px;
+  margin-bottom: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
 `;
 
 export const SectionTitle = styled.h2`
-  color: #fff;
+  color: #102a43;
   font-size: 20px;
-  font-weight: 500;
-  margin-bottom: 30px;
+  font-weight: 900;
+  margin: 0 0 24px;
 `;
 
 export const Grid = styled.div`
@@ -135,23 +136,26 @@ export const DataItem = styled.div`
 `;
 
 export const Label = styled.span`
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
 `;
 
 export const Value = styled.span`
   width: 100%;
-  min-height: 34px;
-  border-bottom: 1.5px solid #fff;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
+  min-height: 42px;
+  padding: 11px 12px;
+  border: 1px solid #dbe6ef;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #102a43;
+  font-size: 13px;
+  font-weight: 800;
   display: flex;
   align-items: flex-start;
   line-height: 1.35;
   overflow-wrap: anywhere;
-  padding: 7px 2px 8px;
   white-space: normal;
 `;
 
@@ -168,14 +172,15 @@ export const ActionButtons = styled.div`
 `;
 
 export const ActionButton = styled.a`
-  height: 44px;
-  padding: 0 40px;
-  border-radius: 999px;
-  background: #fff;
-  color: #063e66;
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 8px;
+  border: 0;
+  background: #ff8424;
+  color: #fff;
   text-decoration: none;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 900;
   text-transform: uppercase;
   display: flex;
   align-items: center;
@@ -183,29 +188,37 @@ export const ActionButton = styled.a`
   cursor: pointer;
 
   &:hover {
-    background: #f1f5f9;
+    background: #fb7900;
   }
 `;
 
 export const StatusWrapper = styled.div`
-  margin-bottom: 30px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 18px;
 `;
 
 export const StatusLabel = styled.div`
   color: #64748b;
   font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 10px;
+  font-weight: 800;
 `;
 
 export const StatusSelect = styled.select`
-  width: 150px;
-  height: 36px;
+  min-width: 180px;
+  height: 40px;
   padding: 0 10px;
   border: 1px solid #cbd5e1;
-  border-radius: 4px;
+  border-radius: 8px;
   color: #2c3547;
   font-size: 13px;
+  font-weight: 800;
   outline: none;
   background: #fff;
 `;
@@ -219,17 +232,20 @@ export const DownloadLinks = styled.div`
 
 export const DownloadLink = styled.a`
   width: fit-content;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #2c3547;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #dbe6ef;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #102a43;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
 
   &:hover {
+    border-color: #ff8424;
     color: #fb7900;
   }
 `;
