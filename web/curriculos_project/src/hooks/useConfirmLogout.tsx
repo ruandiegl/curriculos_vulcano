@@ -20,7 +20,7 @@ export function useConfirmLogout() {
   const logoutModal = logoutOpen ? (
     <ConfirmModal
       title="Sair da conta?"
-      description="Voce sera redirecionado para a tela de login. Confirme para encerrar sua sessao."
+      description="Você será redirecionado para a tela de login. Confirme para encerrar sua sessão."
       confirmLabel="Sair"
       tone="default"
       onCancel={() => setLogoutOpen(false)}

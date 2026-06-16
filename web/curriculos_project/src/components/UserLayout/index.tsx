@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+﻿import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
@@ -24,13 +24,13 @@ type UserLayoutProps = {
 };
 
 const menuItems = [
-  { label: 'Inicio', path: '/profile', icon: HomeIcon },
+  { label: 'Início', path: '/profile', icon: HomeIcon },
   { label: 'Vagas', path: '/vagas', icon: JobsIcon },
   { label: 'Dados pessoais', path: '/newCurriculum', icon: FileIcon },
-  { label: 'Endereco', path: '/newAddress', icon: LocationIcon },
+  { label: 'Endereço', path: '/newAddress', icon: LocationIcon },
   { label: 'Curriculo PDF', path: '/upload-pdf', icon: UploadIcon },
-  { label: 'Formacao', path: '/new-education', icon: EducationIcon },
-  { label: 'Experiencia', path: '/new-experience', icon: BriefcaseIcon },
+  { label: 'Formação', path: '/new-education', icon: EducationIcon },
+  { label: 'Experiência', path: '/new-experience', icon: BriefcaseIcon },
   { label: 'Habilidades', path: '/new-skill', icon: SkillIcon },
   { label: 'Certificacoes', path: '/new-certification', icon: CertificateIcon },
 ];
@@ -146,8 +146,8 @@ export function UserLayout({ children }: UserLayoutProps) {
   const { user } = useAuth();
   const { requestLogout, logoutModal } = useConfirmLogout();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const userName = user?.nome?.trim() || 'Usuario';
-  const userEmail = user?.email?.trim() || 'Email nao informado';
+  const userName = user?.nome?.trim() || 'Usuário';
+  const userEmail = user?.email?.trim() || 'E-mail não informado';
   const userInitials = getInitials(user?.nome, user?.email);
 
   return (
@@ -155,8 +155,8 @@ export function UserLayout({ children }: UserLayoutProps) {
       <Sidebar $open={sidebarOpen}>
         <SidebarHeader $open={sidebarOpen}>
           {sidebarOpen && (
-            <Brand aria-label="Metalurgica Vulcano">
-              <img src={logo} alt="Metalurgica Vulcano" />
+            <Brand aria-label="Metalúrgica Vulcano">
+              <img src={logo} alt="Metalúrgica Vulcano" />
             </Brand>
           )}
           <MenuButton

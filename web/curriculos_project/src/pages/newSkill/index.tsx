@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -55,8 +55,8 @@ export default function NewSkill() {
       try {
         const curriculo = await getMeuCurriculo();
         if (isCurrent) {
-          setCurriculoId(curriculo.id);
-          setExistingItems(curriculo.atuacoes ?? []);
+          setCurriculoId(curriculo?.id);
+          setExistingItems(curriculo?.atuacoes ?? []);
         }
       } catch {
         if (isCurrent) {
@@ -97,25 +97,25 @@ export default function NewSkill() {
       setLoading(true);
       const curriculo = await updateCurriculo(curriculoId, {
         atuacoes: existingItems
-          .filter((existingItem) => existingItem.id !== deleteTarget.id)
+          .filter((existingItem) => existingItem.id !== deleteTarget?.id)
           .map((existingItem) => ({
             nome: existingItem.nome ?? '',
             prioridade: existingItem.prioridade ?? null,
           })),
       });
-      setExistingItems(curriculo.atuacoes ?? []);
-      if (editingId === deleteTarget.id) {
+      setExistingItems(curriculo?.atuacoes ?? []);
+      if (editingId === deleteTarget?.id) {
         resetForm();
       }
       setDeleteTarget(null);
       setMessage('Habilidade removida com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
-        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel remover.');
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Não foi possível remover.');
         return;
       }
 
-      setMessage('Nao foi possivel remover. Tente novamente.');
+      setMessage('Não foi possível remover. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -141,23 +141,23 @@ export default function NewSkill() {
             prioridade: item.prioridade ?? null,
           })),
         });
-        setExistingItems(curriculo.atuacoes ?? []);
+        setExistingItems(curriculo?.atuacoes ?? []);
         resetForm();
         setMessage('Habilidade atualizada com sucesso.');
         return;
       }
 
       const curriculo = await addAtuacao(payload);
-      setExistingItems(curriculo.atuacoes ?? []);
+      setExistingItems(curriculo?.atuacoes ?? []);
       resetForm();
       setMessage('Habilidade cadastrada com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
-        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel cadastrar.');
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Não foi possível cadastrar.');
         return;
       }
 
-      setMessage('Nao foi possivel cadastrar. Tente novamente.');
+      setMessage('Não foi possível cadastrar. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -168,11 +168,11 @@ export default function NewSkill() {
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/profile')}>Inicio</NavLink>
+            <NavLink onClick={() => navigate('/profile')}>Início</NavLink>
             <NavLink onClick={() => navigate('/vagas')}>Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -194,7 +194,7 @@ export default function NewSkill() {
             {existingItems.length === 0 && <EmptyState>Nenhuma habilidade cadastrada.</EmptyState>}
             {existingItems.map((item) => (
               <ExistingItem key={item.id}>
-                <ExistingItemText>{item.nome ?? 'Nao informado'}</ExistingItemText>
+                <ExistingItemText>{item.nome ?? 'Não informado'}</ExistingItemText>
                 <ExistingItemActions>
                   <IconActionButton type="button" $variant="edit" onClick={() => handleEdit(item)} title="Editar">
                     <EditIcon />
@@ -223,7 +223,7 @@ export default function NewSkill() {
 
             <ActionButtons>
               <SubmitButton type="submit" disabled={loading}>
-                {loading ? 'Salvando...' : editingId ? 'Salvar Alteracoes' : 'Cadastrar Habilidade'}
+                {loading ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Habilidade'}
               </SubmitButton>
               {editingId && (
                 <BackButton type="button" onClick={resetForm}>
@@ -241,16 +241,16 @@ export default function NewSkill() {
       <Footer>
         <FooterContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
 
       {deleteTarget && (
         <ConfirmModal
           title="Excluir habilidade?"
-          description={`Esta acao vai remover "${deleteTarget.nome || 'esta habilidade'}" do seu curriculo.`}
+          description={`Esta ação vai remover "${deleteTarget?.nome || 'esta habilidade'}" do seu currículo.`}
           confirmLabel="Excluir"
           loading={loading}
           onCancel={() => setDeleteTarget(null)}

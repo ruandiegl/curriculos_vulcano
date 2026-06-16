@@ -1,4 +1,4 @@
-import { jsPDF } from 'jspdf';
+﻿import { jsPDF } from 'jspdf';
 import type { Curriculo, CurriculoRelation } from '../types/curriculo';
 import { formatCnh, formatCpf, formatPhone, formatRg, valueOrDash } from './masks';
 import { formatList, getStatusLabel } from './status';
@@ -59,20 +59,20 @@ export function downloadCurriculoSistemaPdf(curriculo: Curriculo) {
   y = addWrappedLine(doc, 'Celular', valueOrDash(formatPhone(curriculo.celular)), 18, y);
   y = addWrappedLine(doc, 'Telefone', valueOrDash(formatPhone(curriculo.telefone)), 18, y);
   y = addWrappedLine(doc, 'Status', getStatusLabel(curriculo.status), 18, y);
-  y = addWrappedLine(doc, 'Possui CNH', curriculo.possuiCnh ? 'Sim' : 'Nao', 18, y);
+  y = addWrappedLine(doc, 'Possui CNH', curriculo.possuiCnh ? 'Sim' : 'Não', 18, y);
 
   if (curriculo.possuiCnh) {
-    y = addWrappedLine(doc, 'Numero da CNH', valueOrDash(formatCnh(curriculo.numeroCnh)), 18, y);
+    y = addWrappedLine(doc, 'Número da CNH', valueOrDash(formatCnh(curriculo.numeroCnh)), 18, y);
     y = addWrappedLine(doc, 'Vencimento da CNH', formatDate(curriculo.vencimentoCnh), 18, y);
     y = addWrappedLine(doc, 'Categoria da CNH', valueOrDash(curriculo.categoriaCnh), 18, y);
   }
 
   y += 4;
   doc.setFont('helvetica', 'bold');
-  y = addWrappedLine(doc, 'Endereco', '', 18, y);
+  y = addWrappedLine(doc, 'Endereço', '', 18, y);
   doc.setFont('helvetica', 'normal');
   y = addWrappedLine(doc, 'Logradouro', valueOrDash(firstAddress?.rua), 18, y);
-  y = addWrappedLine(doc, 'Numero', valueOrDash(firstAddress?.numero), 18, y);
+  y = addWrappedLine(doc, 'Número', valueOrDash(firstAddress?.numero), 18, y);
   y = addWrappedLine(doc, 'Bairro', valueOrDash(firstAddress?.bairro), 18, y);
   y = addWrappedLine(doc, 'Complemento', valueOrDash(firstAddress?.complemento), 18, y);
   y = addWrappedLine(doc, 'Cidade', valueOrDash(firstAddress?.cidade), 18, y);
@@ -94,7 +94,7 @@ export function downloadCurriculoSistemaPdf(curriculo: Curriculo) {
   );
   y = addWrappedLine(
     doc,
-    'Experiencias',
+    'Experiências',
     formatRelations(curriculo.experiencias, (experiencia) =>
       [experiencia.empresa, experiencia.cargo, experiencia.funcoes].filter(Boolean).join(' - '),
     ),

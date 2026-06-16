@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -113,22 +113,22 @@ function limitEditField<K extends keyof FormState>(field: K, value: FormState[K]
 }
 
 function formFromCurriculo(curriculo: Curriculo): FormState {
-  const endereco = curriculo.enderecos?.[0];
+  const endereco = curriculo?.enderecos?.[0];
 
   return {
-    nome: limitEditField('nome', curriculo.nome ?? ''),
-    celular: formatPhone(curriculo.celular),
-    nascimento: normalizeDate(curriculo.nascimento?.slice(0, 10) ?? ''),
-    estadoCivil: curriculo.estadoCivil ?? '',
-    rg: formatRg(curriculo.rg),
-    telefone: formatPhone(curriculo.telefone),
-    cpf: formatCpf(curriculo.cpf),
-    cursoAtivo: curriculo.cursoAtivo ? 'Sim' : 'Nao',
-    possuiCnh: curriculo.possuiCnh ? 'Sim' : 'Nao',
-    numeroCnh: formatCnh(curriculo.numeroCnh),
-    vencimentoCnh: normalizeDate(curriculo.vencimentoCnh?.slice(0, 10) ?? ''),
-    categoriaCnh: limitEditField('categoriaCnh', curriculo.categoriaCnh ?? ''),
-    status: curriculo.status,
+    nome: limitEditField('nome', curriculo?.nome ?? ''),
+    celular: formatPhone(curriculo?.celular),
+    nascimento: normalizeDate(curriculo?.nascimento?.slice(0, 10) ?? ''),
+    estadoCivil: curriculo?.estadoCivil ?? '',
+    rg: formatRg(curriculo?.rg),
+    telefone: formatPhone(curriculo?.telefone),
+    cpf: formatCpf(curriculo?.cpf),
+    cursoAtivo: curriculo?.cursoAtivo ? 'Sim' : 'Nao',
+    possuiCnh: curriculo?.possuiCnh ? 'Sim' : 'Nao',
+    numeroCnh: formatCnh(curriculo?.numeroCnh),
+    vencimentoCnh: normalizeDate(curriculo?.vencimentoCnh?.slice(0, 10) ?? ''),
+    categoriaCnh: limitEditField('categoriaCnh', curriculo?.categoriaCnh ?? ''),
+    status: curriculo?.status,
     cep: '',
     rua: limitEditField('rua', endereco?.rua ?? ''),
     cidade: limitEditField('cidade', endereco?.cidade ?? ''),
@@ -162,7 +162,7 @@ export default function Edit() {
         const curriculo = await getCurriculo(id);
         setForm(formFromCurriculo(curriculo));
       } catch {
-        setMessage('Nao foi possivel carregar este curriculo.');
+        setMessage('Não foi possível carregar este currículo.');
       } finally {
         setLoading(false);
       }
@@ -191,12 +191,11 @@ export default function Edit() {
       const response = await axios.get<ViaCepResponse>(`https://viacep.com.br/ws/${digits}/json/`);
 
       if (response.data.erro) {
-        setMessage('CEP nao encontrado. Preencha o endereco manualmente.');
+        setMessage('CEP não encontrado. Preencha o endereço manualmente.');
         return;
       }
 
-      setForm((current) => current ? {
-        ...current,
+      setForm((current) => current ? { ...current,
         rua: limitEditField('rua', response.data.logradouro ?? current.rua),
         bairro: limitEditField('bairro', response.data.bairro ?? current.bairro),
         cidade: limitEditField('cidade', response.data.localidade ?? current.cidade),
@@ -204,7 +203,7 @@ export default function Edit() {
         complemento: limitEditField('complemento', response.data.complemento || current.complemento),
       } : current);
     } catch {
-      setMessage('Nao foi possivel buscar o CEP. Preencha o endereco manualmente.');
+      setMessage('Não foi possível buscar o CEP. Preencha o endereço manualmente.');
     }
   }
 
@@ -232,27 +231,27 @@ export default function Edit() {
     }
 
     if (form.nascimento && !isAtLeastAge(form.nascimento, 16)) {
-      setMessage('O candidato deve ter pelo menos 16 anos para cadastrar o curriculo.');
+      setMessage('O candidato deve ter pelo menos 16 anos para cadastrar o currículo.');
       return false;
     }
 
     if (!isValidDateInput(form.nascimento) || !isValidDateInput(form.vencimentoCnh, { allowFuture: true })) {
-      setMessage('Informe datas validas entre 1900 e 2100.');
+      setMessage('Informe datas válidas entre 1900 e 2100.');
       return false;
     }
 
     if (form.cpf && onlyDigits(form.cpf).length !== 11) {
-      setMessage('Informe um CPF com 11 digitos.');
+      setMessage('Informe um CPF com 11 dígitos.');
       return false;
     }
 
     if (form.rg && onlyDigits(form.rg).length < 7) {
-      setMessage('Informe um RG valido.');
+      setMessage('Informe um RG válido.');
       return false;
     }
 
     if (form.celular && onlyDigits(form.celular).length !== 11) {
-      setMessage('Informe um celular com DDD e 9 digitos.');
+      setMessage('Informe um celular com DDD e 9 dígitos.');
       return false;
     }
 
@@ -262,7 +261,7 @@ export default function Edit() {
     }
 
     if (form.possuiCnh === 'Sim' && form.numeroCnh && onlyDigits(form.numeroCnh).length !== 11) {
-      setMessage('Informe a CNH com 11 digitos.');
+      setMessage('Informe a CNH com 11 dígitos.');
       return false;
     }
 
@@ -323,7 +322,7 @@ export default function Edit() {
       setMessage('Curriculo atualizado com sucesso.');
       setConfirmOpen(false);
     } catch {
-      setMessage('Nao foi possivel atualizar o curriculo.');
+      setMessage('Não foi possível atualizar o currículo.');
     } finally {
       setSaving(false);
     }
@@ -365,7 +364,7 @@ export default function Edit() {
                     <option value="Solteiro">Solteiro</option>
                     <option value="Casado">Casado</option>
                     <option value="Divorciado">Divorciado</option>
-                    <option value="Viuvo">Viuvo</option>
+                    <option value="Viuvo">Viúvo</option>
                   </Select>
                 </Field>
                 <Field>
@@ -385,14 +384,14 @@ export default function Edit() {
                   <Label>Possui curso ativo de CBSP e HUET?</Label>
                   <Select value={form.cursoAtivo} onChange={(e) => updateField('cursoAtivo', e.target.value)}>
                     <option value="Sim">Sim</option>
-                    <option value="Nao">Nao</option>
+                    <option value="Nao">Não</option>
                   </Select>
                 </Field>
                 <Field>
                   <Label>Possui CNH?</Label>
                   <Select value={form.possuiCnh} onChange={(e) => updateField('possuiCnh', e.target.value)}>
                     <option value="Sim">Sim</option>
-                    <option value="Nao">Nao</option>
+                    <option value="Nao">Não</option>
                   </Select>
                 </Field>
 
@@ -415,7 +414,7 @@ export default function Edit() {
                 {form.possuiCnh === 'Sim' && (
                   <>
                     <Field>
-                      <Label>Numero da CNH</Label>
+                      <Label>Número da CNH</Label>
                       <Input
                         type="text"
                         maxLength={textLimits.cnh}
@@ -446,7 +445,7 @@ export default function Edit() {
                 )}
               </Grid>
 
-              <FieldsetTitle>Endereco</FieldsetTitle>
+              <FieldsetTitle>Endereço</FieldsetTitle>
               <Grid>
                 <Field>
                   <Label>CEP</Label>
@@ -469,7 +468,7 @@ export default function Edit() {
                 </Field>
 
                 <Field>
-                  <Label>Numero</Label>
+                  <Label>Número</Label>
                   <Input type="text" maxLength={textLimits.number} value={form.numero} onChange={(e) => updateField('numero', e.target.value)} />
                 </Field>
                 <Field>
@@ -494,7 +493,7 @@ export default function Edit() {
 
               <ActionButtons>
                 <SubmitButton type="submit" disabled={saving}>
-                  {saving ? 'Salvando...' : 'Alterar Curriculo'}
+                  {saving ? 'Salvando...' : 'Alterar Currículo'}
                 </SubmitButton>
                 <ReturnButton type="button" onClick={() => navigate(id ? `/view/${id}` : '/dashboard')}>
                   Voltar
@@ -510,9 +509,9 @@ export default function Edit() {
     <>
       {confirmOpen && (
         <ConfirmModal
-          title="Alterar curriculo?"
-          description="As informacoes deste curriculo serao atualizadas com os dados preenchidos na tela. Confirme para salvar as alteracoes."
-          confirmLabel="Salvar alteracoes"
+          title="Alterar currículo?"
+          description="As informações deste curriculo seráo atualizadas com os dados preenchidos na tela. Confirme para salvar as alterações."
+          confirmLabel="Salvar alterações"
           tone="default"
           loading={saving}
           onCancel={() => setConfirmOpen(false)}
@@ -536,11 +535,11 @@ export default function Edit() {
       <Header>
         <HeaderContent>
           <Brand href={homePath}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink href={homePath}>Inicio</NavLink>
+            <NavLink href={homePath}>Início</NavLink>
             <NavLink href="/vagas">Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -554,9 +553,9 @@ export default function Edit() {
       <Footer>
         <FooterContent>
           <Brand href={homePath}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
       {modals}

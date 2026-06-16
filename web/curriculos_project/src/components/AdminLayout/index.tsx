@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+﻿import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo-sidebar.png';
@@ -20,7 +20,7 @@ import {
   UserInfo,
 } from './styles';
 
-type AdminSection = 'curriculos' | 'vagas';
+type AdminSection = 'curriculos' | 'vagas' | 'relatorios';
 
 type AdminLayoutProps = {
   activeSection?: AdminSection;
@@ -57,6 +57,19 @@ function JobsIcon() {
   );
 }
 
+function ReportsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 19V5" />
+      <path d="M4 19h16" />
+      <path d="M8 16v-5" />
+      <path d="M12 16V8" />
+      <path d="M16 16v-8" />
+      <path d="M20 16v-3" />
+    </svg>
+  );
+}
+
 function LogoutIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -71,8 +84,8 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
   const { user } = useAuth();
   const { requestLogout, logoutModal } = useConfirmLogout();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const userName = user?.nome?.trim() || (user?.tipo === 'admin' ? 'Administrador' : 'Usuario');
-  const userEmail = user?.email?.trim() || 'Email nao informado';
+  const userName = user?.nome?.trim() || (user?.tipo === 'admin' ? 'Administrador' : 'Usuário');
+  const userEmail = user?.email?.trim() || 'E-mail não informado';
   const userInitials = getInitials(user?.nome, user?.email);
 
   return (
@@ -80,8 +93,8 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
       <Sidebar $open={sidebarOpen}>
         <SidebarHeader $open={sidebarOpen}>
           {sidebarOpen && (
-            <Brand aria-label="Metalurgica Vulcano">
-              <img src={logo} alt="Metalurgica Vulcano" />
+            <Brand aria-label="Metalúrgica Vulcano">
+              <img src={logo} alt="Metalúrgica Vulcano" />
             </Brand>
           )}
           <MenuButton
@@ -100,11 +113,11 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
             type="button"
             $active={activeSection === 'curriculos'}
             $open={sidebarOpen}
-            title="Gerenciar Curriculos"
+            title="Gerenciar Currículos"
             onClick={() => navigate('/dashboard')}
           >
             <CurriculumIcon />
-            <span className="nav-label">Gerenciar Curriculos</span>
+            <span className="nav-label">Gerenciar Currículos</span>
           </NavButton>
           <NavButton
             type="button"
@@ -115,6 +128,16 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
           >
             <JobsIcon />
             <span className="nav-label">Gerenciar Vagas</span>
+          </NavButton>
+          <NavButton
+            type="button"
+            $active={activeSection === 'relatorios'}
+            $open={sidebarOpen}
+            title="Relatórios RH"
+            onClick={() => navigate('/reports')}
+          >
+            <ReportsIcon />
+            <span className="nav-label">Relatórios RH</span>
           </NavButton>
         </SidebarNav>
 

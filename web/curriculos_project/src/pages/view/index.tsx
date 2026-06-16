@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { AdminLayout } from '../../components/AdminLayout';
@@ -56,7 +56,7 @@ export default function View() {
         setMessage('');
         setCurriculo(await getCurriculo(id));
       } catch {
-        setMessage('Nao foi possivel carregar este curriculo.');
+        setMessage('Não foi possível carregar este currículo.');
       } finally {
         setLoading(false);
       }
@@ -81,14 +81,14 @@ export default function View() {
       setCurriculo(updated);
       setMessage('Status atualizado com sucesso.');
     } catch {
-      setMessage('Nao foi possivel atualizar o status.');
+      setMessage('Não foi possível atualizar o status.');
     } finally {
       setSavingStatus(false);
     }
   }
 
   const firstAddress = curriculo?.enderecos?.[0];
-  const possuiCNH = curriculo?.possuiCnh ? 'Sim' : 'Nao';
+  const possuiCNH = curriculo?.possuiCnh ? 'Sim' : 'Não';
   const isAdmin = user?.tipo === 'admin';
   const homePath = user?.tipo === 'admin' ? '/dashboard' : '/profile';
 
@@ -96,41 +96,41 @@ export default function View() {
     const arquivo = curriculo?.arquivos?.[0];
 
     if (!curriculo || !arquivo?.id) {
-      setMessage('Este curriculo nao possui PDF enviado pelo usuario.');
+      setMessage('Este curriculo não possui PDF enviado pelo usuário.');
       return;
     }
 
     try {
       setMessage('');
-      const blob = await downloadCurriculoArquivo(curriculo.id, arquivo.id);
+      const blob = await downloadCurriculoArquivo(curriculo?.id, arquivo?.id);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = arquivo.nomeOriginal ?? `curriculo-${curriculo.nome}.pdf`;
+      link.download = arquivo?.nomeOriginal ?? `curriculo-${curriculo?.nome}.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch {
-      setMessage('Nao foi possivel baixar o PDF enviado pelo usuario.');
+      setMessage('Não foi possível baixar o PDF enviado pelo usuário.');
     }
   }
 
   const content = (
     <Main>
       <StatusWrapper>
-        <StatusLabel>{loading ? 'Carregando curriculo...' : message}</StatusLabel>
+        <StatusLabel>{loading ? 'Carregando currículo...' : message}</StatusLabel>
         {curriculo && (
           <>
             <StatusLabel>
               Status atual:{' '}
-              <span style={{ color: getStatusColor(curriculo.status), fontWeight: 800 }}>
-                {getStatusLabel(curriculo.status)}
+              <span style={{ color: getStatusColor(curriculo?.status), fontWeight: 800 }}>
+                {getStatusLabel(curriculo?.status)}
               </span>
             </StatusLabel>
             {isAdmin && (
               <StatusSelect
-                value={curriculo.status}
+                value={curriculo?.status}
                 disabled={savingStatus}
                 onChange={(event) => handleStatusChange(event.target.value as CurriculoStatus)}
               >
@@ -152,37 +152,37 @@ export default function View() {
             <Grid>
               <DataItem>
                 <Label>Nome</Label>
-                <Value>{curriculo.nome}</Value>
+                <Value>{curriculo?.nome}</Value>
               </DataItem>
               <DataItem>
                 <Label>Celular</Label>
-                <Value>{valueOrDash(formatPhone(curriculo.celular))}</Value>
+                <Value>{valueOrDash(formatPhone(curriculo?.celular))}</Value>
               </DataItem>
               <DataItem>
                 <Label>Data de Nascimento</Label>
-                <Value>{valueOrDash(curriculo.nascimento?.slice(0, 10))}</Value>
+                <Value>{valueOrDash(curriculo?.nascimento?.slice(0, 10))}</Value>
               </DataItem>
 
               <DataItem>
                 <Label>Estado Civil</Label>
-                <Value>{valueOrDash(curriculo.estadoCivil)}</Value>
+                <Value>{valueOrDash(curriculo?.estadoCivil)}</Value>
               </DataItem>
               <DataItem>
                 <Label>RG</Label>
-                <Value>{valueOrDash(formatRg(curriculo.rg))}</Value>
+                <Value>{valueOrDash(formatRg(curriculo?.rg))}</Value>
               </DataItem>
               <DataItem>
                 <Label>Telefone</Label>
-                <Value>{valueOrDash(formatPhone(curriculo.telefone))}</Value>
+                <Value>{valueOrDash(formatPhone(curriculo?.telefone))}</Value>
               </DataItem>
 
               <DataItem>
                 <Label>CPF</Label>
-                <Value>{valueOrDash(formatCpf(curriculo.cpf))}</Value>
+                <Value>{valueOrDash(formatCpf(curriculo?.cpf))}</Value>
               </DataItem>
               <DataItem>
                 <Label>Possui curso ativo de CBSP e HUET?</Label>
-                <Value>{curriculo.cursoAtivo ? 'Sim' : 'Nao'}</Value>
+                <Value>{curriculo?.cursoAtivo ? 'Sim' : 'Não'}</Value>
               </DataItem>
               <DataItem>
                 <Label>Possui CNH?</Label>
@@ -190,31 +190,31 @@ export default function View() {
               </DataItem>
 
               <DataItem>
-                <Label>Cargo/Area de Atuacao desejado</Label>
-                <Value>{formatList(curriculo.atuacoes)}</Value>
+                <Label>Cargo/Area de Atuação desejado</Label>
+                <Value>{formatList(curriculo?.atuacoes)}</Value>
               </DataItem>
               <DataItem>
                 <Label>Cursos</Label>
-                <Value>{formatList(curriculo.cursos)}</Value>
+                <Value>{formatList(curriculo?.cursos)}</Value>
               </DataItem>
               <DataItem>
-                <Label>Experiencias</Label>
-                <Value>{formatList(curriculo.experiencias)}</Value>
+                <Label>Experiências</Label>
+                <Value>{formatList(curriculo?.experiencias)}</Value>
               </DataItem>
 
-              {curriculo.possuiCnh && (
+              {curriculo?.possuiCnh && (
                 <>
                   <DataItem>
-                    <Label>Numero da CNH</Label>
-                    <Value>{valueOrDash(formatCnh(curriculo.numeroCnh))}</Value>
+                    <Label>Número da CNH</Label>
+                    <Value>{valueOrDash(formatCnh(curriculo?.numeroCnh))}</Value>
                   </DataItem>
                   <DataItem>
                     <Label>Vencimento da CNH</Label>
-                    <Value>{valueOrDash(curriculo.vencimentoCnh?.slice(0, 10))}</Value>
+                    <Value>{valueOrDash(curriculo?.vencimentoCnh?.slice(0, 10))}</Value>
                   </DataItem>
                   <DataItem>
                     <Label>Categoria da CNH</Label>
-                    <Value>{valueOrDash(curriculo.categoriaCnh)}</Value>
+                    <Value>{valueOrDash(curriculo?.categoriaCnh)}</Value>
                   </DataItem>
                 </>
               )}
@@ -222,7 +222,7 @@ export default function View() {
           </Section>
 
           <Section>
-            <SectionTitle>Endereco</SectionTitle>
+            <SectionTitle>Endereço</SectionTitle>
             <Grid>
               <DataItem>
                 <Label>Logradouro</Label>
@@ -238,7 +238,7 @@ export default function View() {
               </DataItem>
 
               <DataItem>
-                <Label>Numero</Label>
+                <Label>Número</Label>
                 <Value>{valueOrDash(firstAddress?.numero)}</Value>
               </DataItem>
               <DataItem>
@@ -252,7 +252,7 @@ export default function View() {
             </Grid>
 
             <ActionButtons>
-              <ActionButton href={`/edit/${curriculo.id}`}>Alterar Curriculo</ActionButton>
+              <ActionButton href={`/edit/${curriculo?.id}`}>Alterar Currículo</ActionButton>
               <ActionButton href={homePath}>Voltar</ActionButton>
             </ActionButtons>
 
@@ -281,11 +281,11 @@ export default function View() {
       <Header>
         <HeaderContent>
           <Brand href={homePath}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink href={homePath}>{user?.tipo === 'admin' ? 'Gerenciar Curriculos' : 'Inicio'}</NavLink>
+            <NavLink href={homePath}>{user?.tipo === 'admin' ? 'Gerenciar Currículos' : 'Início'}</NavLink>
             <NavLink href={user?.tipo === 'admin' ? '/newJob' : '/vagas'}>
               {user?.tipo === 'admin' ? 'Gerenciar Vagas' : 'Vagas'}
             </NavLink>
@@ -301,9 +301,9 @@ export default function View() {
       <Footer>
         <FooterContent>
           <Brand href={homePath}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
       {logoutModal}

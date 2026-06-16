@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -57,8 +57,8 @@ export default function NewCertification() {
       try {
         const curriculo = await getMeuCurriculo();
         if (isCurrent) {
-          setCurriculoId(curriculo.id);
-          setExistingItems(curriculo.cursos ?? []);
+          setCurriculoId(curriculo?.id);
+          setExistingItems(curriculo?.cursos ?? []);
         }
       } catch {
         if (isCurrent) {
@@ -103,26 +103,26 @@ export default function NewCertification() {
       setLoading(true);
       const curriculo = await updateCurriculo(curriculoId, {
         cursos: existingItems
-          .filter((existingItem) => existingItem.id !== deleteTarget.id)
+          .filter((existingItem) => existingItem.id !== deleteTarget?.id)
           .map((existingItem) => ({
             nome: existingItem.nome ?? '',
             instituicao: existingItem.instituicao ?? null,
             cargaHoraria: existingItem.cargaHoraria ?? null,
           })),
       });
-      setExistingItems(curriculo.cursos ?? []);
-      if (editingId === deleteTarget.id) {
+      setExistingItems(curriculo?.cursos ?? []);
+      if (editingId === deleteTarget?.id) {
         resetForm();
       }
       setDeleteTarget(null);
       setMessage('Curso ou certificado removido com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
-        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel remover.');
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Não foi possível remover.');
         return;
       }
 
-      setMessage('Nao foi possivel remover. Tente novamente.');
+      setMessage('Não foi possível remover. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -153,25 +153,24 @@ export default function NewCertification() {
             cargaHoraria: item.cargaHoraria ?? null,
           })),
         });
-        setExistingItems(curriculo.cursos ?? []);
+        setExistingItems(curriculo?.cursos ?? []);
         resetForm();
         setMessage('Curso ou certificado atualizado com sucesso.');
         return;
       }
 
-      const curriculo = await addCurso({
-        ...payload,
+      const curriculo = await addCurso({ ...payload,
       });
-      setExistingItems(curriculo.cursos ?? []);
+      setExistingItems(curriculo?.cursos ?? []);
       resetForm();
       setMessage('Curso ou certificado cadastrado com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
-        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel cadastrar.');
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Não foi possível cadastrar.');
         return;
       }
 
-      setMessage('Nao foi possivel cadastrar. Tente novamente.');
+      setMessage('Não foi possível cadastrar. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -182,11 +181,11 @@ export default function NewCertification() {
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/profile')}>Inicio</NavLink>
+            <NavLink onClick={() => navigate('/profile')}>Início</NavLink>
             <NavLink onClick={() => navigate('/vagas')}>Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -236,10 +235,10 @@ export default function NewCertification() {
                 />
               </InputGroup>
               <InputGroup>
-                <label>Instituicao</label>
+                <label>Instituição</label>
                 <input
                   type="text"
-                  placeholder="Instituicao"
+                  placeholder="Instituição"
                   maxLength={textLimits.medium}
                   value={instituicao}
                   onChange={(event) => setInstituicao(limitText(event.target.value, textLimits.medium))}
@@ -259,7 +258,7 @@ export default function NewCertification() {
 
             <ActionButtons>
               <SubmitButton type="submit" disabled={loading}>
-                {loading ? 'Salvando...' : editingId ? 'Salvar Alteracoes' : 'Cadastrar Curso/Certificado'}
+                {loading ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Curso/Certificado'}
               </SubmitButton>
               {editingId && (
                 <BackButton type="button" onClick={resetForm}>
@@ -277,16 +276,16 @@ export default function NewCertification() {
       <Footer>
         <FooterContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
 
       {deleteTarget && (
         <ConfirmModal
           title="Excluir curso ou certificado?"
-          description={`Esta acao vai remover "${deleteTarget.nome || deleteTarget.instituicao || 'este item'}" do seu curriculo.`}
+          description={`Esta ação vai remover "${deleteTarget?.nome || deleteTarget?.instituicao || 'este item'}" do seu currículo.`}
           confirmLabel="Excluir"
           loading={loading}
           onCancel={() => setDeleteTarget(null)}

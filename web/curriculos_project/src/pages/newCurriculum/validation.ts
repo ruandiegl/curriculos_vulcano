@@ -1,4 +1,4 @@
-import { isAtLeastAge } from '../../utils/date';
+﻿import { isAtLeastAge } from '../../utils/date';
 import { onlyDigits } from '../../utils/masks';
 
 export const jobRoles = [
@@ -85,7 +85,7 @@ export function validateNewCurriculumForm(form: FormState) {
   }
 
   if (!isAtLeastAge(form.nascimento, 16)) {
-    return 'Informe uma data de nascimento valida.';
+    return 'Informe uma data de nascimento válida.';
   }
 
   if (!hasValue(form.estadoCivil)) {
@@ -105,27 +105,27 @@ export function validateNewCurriculumForm(form: FormState) {
   }
 
   if (!hasValue(form.atuacaoPrincipal)) {
-    return 'Selecione o cargo/area de atuacao desejado.';
+    return 'Selecione o cargo/área de atuação desejado.';
   }
 
   if (!hasValue(form.atuacaoSecundaria)) {
-    return 'Selecione o cargo/area de atuacao secundario.';
+    return 'Selecione o cargo/área de atuação secundário.';
   }
 
   if (!hasValue(form.atuacaoTerciaria)) {
-    return 'Selecione o cargo/area de atuacao terciario.';
+    return 'Selecione o cargo/área de atuação terciário.';
   }
 
   if (form.cpf && onlyDigits(form.cpf).length !== 11) {
-    return 'Informe um CPF com 11 digitos.';
+    return 'Informe um CPF com 11 dígitos.';
   }
 
   if (form.rg && onlyDigits(form.rg).length < 7) {
-    return 'Informe um RG valido.';
+    return 'Informe um RG válido.';
   }
 
   if (form.celular && onlyDigits(form.celular).length !== 11) {
-    return 'Informe um celular com DDD e 9 digitos.';
+    return 'Informe um celular com DDD e 9 dígitos.';
   }
 
   if (form.telefone && ![10, 11].includes(onlyDigits(form.telefone).length)) {
@@ -133,11 +133,11 @@ export function validateNewCurriculumForm(form: FormState) {
   }
 
   if (form.possuiCnh === 'Sim' && form.numeroCnh && onlyDigits(form.numeroCnh).length !== 11) {
-    return 'Informe a CNH com 11 digitos.';
+    return 'Informe a CNH com 11 dígitos.';
   }
 
   if (form.possuiCnh === 'Sim' && !hasValue(form.numeroCnh)) {
-    return 'Informe o numero da CNH para continuar.';
+    return 'Informe o número da CNH para continuar.';
   }
 
   if (form.possuiCnh === 'Sim' && !hasValue(form.vencimentoCnh)) {

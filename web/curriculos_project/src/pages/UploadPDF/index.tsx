@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -66,8 +66,8 @@ export default function UploadPDF() {
         const curriculo = await getMeuCurriculo();
 
         if (isCurrent) {
-          setCurriculoId(curriculo.id);
-          setArquivos(curriculo.arquivos ?? []);
+          setCurriculoId(curriculo?.id);
+          setArquivos(curriculo?.arquivos ?? []);
           setMessage('');
         }
       } catch {
@@ -106,7 +106,7 @@ export default function UploadPDF() {
     setSuccessMessage('');
 
     if (!curriculoId) {
-      setMessage('Cadastre seu curriculo antes de enviar o PDF.');
+      setMessage('Cadastre seu currículo antes de enviar o PDF.');
       return;
     }
 
@@ -140,34 +140,34 @@ export default function UploadPDF() {
       setArquivos([arquivo]);
       setSelectedFile(null);
       setFileInputKey((current) => current + 1);
-      setSuccessMessage(arquivos.length > 0 ? 'Curriculo em PDF substituido com sucesso.' : 'Curriculo em PDF enviado com sucesso.');
+      setSuccessMessage(arquivos.length > 0 ? 'Currículo em PDF substituído com sucesso.' : 'Currículo em PDF enviado com sucesso.');
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Nao foi possivel enviar o curriculo em PDF.'));
+      setMessage(getErrorMessage(error, 'Não foi possível enviar o currículo em PDF.'));
     } finally {
       setUploading(false);
     }
   }
 
   async function handleDownload(arquivo: CurriculoRelation) {
-    if (!curriculoId || !arquivo.id) {
+    if (!curriculoId || !arquivo?.id) {
       return;
     }
 
     try {
-      setDownloadingId(arquivo.id);
+      setDownloadingId(arquivo?.id);
       setMessage('');
       setSuccessMessage('');
-      const blob = await downloadCurriculoArquivo(curriculoId, arquivo.id);
+      const blob = await downloadCurriculoArquivo(curriculoId, arquivo?.id);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = arquivo.nomeOriginal ?? arquivo.nome ?? 'curriculo.pdf';
+      link.download = arquivo?.nomeOriginal ?? arquivo?.nome ?? 'curriculo.pdf';
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Nao foi possivel baixar este curriculo.'));
+      setMessage(getErrorMessage(error, 'Não foi possível baixar este currículo.'));
     } finally {
       setDownloadingId('');
     }
@@ -179,15 +179,15 @@ export default function UploadPDF() {
     }
 
     try {
-      setDeletingId(deleteTarget.id);
+      setDeletingId(deleteTarget?.id);
       setMessage('');
       setSuccessMessage('');
-      await deleteCurriculoArquivo(curriculoId, deleteTarget.id);
+      await deleteCurriculoArquivo(curriculoId, deleteTarget?.id);
       setDeleteTarget(null);
       setArquivos([]);
-      setSuccessMessage('Curriculo em PDF excluido com sucesso.');
+      setSuccessMessage('Currículo em PDF excluído com sucesso.');
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Nao foi possivel excluir este curriculo.'));
+      setMessage(getErrorMessage(error, 'Não foi possível excluir este currículo.'));
     } finally {
       setDeletingId('');
     }
@@ -198,11 +198,11 @@ export default function UploadPDF() {
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/profile')}>Inicio</NavLink>
+            <NavLink onClick={() => navigate('/profile')}>Início</NavLink>
             <NavLink onClick={() => navigate('/vagas')}>Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -217,7 +217,7 @@ export default function UploadPDF() {
         </Greeting>
 
         <Section>
-          <SectionTitle>Cadastrar Currículo</SectionTitle>
+          <SectionTitle>Cadastrar Curriculo</SectionTitle>
           
           {message && <FeedbackMessage>{message}</FeedbackMessage>}
           {successMessage && <FeedbackMessage variant="success">{successMessage}</FeedbackMessage>}
@@ -243,27 +243,27 @@ export default function UploadPDF() {
             </ActionButtons>
           </form>
 
-          <FileList aria-label="Curriculos enviados">
+          <FileList aria-label="Currículos enviados">
             {arquivos.length === 0 && (
-              <FileListEmpty>Nenhum curriculo em PDF enviado.</FileListEmpty>
+              <FileListEmpty>Nenhum currículo em PDF enviado.</FileListEmpty>
             )}
 
             {arquivos.map((arquivo) => (
-              <FileListItem key={arquivo.id}>
+              <FileListItem key={arquivo?.id}>
                 <div>
-                  <FileListName>{arquivo.nomeOriginal ?? arquivo.nome ?? 'curriculo.pdf'}</FileListName>
-                  {arquivo.createdAt && (
-                    <FileListMeta>Enviado em {new Date(arquivo.createdAt).toLocaleDateString('pt-BR')}</FileListMeta>
+                  <FileListName>{arquivo?.nomeOriginal ?? arquivo?.nome ?? 'curriculo.pdf'}</FileListName>
+                  {arquivo?.createdAt && (
+                    <FileListMeta>Enviado em {new Date(arquivo?.createdAt).toLocaleDateString('pt-BR')}</FileListMeta>
                   )}
                 </div>
 
                 <FileListActions>
                   <FileListButton
                     type="button"
-                    disabled={downloadingId === arquivo.id}
+                    disabled={downloadingId === arquivo?.id}
                     onClick={() => handleDownload(arquivo)}
                   >
-                    {downloadingId === arquivo.id ? 'Baixando...' : 'Baixar'}
+                    {downloadingId === arquivo?.id ? 'Baixando...' : 'Baixar'}
                   </FileListButton>
                   <FileListButton
                     type="button"
@@ -283,15 +283,15 @@ export default function UploadPDF() {
       <Footer>
         <FooterContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
       {confirmReplaceOpen && (
         <ConfirmModal
-          title="Substituir curriculo em PDF?"
-          description="Voce ja possui um curriculo em PDF enviado. Ao confirmar, o arquivo atual sera substituido pelo novo."
+          title="Substituir currículo em PDF?"
+          description="Você já possui um currículo em PDF enviado. Ao confirmar, o arquivo atual será substituído pelo novo."
           confirmLabel="Substituir"
           cancelLabel="Cancelar"
           loadingLabel="Substituindo..."
@@ -303,10 +303,10 @@ export default function UploadPDF() {
       )}
       {deleteTarget && (
         <ConfirmModal
-          title="Excluir curriculo em PDF?"
-          description={`Esta acao ira remover o arquivo ${deleteTarget.nomeOriginal ?? deleteTarget.nome ?? 'selecionado'}.`}
+          title="Excluir currículo em PDF?"
+          description={`Esta ação irá remover o arquivo ${deleteTarget?.nomeOriginal ?? deleteTarget?.nome ?? 'selecionado'}.`}
           confirmLabel="Excluir"
-          loading={deletingId === deleteTarget.id}
+          loading={deletingId === deleteTarget?.id}
           onCancel={() => setDeleteTarget(null)}
           onConfirm={handleDelete}
         />

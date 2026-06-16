@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/AdminLayout';
@@ -113,14 +113,14 @@ function getInitials(name?: string, email?: string) {
 }
 
 function formatLocation(vaga: Vaga) {
-  return [vaga.cidade, vaga.estado].filter(Boolean).join(' / ') || 'Local nao informado';
+  return [vaga.cidade, vaga.estado].filter(Boolean).join(' / ') || 'Local não informado';
 }
 
 function truncateText(value: string | null | undefined, limit = 56) {
   const text = value?.trim();
 
   if (!text) {
-    return 'Descricao nao informada.';
+    return 'Descrição não informada.';
   }
 
   return text.length > limit ? `${text.slice(0, limit).trim()}...` : text;
@@ -183,7 +183,7 @@ export default function NewJob() {
           }
         } catch (error) {
           if (isCurrent) {
-            setMessage(getErrorMessage(error, 'Nao foi possivel carregar as vagas.'));
+            setMessage(getErrorMessage(error, 'Não foi possível carregar as vagas.'));
           }
         } finally {
           if (isCurrent) {
@@ -211,8 +211,7 @@ export default function NewJob() {
       ativa: nextValue,
     }[field] as FormState[K];
 
-    setForm((current) => ({
-      ...current,
+    setForm((current) => ({ ...current,
       [field]: limitedValue,
     }));
   }
@@ -267,7 +266,7 @@ export default function NewJob() {
 
       closeForm();
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Nao foi possivel salvar a vaga.'));
+      setMessage(getErrorMessage(error, 'Não foi possível salvar a vaga.'));
     } finally {
       setSaving(false);
     }
@@ -278,14 +277,14 @@ export default function NewJob() {
 
     try {
       setDeleting(true);
-      await deleteVaga(deleteTarget.id);
-      setVagas((items) => items.filter((item) => item.id !== deleteTarget.id));
-      if (selectedVaga?.id === deleteTarget.id) {
+      await deleteVaga(deleteTarget?.id);
+      setVagas((items) => items.filter((item) => item.id !== deleteTarget?.id));
+      if (selectedVaga?.id === deleteTarget?.id) {
         setSelectedVaga(null);
       }
       setDeleteTarget(null);
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Nao foi possivel excluir a vaga.'));
+      setMessage(getErrorMessage(error, 'Não foi possível excluir a vaga.'));
     } finally {
       setDeleting(false);
     }
@@ -301,7 +300,7 @@ export default function NewJob() {
       const details = await getVaga(vaga.id);
       setSelectedVaga(details);
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Nao foi possivel carregar os detalhes da vaga.'));
+      setMessage(getErrorMessage(error, 'Não foi possível carregar os detalhes da vaga.'));
     } finally {
       setLoadingDetails(false);
     }
@@ -369,7 +368,7 @@ export default function NewJob() {
                     <th>Local</th>
                     <th>Status</th>
                     <th>Candidatos</th>
-                    <th>Acoes</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -504,7 +503,7 @@ export default function NewJob() {
                   </Select>
                 </Field>
                 <Field $fullWidth>
-                  <Label>Descricao da vaga</Label>
+                  <Label>Descrição da vaga</Label>
                   <TextArea
                     placeholder="Descreva a oportunidade de forma breve"
                     maxLength={DESCRIPTION_LIMIT}
@@ -519,7 +518,7 @@ export default function NewJob() {
 
               <FormActionButtons>
                 <SubmitButton type="button" disabled={saving} onClick={handleSaveVaga}>
-                  {saving ? 'Salvando...' : editingVaga ? 'Salvar Alteracoes' : 'Cadastrar Vaga'}
+                  {saving ? 'Salvando...' : editingVaga ? 'Salvar Alterações' : 'Cadastrar Vaga'}
                 </SubmitButton>
                 <CloseButton type="button" onClick={closeForm}>
                   Fechar
@@ -531,12 +530,12 @@ export default function NewJob() {
           {selectedVaga && (
             <FormSection>
               <SectionCategory>{loadingDetails ? 'Carregando detalhes' : 'Detalhes da vaga'}</SectionCategory>
-              <SectionTitle>{selectedVaga.titulo}</SectionTitle>
+              <SectionTitle>{selectedVaga?.titulo}</SectionTitle>
 
               <DetailGrid>
                 <div>
                   <strong>Status</strong>
-                  <span>{selectedVaga.ativa ? 'Ativa' : 'Inativa'}</span>
+                  <span>{selectedVaga?.ativa ? 'Ativa' : 'Inativa'}</span>
                 </div>
                 <div>
                   <strong>Local</strong>
@@ -547,8 +546,8 @@ export default function NewJob() {
                   <span>{candidates.length}</span>
                 </div>
                 <div>
-                  <strong>Descricao</strong>
-                  <span>{truncateText(selectedVaga.descricao, DESCRIPTION_LIMIT)}</span>
+                  <strong>Descrição</strong>
+                  <span>{truncateText(selectedVaga?.descricao, DESCRIPTION_LIMIT)}</span>
                 </div>
               </DetailGrid>
 
@@ -557,11 +556,11 @@ export default function NewJob() {
                   <thead>
                     <tr>
                       <th>Candidato</th>
-                      <th>Email</th>
+                      <th>E-mail</th>
                       <th>Telefone</th>
-                      <th>Atuacao</th>
+                      <th>Atuação</th>
                       <th>Status Curriculo</th>
-                      <th>Acoes</th>
+                      <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -580,11 +579,11 @@ export default function NewJob() {
                           <td>{curriculo?.email ?? candidatura.usuario?.email ?? '-'}</td>
                           <td>{curriculo?.celular ?? curriculo?.telefone ?? '-'}</td>
                           <td>{formatList(curriculo?.atuacoes)}</td>
-                          <td>{curriculo?.status ? getStatusLabel(curriculo.status) : '-'}</td>
+                          <td>{curriculo?.status ? getStatusLabel(curriculo?.status) : '-'}</td>
                           <td>
                             {curriculo ? (
-                              <ActionButton type="button" onClick={() => navigate(`/view/${curriculo.id}`)}>
-                                Ver Curriculo
+                              <ActionButton type="button" onClick={() => navigate(`/view/${curriculo?.id}`)}>
+                                Ver Currículo
                               </ActionButton>
                             ) : (
                               '-'
@@ -613,7 +612,7 @@ export default function NewJob() {
       {deleteTarget && (
         <ConfirmModal
           title="Excluir vaga?"
-          description={`Esta acao vai remover a vaga "${deleteTarget.titulo}". Depois de confirmar, nao sera possivel desfazer.`}
+          description={`Esta ação vai remover a vaga "${deleteTarget?.titulo}". Depois de confirmar, não será possivel desfazer.`}
           confirmLabel="Excluir"
           loading={deleting}
           onCancel={() => setDeleteTarget(null)}

@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -59,8 +59,8 @@ export default function NewExperience() {
       try {
         const curriculo = await getMeuCurriculo();
         if (isCurrent) {
-          setCurriculoId(curriculo.id);
-          setExistingItems(curriculo.experiencias ?? []);
+          setCurriculoId(curriculo?.id);
+          setExistingItems(curriculo?.experiencias ?? []);
         }
       } catch {
         if (isCurrent) {
@@ -109,7 +109,7 @@ export default function NewExperience() {
       setLoading(true);
       const curriculo = await updateCurriculo(curriculoId, {
         experiencias: existingItems
-          .filter((existingItem) => existingItem.id !== deleteTarget.id)
+          .filter((existingItem) => existingItem.id !== deleteTarget?.id)
           .map((existingItem) => ({
             empresa: existingItem.empresa ?? '',
             cargo: existingItem.cargo ?? null,
@@ -118,19 +118,19 @@ export default function NewExperience() {
             funcoes: existingItem.funcoes ?? null,
           })),
       });
-      setExistingItems(curriculo.experiencias ?? []);
-      if (editingId === deleteTarget.id) {
+      setExistingItems(curriculo?.experiencias ?? []);
+      if (editingId === deleteTarget?.id) {
         resetForm();
       }
       setDeleteTarget(null);
-      setMessage('Experiencia removida com sucesso.');
+      setMessage('Experiência removida com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
-        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel remover.');
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Não foi possível remover.');
         return;
       }
 
-      setMessage('Nao foi possivel remover. Tente novamente.');
+      setMessage('Não foi possível remover. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -146,12 +146,12 @@ export default function NewExperience() {
     }
 
     if (!isValidDateInput(dataInicio) || !isValidDateInput(dataTermino)) {
-      setMessage('Informe datas validas entre 1900 e hoje.');
+      setMessage('Informe datas válidas entre 1900 e hoje.');
       return;
     }
 
     if (dataInicio && dataTermino && dataTermino < dataInicio) {
-      setMessage('A data de termino nao pode ser anterior a data de inicio.');
+      setMessage('A data de termino não pode ser anterior a data de inicio.');
       return;
     }
 
@@ -175,25 +175,24 @@ export default function NewExperience() {
             funcoes: item.funcoes ?? null,
           })),
         });
-        setExistingItems(curriculo.experiencias ?? []);
+        setExistingItems(curriculo?.experiencias ?? []);
         resetForm();
-        setMessage('Experiencia atualizada com sucesso.');
+        setMessage('Experiência atualizada com sucesso.');
         return;
       }
 
-      const curriculo = await addExperiencia({
-        ...payload,
+      const curriculo = await addExperiencia({ ...payload,
       });
-      setExistingItems(curriculo.experiencias ?? []);
+      setExistingItems(curriculo?.experiencias ?? []);
       resetForm();
-      setMessage('Experiencia cadastrada com sucesso.');
+      setMessage('Experiência cadastrada com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
-        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel cadastrar.');
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Não foi possível cadastrar.');
         return;
       }
 
-      setMessage('Nao foi possivel cadastrar. Tente novamente.');
+      setMessage('Não foi possível cadastrar. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -204,11 +203,11 @@ export default function NewExperience() {
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/profile')}>Inicio</NavLink>
+            <NavLink onClick={() => navigate('/profile')}>Início</NavLink>
             <NavLink onClick={() => navigate('/vagas')}>Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -219,7 +218,7 @@ export default function NewExperience() {
 
       <Main>
         <Section>
-          <SectionTitle>Cadastrar Experiencia Profissional</SectionTitle>
+          <SectionTitle>Cadastrar Experiência Profissional</SectionTitle>
           {message && (
             <FeedbackMessage variant={message.toLowerCase().includes('sucesso') ? 'success' : 'error'}>
               {message}
@@ -227,7 +226,7 @@ export default function NewExperience() {
           )}
 
           <ExistingList>
-            {existingItems.length === 0 && <EmptyState>Nenhuma experiencia cadastrada.</EmptyState>}
+            {existingItems.length === 0 && <EmptyState>Nenhuma experiência cadastrada.</EmptyState>}
             {existingItems.map((item) => (
               <ExistingItem key={item.id}>
                 <ExistingItemText>
@@ -270,7 +269,7 @@ export default function NewExperience() {
                 />
               </InputGroup>
               <InputGroup>
-                <label>Data de Inicio</label>
+                <label>Data de Início</label>
                 <input
                   type="date"
                   min={MIN_DATE}
@@ -302,7 +301,7 @@ export default function NewExperience() {
 
             <ActionButtons>
               <SubmitButton type="submit" disabled={loading}>
-                {loading ? 'Salvando...' : editingId ? 'Salvar Alteracoes' : 'Cadastrar Experiencia'}
+                {loading ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Experiência'}
               </SubmitButton>
               {editingId && (
                 <BackButton type="button" onClick={resetForm}>
@@ -320,16 +319,16 @@ export default function NewExperience() {
       <Footer>
         <FooterContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
 
       {deleteTarget && (
         <ConfirmModal
-          title="Excluir experiencia?"
-          description={`Esta acao vai remover "${deleteTarget.empresa || deleteTarget.cargo || 'esta experiencia'}" do seu curriculo.`}
+          title="Excluir experiência?"
+          description={`Esta ação vai remover "${deleteTarget?.empresa || deleteTarget?.cargo || 'esta experiência'}" do seu currículo.`}
           confirmLabel="Excluir"
           loading={loading}
           onCancel={() => setDeleteTarget(null)}

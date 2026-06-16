@@ -46,8 +46,7 @@ function getUserFromToken(token: string) {
   const storedUser = localStorage.getItem(USER_STORAGE_KEY);
   const storedUserData = storedUser ? JSON.parse(storedUser) as Partial<User> : {};
 
-  return {
-    ...storedUserData,
+  return { ...storedUserData,
     id: decoded.id,
     tipo: storedUserData.tipo ?? decoded.tipo,
     iat: decoded.iat,

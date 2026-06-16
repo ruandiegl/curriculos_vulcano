@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -108,7 +108,7 @@ export default function NewAddress() {
   const [loading, setLoading] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
   const [message, setMessage] = useState(
-    initialCurriculoId ? '' : 'Crie os dados pessoais do curriculo antes de informar o endereco.',
+    initialCurriculoId ? '' : 'Crie os dados pessoais do currículo antes de informar o endereço.',
   );
   const messageVariant = message.toLowerCase().includes('sucesso')
     ? 'success'
@@ -123,11 +123,11 @@ export default function NewAddress() {
       try {
         setLoadingCurriculo(true);
         const curriculo = await getMeuCurriculo();
-        const endereco = curriculo.enderecos?.[0];
+        const endereco = curriculo?.enderecos?.[0];
 
         if (!isCurrent) return;
 
-        setCurriculoId(curriculo.id);
+        setCurriculoId(curriculo?.id);
         setForm({
           cep: '',
           rua: limitAddressField('rua', endereco?.rua ?? ''),
@@ -140,7 +140,7 @@ export default function NewAddress() {
         setMessage('');
       } catch {
         if (isCurrent && !initialCurriculoId) {
-          setMessage('Crie os dados pessoais do curriculo antes de informar o endereco.');
+          setMessage('Crie os dados pessoais do currículo antes de informar o endereço.');
         }
       } finally {
         if (isCurrent) {
@@ -178,12 +178,11 @@ export default function NewAddress() {
       const response = await axios.get<ViaCepResponse>(`https://viacep.com.br/ws/${digits}/json/`);
 
       if (response.data.erro) {
-        setMessage('CEP nao encontrado. Preencha o endereco manualmente.');
+        setMessage('CEP não encontrado. Preencha o endereço manualmente.');
         return;
       }
 
-      setForm((current) => ({
-        ...current,
+      setForm((current) => ({ ...current,
         rua: limitAddressField('rua', response.data.logradouro ?? current.rua),
         bairro: limitAddressField('bairro', response.data.bairro ?? current.bairro),
         cidade: limitAddressField('cidade', response.data.localidade ?? current.cidade),
@@ -191,7 +190,7 @@ export default function NewAddress() {
         complemento: limitAddressField('complemento', response.data.complemento || current.complemento),
       }));
     } catch {
-      setMessage('Nao foi possivel buscar o CEP. Preencha o endereco manualmente.');
+      setMessage('Não foi possível buscar o CEP. Preencha o endereço manualmente.');
     } finally {
       setLoadingCep(false);
     }
@@ -211,7 +210,7 @@ export default function NewAddress() {
     setMessage('');
 
     if (!curriculoId) {
-      setMessage('Nao encontrei o curriculo iniciado. Volte e preencha os dados pessoais novamente.');
+      setMessage('Não encontrei o curriculo iniciado. Volte e preencha os dados pessoais novamente.');
       return;
     }
 
@@ -236,18 +235,18 @@ export default function NewAddress() {
       });
 
       sessionStorage.removeItem(PENDING_CURRICULUM_STORAGE_KEY);
-      setMessage('Endereco atualizado com sucesso.');
+      setMessage('Endereço atualizado com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
         setMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
-            'Nao foi possivel salvar o endereco.',
+            'Não foi possível salvar o endereço.',
         );
         return;
       }
 
-      setMessage('Nao foi possivel salvar o endereco. Tente novamente.');
+      setMessage('Não foi possível salvar o endereço. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -258,11 +257,11 @@ export default function NewAddress() {
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/')}>Inicio</NavLink>
+            <NavLink onClick={() => navigate('/')}>Início</NavLink>
             <NavLink onClick={() => navigate('/vagas')}>Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -273,11 +272,11 @@ export default function NewAddress() {
 
       <Main>
         <Greeting>
-          <p>{curriculoId ? 'Atualize seu endereco cadastrado.' : 'Informe seu endereco para continuar.'}</p>
+          <p>{curriculoId ? 'Atualize seu endereço cadastrado.' : 'Informe seu endereço para continuar.'}</p>
         </Greeting>
 
         <Section>
-          <SectionTitle>Endereco</SectionTitle>
+          <SectionTitle>Endereço</SectionTitle>
           {message && <FeedbackMessage variant={messageVariant}>{message}</FeedbackMessage>}
 
           <form onSubmit={handleSubmit}>
@@ -315,10 +314,10 @@ export default function NewAddress() {
               </Field>
 
               <Field>
-                <Label>Numero</Label>
+                <Label>Número</Label>
                 <Input
                   type="text"
-                  placeholder="Numero"
+                  placeholder="Número"
                   maxLength={textLimits.number}
                   value={form.numero}
                   onChange={(e) => updateField('numero', e.target.value)}
@@ -359,7 +358,7 @@ export default function NewAddress() {
 
             <ActionButtons>
               <SubmitButton type="submit" disabled={loading || loadingCep || loadingCurriculo || !curriculoId}>
-                {loading ? 'Salvando...' : loadingCep ? 'Buscando CEP...' : curriculoId ? 'Salvar Alteracoes' : 'Continuar'}
+                {loading ? 'Salvando...' : loadingCep ? 'Buscando CEP...' : curriculoId ? 'Salvar Alterações' : 'Continuar'}
               </SubmitButton>
             </ActionButtons>
           </form>
@@ -369,9 +368,9 @@ export default function NewAddress() {
       <Footer>
         <FooterContent>
           <Brand onClick={() => navigate('/')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
     </UserLayout>

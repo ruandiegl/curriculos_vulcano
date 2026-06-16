@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -75,7 +75,7 @@ export default function NewCurriculum() {
 
         if (!isCurrent) return;
 
-        setCurriculoId(curriculo.id);
+        setCurriculoId(curriculo?.id);
         setForm(formFromCurriculo(curriculo));
         setMessage('');
       } catch {
@@ -129,22 +129,22 @@ export default function NewCurriculum() {
   }
 
   function formFromCurriculo(curriculo: Curriculo): FormState {
-    const [principal, secundaria, terciaria] = [...(curriculo.atuacoes ?? [])]
+    const [principal, secundaria, terciaria] = [...(curriculo?.atuacoes ?? [])]
       .sort((a, b) => (a.prioridade ?? 99) - (b.prioridade ?? 99));
 
     return {
-      nome: curriculo.nome ?? '',
-      celular: formatPhone(curriculo.celular),
-      nascimento: curriculo.nascimento?.slice(0, 10) ?? '',
-      estadoCivil: curriculo.estadoCivil ?? initialForm.estadoCivil,
-      rg: formatRg(curriculo.rg),
-      telefone: formatPhone(curriculo.telefone),
-      cpf: formatCpf(curriculo.cpf),
-      possuiCnh: curriculo.possuiCnh ? 'Sim' : 'Nao',
-      cursoAtivo: curriculo.cursoAtivo ? 'Sim' : 'Nao',
-      numeroCnh: formatCnh(curriculo.numeroCnh),
-      vencimentoCnh: curriculo.vencimentoCnh?.slice(0, 10) ?? '',
-      categoriaCnh: curriculo.categoriaCnh ?? initialForm.categoriaCnh,
+      nome: curriculo?.nome ?? '',
+      celular: formatPhone(curriculo?.celular),
+      nascimento: curriculo?.nascimento?.slice(0, 10) ?? '',
+      estadoCivil: curriculo?.estadoCivil ?? initialForm.estadoCivil,
+      rg: formatRg(curriculo?.rg),
+      telefone: formatPhone(curriculo?.telefone),
+      cpf: formatCpf(curriculo?.cpf),
+      possuiCnh: curriculo?.possuiCnh ? 'Sim' : 'Nao',
+      cursoAtivo: curriculo?.cursoAtivo ? 'Sim' : 'Nao',
+      numeroCnh: formatCnh(curriculo?.numeroCnh),
+      vencimentoCnh: curriculo?.vencimentoCnh?.slice(0, 10) ?? '',
+      categoriaCnh: curriculo?.categoriaCnh ?? initialForm.categoriaCnh,
       atuacaoPrincipal: principal?.nome ?? '',
       atuacaoSecundaria: secundaria?.nome ?? '',
       atuacaoTerciaria: terciaria?.nome ?? '',
@@ -162,7 +162,7 @@ export default function NewCurriculum() {
     }
 
     if (!isValidDateInput(form.nascimento) || !isValidDateInput(form.vencimentoCnh, { allowFuture: true })) {
-      setMessage('Informe datas validas entre 1900 e 2100.');
+      setMessage('Informe datas válidas entre 1900 e 2100.');
       return;
     }
 
@@ -175,19 +175,19 @@ export default function NewCurriculum() {
       }
 
       const curriculo = await createCurriculo(buildPayload());
-      sessionStorage.setItem(PENDING_CURRICULUM_STORAGE_KEY, curriculo.id);
-      navigate('/newAddress', { state: { curriculoId: curriculo.id } });
+      sessionStorage.setItem(PENDING_CURRICULUM_STORAGE_KEY, curriculo?.id);
+      navigate('/newAddress', { state: { curriculoId: curriculo?.id } });
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
         setMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
-            'Nao foi possivel criar o curriculo.',
+            'Não foi possível criar o currículo.',
         );
         return;
       }
 
-      setMessage('Nao foi possivel criar o curriculo. Tente novamente.');
+      setMessage('Não foi possível criar o currículo. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -197,7 +197,7 @@ export default function NewCurriculum() {
     <UserLayout>
       <Main>
         <Greeting>
-          <p>{curriculoId ? 'Atualize seus dados pessoais do curriculo.' : 'Preencha seus dados pessoais para iniciar seu curriculo.'}</p>
+          <p>{curriculoId ? 'Atualize seus dados pessoais do currículo.' : 'Preencha seus dados pessoais para iniciar seu currículo.'}</p>
         </Greeting>
 
         <Section>
@@ -250,7 +250,7 @@ export default function NewCurriculum() {
                   <option value="Solteiro">Solteiro</option>
                   <option value="Casado">Casado</option>
                   <option value="Divorciado">Divorciado</option>
-                  <option value="Viuvo">Viuvo</option>
+                  <option value="Viuvo">Viúvo</option>
                 </Select>
               </Field>
               <Field>
@@ -339,7 +339,7 @@ export default function NewCurriculum() {
               </Field>
 
               <Field>
-                <Label>Cargo/Area de Atuacao desejado</Label>
+                <Label>Cargo/Area de Atuação desejado</Label>
                 <Select value={form.atuacaoPrincipal} onChange={(e) => updateField('atuacaoPrincipal', e.target.value)} required>
                   <option value="" disabled>
                     Selecione
@@ -352,7 +352,7 @@ export default function NewCurriculum() {
                 </Select>
               </Field>
               <Field>
-                <Label>Cargo/Area de Atuacao secundario</Label>
+                <Label>Cargo/Area de Atuação secundário</Label>
                 <Select value={form.atuacaoSecundaria} onChange={(e) => updateField('atuacaoSecundaria', e.target.value)} required>
                   <option value="">Selecione</option>
                   {jobRoles.map((role) => (
@@ -363,7 +363,7 @@ export default function NewCurriculum() {
                 </Select>
               </Field>
               <Field>
-                <Label>Cargo/Area de Atuacao terciario</Label>
+                <Label>Cargo/Area de Atuação terciário</Label>
                 <Select value={form.atuacaoTerciaria} onChange={(e) => updateField('atuacaoTerciaria', e.target.value)} required>
                   <option value="">Selecione</option>
                   {jobRoles.map((role) => (
@@ -377,7 +377,7 @@ export default function NewCurriculum() {
               {form.possuiCnh === 'Sim' && (
                 <>
                   <Field>
-                    <Label>Numero da CNH</Label>
+                    <Label>Número da CNH</Label>
                     <Input
                       type="text"
                       placeholder="00000000000000000000"
@@ -415,7 +415,7 @@ export default function NewCurriculum() {
 
             <ActionButtons>
               <SubmitButton type="submit" disabled={loading || loadingCurriculo}>
-                {loading || loadingCurriculo ? 'Salvando...' : curriculoId ? 'Salvar Alteracoes' : 'Continuar'}
+                {loading || loadingCurriculo ? 'Salvando...' : curriculoId ? 'Salvar Alterações' : 'Continuar'}
               </SubmitButton>
             </ActionButtons>
           </form>
@@ -425,9 +425,9 @@ export default function NewCurriculum() {
       <Footer>
         <FooterContent>
           <Brand onClick={() => navigate('/')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
     </UserLayout>
