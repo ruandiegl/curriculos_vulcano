@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react';
 import styled from 'styled-components';
 
 type ConfirmModalProps = {
   title: string;
-  description: string;
+  description: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
   loadingLabel?: string;
@@ -68,6 +69,13 @@ const Body = styled.div`
   }
 `;
 
+const Description = styled.div`
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.55;
+`;
+
 const Actions = styled.div`
   padding: 22px 28px 28px;
   display: flex;
@@ -126,7 +134,7 @@ export function ConfirmModal({
           <h2 id="confirm-modal-title">{title}</h2>
         </Header>
         <Body>
-          <p>{description}</p>
+          <Description>{description}</Description>
         </Body>
         <Actions>
           <Button type="button" onClick={onCancel} disabled={loading}>

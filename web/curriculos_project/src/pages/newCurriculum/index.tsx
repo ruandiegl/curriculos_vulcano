@@ -1,12 +1,15 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { FeedbackMessage } from '../../components/FeedbackMessage';
 import { UserLayout } from '../../components/UserLayout';
 import { useAuth } from '../../hooks/useAuth';
-import { PENDING_CURRICULUM_STORAGE_KEY, createCurriculo } from '../../services/curriculos';
+import { PENDING_CURRICULUM_STORAGE_KEY, createCurriculo, getMeuCurriculo, updateCurriculo } from '../../services/curriculos';
 import type { CurriculoCreatePayload } from '../../services/curriculos';
+import type { Curriculo } from '../../types/curriculo';
+import { MIN_DATE, isValidDateInput, limitText, normalizeDate, textLimits } from '../../utils/formLimits';
 import { formatCnh, formatCpf, formatPhone, formatRg, onlyDigits } from '../../utils/masks';
 import { initialForm, jobRoles, validateNewCurriculumForm } from './validation';
 import type { FormState } from './validation';
@@ -15,7 +18,6 @@ import {
   Brand,
   Copyright,
   Field,
-  FormAlert,
   Footer,
   FooterContent,
   Grid,
@@ -35,15 +37,67 @@ function nullable(value: string) {
   return value.trim() || null;
 }
 
+function limitCurriculumField<K extends keyof FormState>(field: K, value: FormState[K]) {
+  const textValue = String(value);
+  const limits: Partial<Record<keyof FormState, number>> = {
+    nome: textLimits.medium,
+    celular: textLimits.phone,
+    telefone: textLimits.phone,
+    rg: textLimits.rg,
+    cpf: textLimits.cpf,
+    numeroCnh: textLimits.cnh,
+    categoriaCnh: 2,
+  };
+
+  if (field === 'nascimento' || field === 'vencimentoCnh') {
+    return normalizeDate(textValue) as FormState[K];
+  }
+
+  return limitText(textValue, limits[field] ?? textLimits.medium) as FormState[K];
+}
+
 export default function NewCurriculum() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [form, setForm] = useState<FormState>(initialForm);
+  const [curriculoId, setCurriculoId] = useState('');
+  const [loadingCurriculo, setLoadingCurriculo] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function loadCurriculo() {
+      try {
+        setLoadingCurriculo(true);
+        const curriculo = await getMeuCurriculo();
+
+        if (!isCurrent) return;
+
+        setCurriculoId(curriculo.id);
+        setForm(formFromCurriculo(curriculo));
+        setMessage('');
+      } catch {
+        if (isCurrent) {
+          setCurriculoId('');
+        }
+      } finally {
+        if (isCurrent) {
+          setLoadingCurriculo(false);
+        }
+      }
+    }
+
+    loadCurriculo();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => ({ ...current, [field]: limitCurriculumField(field, value) }));
   }
 
   function buildPayload(): CurriculoCreatePayload {
@@ -74,6 +128,29 @@ export default function NewCurriculum() {
     };
   }
 
+  function formFromCurriculo(curriculo: Curriculo): FormState {
+    const [principal, secundaria, terciaria] = [...(curriculo.atuacoes ?? [])]
+      .sort((a, b) => (a.prioridade ?? 99) - (b.prioridade ?? 99));
+
+    return {
+      nome: curriculo.nome ?? '',
+      celular: formatPhone(curriculo.celular),
+      nascimento: curriculo.nascimento?.slice(0, 10) ?? '',
+      estadoCivil: curriculo.estadoCivil ?? initialForm.estadoCivil,
+      rg: formatRg(curriculo.rg),
+      telefone: formatPhone(curriculo.telefone),
+      cpf: formatCpf(curriculo.cpf),
+      possuiCnh: curriculo.possuiCnh ? 'Sim' : 'Nao',
+      cursoAtivo: curriculo.cursoAtivo ? 'Sim' : 'Nao',
+      numeroCnh: formatCnh(curriculo.numeroCnh),
+      vencimentoCnh: curriculo.vencimentoCnh?.slice(0, 10) ?? '',
+      categoriaCnh: curriculo.categoriaCnh ?? initialForm.categoriaCnh,
+      atuacaoPrincipal: principal?.nome ?? '',
+      atuacaoSecundaria: secundaria?.nome ?? '',
+      atuacaoTerciaria: terciaria?.nome ?? '',
+    };
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage('');
@@ -84,8 +161,19 @@ export default function NewCurriculum() {
       return;
     }
 
+    if (!isValidDateInput(form.nascimento) || !isValidDateInput(form.vencimentoCnh, { allowFuture: true })) {
+      setMessage('Informe datas validas entre 1900 e 2100.');
+      return;
+    }
+
     try {
       setLoading(true);
+      if (curriculoId) {
+        await updateCurriculo(curriculoId, buildPayload());
+        setMessage('Dados pessoais atualizados com sucesso.');
+        return;
+      }
+
       const curriculo = await createCurriculo(buildPayload());
       sessionStorage.setItem(PENDING_CURRICULUM_STORAGE_KEY, curriculo.id);
       navigate('/newAddress', { state: { curriculoId: curriculo.id } });
@@ -109,12 +197,16 @@ export default function NewCurriculum() {
     <UserLayout>
       <Main>
         <Greeting>
-          <p>Preencha seus dados pessoais para iniciar seu curriculo.</p>
+          <p>{curriculoId ? 'Atualize seus dados pessoais do curriculo.' : 'Preencha seus dados pessoais para iniciar seu curriculo.'}</p>
         </Greeting>
 
         <Section>
           <SectionTitle>Dados Pessoais</SectionTitle>
-          {message && <FormAlert role="alert">{message}</FormAlert>}
+          {message && (
+            <FeedbackMessage variant={message.toLowerCase().includes('sucesso') ? 'success' : 'error'}>
+              {message}
+            </FeedbackMessage>
+          )}
 
           <form onSubmit={handleSubmit} noValidate>
             <Grid>
@@ -123,6 +215,7 @@ export default function NewCurriculum() {
                 <Input
                   type="text"
                   placeholder="Nome"
+                  maxLength={textLimits.medium}
                   value={form.nome}
                   onChange={(e) => updateField('nome', e.target.value)}
                   required
@@ -133,6 +226,7 @@ export default function NewCurriculum() {
                 <Input
                   type="text"
                   placeholder="(24) 99999-9999"
+                  maxLength={textLimits.phone}
                   value={form.celular}
                   onChange={(e) => updateField('celular', formatPhone(e.target.value))}
                   required
@@ -142,6 +236,8 @@ export default function NewCurriculum() {
                 <Label>Data de Nascimento</Label>
                 <Input
                   type="date"
+                  min={MIN_DATE}
+                  max={new Date().toISOString().slice(0, 10)}
                   value={form.nascimento}
                   onChange={(e) => updateField('nascimento', e.target.value)}
                   required
@@ -162,6 +258,7 @@ export default function NewCurriculum() {
                 <Input
                   type="text"
                   placeholder="00.000.000-0"
+                  maxLength={textLimits.rg}
                   value={form.rg}
                   onChange={(e) => updateField('rg', formatRg(e.target.value))}
                   required
@@ -172,6 +269,7 @@ export default function NewCurriculum() {
                 <Input
                   type="text"
                   placeholder="(24) 3333-33333"
+                  maxLength={textLimits.phone}
                   value={form.telefone}
                   onChange={(e) => updateField('telefone', formatPhone(e.target.value))}
                   required
@@ -183,6 +281,7 @@ export default function NewCurriculum() {
                 <Input
                   type="text"
                   placeholder="000.000.000-00"
+                  maxLength={textLimits.cpf}
                   value={form.cpf}
                   onChange={(e) => updateField('cpf', formatCpf(e.target.value))}
                   required
@@ -282,6 +381,7 @@ export default function NewCurriculum() {
                     <Input
                       type="text"
                       placeholder="00000000000000000000"
+                      maxLength={textLimits.cnh}
                       value={form.numeroCnh}
                       onChange={(e) => updateField('numeroCnh', formatCnh(e.target.value))}
                       required
@@ -291,6 +391,8 @@ export default function NewCurriculum() {
                     <Label>Vencimento da CNH</Label>
                     <Input
                       type="date"
+                      min={MIN_DATE}
+                      max="2100-12-31"
                       value={form.vencimentoCnh}
                       onChange={(e) => updateField('vencimentoCnh', e.target.value)}
                       required
@@ -312,8 +414,8 @@ export default function NewCurriculum() {
             </Grid>
 
             <ActionButtons>
-              <SubmitButton type="submit" disabled={loading}>
-                {loading ? 'Salvando...' : 'Continuar'}
+              <SubmitButton type="submit" disabled={loading || loadingCurriculo}>
+                {loading || loadingCurriculo ? 'Salvando...' : curriculoId ? 'Salvar Alteracoes' : 'Continuar'}
               </SubmitButton>
             </ActionButtons>
           </form>

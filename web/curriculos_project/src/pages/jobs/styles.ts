@@ -100,7 +100,6 @@ export const StatusBadge = styled.span`
 export const SubmitButton = styled.button`
   width: fit-content;
   min-height: 40px;
-  margin-top: 8px;
   padding: 0 18px;
   border: 0;
   border-radius: 8px;
@@ -118,5 +117,83 @@ export const SubmitButton = styled.button`
   &:disabled {
     cursor: not-allowed;
     opacity: 0.68;
+  }
+`;
+
+export const JobActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+
+  @media (max-width: 460px) {
+    align-items: stretch;
+    flex-direction: column;
+
+    ${SubmitButton} {
+      width: 100%;
+    }
+  }
+`;
+
+export const DangerButton = styled(SubmitButton)`
+  background: #f1f5f9;
+  color: #dc2626;
+
+  &:hover {
+    background: #e2e8f0;
+  }
+`;
+
+export const ConfirmationDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const ConfirmationIntro = styled.p`
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+`;
+
+export const ConfirmationSummary = styled.div`
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  display: grid;
+  gap: 10px;
+`;
+
+export const ConfirmationItem = styled.div`
+  display: grid;
+  gap: 4px;
+
+  span {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  strong,
+  p {
+    margin: 0;
+    color: #102a43;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 `;

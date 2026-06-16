@@ -273,7 +273,7 @@ export const SectionTitle = styled.h1`
 
 export const MetricsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, minmax(96px, 1fr));
+  grid-template-columns: repeat(2, minmax(96px, 1fr));
   gap: 10px;
 
   @media (max-width: 520px) {
@@ -760,6 +760,13 @@ export const Label = styled.label`
   font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
+`;
+
+export const CharacterCounter = styled.span`
+  align-self: flex-end;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
 `;
 
 export const Input = styled.input`

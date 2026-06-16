@@ -13,6 +13,7 @@ export const Page = styled.div`
 `;
 
 export const Header = styled.header`
+  display: none;
   background: rgba(255, 255, 255, 0.96);
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 `;
@@ -251,6 +252,7 @@ export const DownloadLink = styled.a`
 `;
 
 export const Footer = styled.footer`
+  display: none;
   background: #fff;
   padding: 40px 0;
   border-top: 1px solid rgba(226, 232, 240, 0.8);

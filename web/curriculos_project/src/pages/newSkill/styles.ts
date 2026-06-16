@@ -192,6 +192,93 @@ export const SubmitButton = styled.button`
   }
 `;
 
+export const ExistingList = styled.div`
+  display: grid;
+  gap: 10px;
+`;
+
+export const ExistingItem = styled.div`
+  padding: 14px;
+  border: 1px solid #dbe6ef;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  @media (max-width: 520px) {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+`;
+
+export const ExistingItemText = styled.span`
+  min-width: 0;
+  flex: 1;
+`;
+
+export const ExistingItemActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+`;
+
+const actionVariantColor = {
+  view: '#10b981',
+  edit: '#38a6f4',
+  delete: '#ef4444',
+  default: '#102a43',
+};
+
+export const IconActionButton = styled.button<{ $variant?: 'view' | 'edit' | 'delete' }>`
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  flex: 0 0 32px;
+  padding: 0;
+  border: 1px solid ${({ $variant }) => actionVariantColor[$variant ?? 'default']};
+  border-radius: 10px;
+  background: ${({ $variant }) => `${actionVariantColor[$variant ?? 'default']}12`};
+  color: ${({ $variant }) => actionVariantColor[$variant ?? 'default']};
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    background: ${({ $variant }) => `${actionVariantColor[$variant ?? 'default']}22`};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+`;
+
+export const EmptyState = styled.p`
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+`;
+
 export const BackButton = styled.button`
   min-height: 40px;
   padding: 0 18px;
@@ -206,6 +293,19 @@ export const BackButton = styled.button`
 
   &:hover {
     background: #cbd5e1;
+  }
+`;
+
+export const InlineButton = styled(BackButton)`
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #dbe6ef;
+  background: #fff;
+  color: #063e66;
+  font-size: 11px;
+
+  &:hover {
+    background: #eaf2f8;
   }
 `;
 
