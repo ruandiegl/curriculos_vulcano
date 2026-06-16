@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -43,17 +43,17 @@ export default function ForgotPassword() {
     setSuccessMessage('');
 
     if (!email) {
-      setErrorMessage('Informe seu email para recuperar a senha.');
+      setErrorMessage('Informe seu e-mail para recuperar a senha.');
       return;
     }
 
     if (!isValidEmail(email)) {
-      setErrorMessage('Informe um email valido.');
+      setErrorMessage('Informe um e-mail válido.');
       return;
     }
 
     if (onlyDigits(cpf).length !== 11) {
-      setErrorMessage('Informe um CPF valido.');
+      setErrorMessage('Informe um CPF válido.');
       return;
     }
 
@@ -71,12 +71,12 @@ export default function ForgotPassword() {
         setErrorMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
-            'Nao foi possivel confirmar seus dados.',
+            'Não foi possível confirmar seus dados.',
         );
         return;
       }
 
-      setErrorMessage('Nao foi possivel confirmar seus dados. Tente novamente.');
+      setErrorMessage('Não foi possível confirmar seus dados. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -93,12 +93,12 @@ export default function ForgotPassword() {
     }
 
     if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-      setErrorMessage('A senha deve ter no minimo 8 caracteres, incluindo letras e numeros.');
+      setErrorMessage('A senha deve ter no minimo 8 caracteres, incluindo letras e números.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage('As senhas informadas nao conferem.');
+      setErrorMessage('As senhas informadas não conferem.');
       return;
     }
 
@@ -117,12 +117,12 @@ export default function ForgotPassword() {
         setErrorMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
-            'Nao foi possivel redefinir a senha.',
+            'Não foi possível redefinir a senha.',
         );
         return;
       }
 
-      setErrorMessage('Nao foi possivel redefinir a senha. Tente novamente.');
+      setErrorMessage('Não foi possível redefinir a senha. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -133,20 +133,20 @@ export default function ForgotPassword() {
       <Card>
         <Form onSubmit={isPasswordStep ? handleResetPassword : handleMatch}>
           <Brand>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <h1>{isPasswordStep ? 'Nova senha' : 'Recuperar senha'}</h1>
           <Description>
             {isPasswordStep
-              ? 'Digite sua nova senha para concluir a recuperacao de acesso.'
-              : 'Confirme seu email e CPF para redefinir sua senha.'}
+              ? 'Digite sua nova senha para concluir a recuperação de acesso.'
+              : 'Confirme seu e-mail e CPF para redefinir sua senha.'}
           </Description>
 
           {!isPasswordStep ? (
             <>
               <Field>
-                <span>Email</span>
+                <span>E-mail</span>
                 <input
                   type="email"
                   placeholder="Email"

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/AdminLayout';
 import { ConfirmModal } from '../../components/ConfirmModal';
@@ -154,7 +154,7 @@ export default function Dashboard() {
         setTotalPages(Math.max(response.meta.totalPages, 1));
       } catch {
         if (isCurrent) {
-          setErrorMessage('Nao foi possivel carregar os curriculos.');
+          setErrorMessage('Não foi possível carregar os currículos.');
         }
       } finally {
         if (isCurrent) {
@@ -259,16 +259,15 @@ export default function Dashboard() {
 
     try {
       setDeleting(true);
-      await deleteCurriculo(deleteTarget.id);
-      setCurriculos((items) => items.filter((item) => item.id !== deleteTarget.id));
+      await deleteCurriculo(deleteTarget?.id);
+      setCurriculos((items) => items.filter((item) => item.id !== deleteTarget?.id));
       setTotal((currentTotal) => Math.max(currentTotal - 1, 0));
-      setStatusTotals((currentTotals) => ({
-        ...currentTotals,
-        [deleteTarget.status]: Math.max(currentTotals[deleteTarget.status] - 1, 0),
+      setStatusTotals((currentTotals) => ({ ...currentTotals,
+        [deleteTarget?.status]: Math.max(currentTotals[deleteTarget?.status] - 1, 0),
       }));
       setDeleteTarget(null);
     } catch {
-      setErrorMessage('Nao foi possivel apagar este curriculo.');
+      setErrorMessage('Não foi possível apagar este currículo.');
     } finally {
       setDeleting(false);
     }
@@ -279,13 +278,13 @@ export default function Dashboard() {
         <Content>
           <ContentHeader>
             <div>
-              <SectionCategory>Curriculos</SectionCategory>
-              <SectionTitle>Gerenciar Curriculos</SectionTitle>
+              <SectionCategory>Currículos</SectionCategory>
+              <SectionTitle>Gerenciar Currículos</SectionTitle>
             </div>
 
             <MetricsGrid>
               <MetricCard>
-                <span>Curriculos</span>
+                <span>Currículos</span>
                 <strong>{totalCurriculos}</strong>
               </MetricCard>
             </MetricsGrid>
@@ -296,7 +295,7 @@ export default function Dashboard() {
               <SearchInputWrapper>
                 <SearchInput
                   type="text"
-                  placeholder="Buscar curriculo por nome, email ou atuacao"
+                  placeholder="Buscar currículo por nome, e-mail ou atuação"
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                 />
@@ -306,7 +305,7 @@ export default function Dashboard() {
               </SearchInputWrapper>
             </SearchContainer>
 
-            <FilterGroup aria-label="Filtrar curriculos por status">
+            <FilterGroup aria-label="Filtrar currículos por status">
               <FilterButton type="button" $active={statusFilter === 'todos'} onClick={() => handleStatusFilter('todos')}>
                 Todos
                 <FilterBadge>{totalCurriculos}</FilterBadge>
@@ -329,10 +328,10 @@ export default function Dashboard() {
 
           <TableSection>
             <TableWrapper>
-              {loading && <StateMessage>Carregando curriculos...</StateMessage>}
+              {loading && <StateMessage>Carregando currículos...</StateMessage>}
               {!loading && errorMessage && <StateMessage $variant="error">{errorMessage}</StateMessage>}
               {!loading && !errorMessage && curriculos.length === 0 && (
-                <StateMessage>Nenhum curriculo encontrado.</StateMessage>
+                <StateMessage>Nenhum currículo encontrado.</StateMessage>
               )}
               {!loading && !errorMessage && curriculos.length > 0 && (
                 <Table>
@@ -345,9 +344,9 @@ export default function Dashboard() {
                   <thead>
                     <tr>
                       <th>Candidato</th>
-                      <th>Funcoes Pretendidas</th>
+                      <th>Funções Pretendidas</th>
                       <th>Status</th>
-                      <th>Acoes</th>
+                      <th>Ações</th>
                     </tr>
                   </thead>
 
@@ -385,8 +384,8 @@ export default function Dashboard() {
                           <ActionButtons>
                             <IconActionButton
                               type="button"
-                              aria-label={`Ver curriculo de ${item.nome}`}
-                              title="Ver curriculo"
+                              aria-label={`Ver currículo de ${item.nome}`}
+                              title="Ver currículo"
                               $variant="view"
                               onClick={(event) => {
                                 event.stopPropagation();
@@ -397,8 +396,8 @@ export default function Dashboard() {
                             </IconActionButton>
                             <IconActionButton
                               type="button"
-                              aria-label={`Editar curriculo de ${item.nome}`}
-                              title="Editar curriculo"
+                              aria-label={`Editar currículo de ${item.nome}`}
+                              title="Editar currículo"
                               $variant="edit"
                               onClick={(event) => {
                                 event.stopPropagation();
@@ -409,8 +408,8 @@ export default function Dashboard() {
                             </IconActionButton>
                             <IconActionButton
                               type="button"
-                              aria-label={`Apagar curriculo de ${item.nome}`}
-                              title="Apagar curriculo"
+                              aria-label={`Apagar currículo de ${item.nome}`}
+                              title="Apagar currículo"
                               $variant="delete"
                               onClick={(event) => {
                                 event.stopPropagation();
@@ -451,14 +450,14 @@ export default function Dashboard() {
                 &raquo;
               </PageButton>
             </Pagination>
-            <StateMessage>{total} curriculos encontrados. Limite de {PAGE_SIZE} por pagina.</StateMessage>
+            <StateMessage>{total} currículos encontrados. Limite de {PAGE_SIZE} por página.</StateMessage>
           </TableSection>
         </Content>
 
       {deleteTarget && (
         <ConfirmModal
-          title="Apagar curriculo?"
-          description={`Esta acao vai remover o curriculo de ${deleteTarget.nome}. Depois de confirmar, nao sera possivel desfazer.`}
+          title="Apagar currículo?"
+          description={`Esta ação vai remover o curriculo de ${deleteTarget?.nome}. Depois de confirmar, não será possivel desfazer.`}
           confirmLabel="Apagar"
           loading={deleting}
           onCancel={() => setDeleteTarget(null)}

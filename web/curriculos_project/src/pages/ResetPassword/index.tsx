@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -34,7 +34,7 @@ export default function ResetPassword() {
     setSuccessMessage('');
 
     if (!resetToken) {
-      setErrorMessage('Link de redefinicao invalido ou expirado.');
+      setErrorMessage('Link de redefinicao inválido ou expirado.');
       return;
     }
 
@@ -44,12 +44,12 @@ export default function ResetPassword() {
     }
 
     if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-      setErrorMessage('A senha deve ter no minimo 8 caracteres, incluindo letras e numeros.');
+      setErrorMessage('A senha deve ter no minimo 8 caracteres, incluindo letras e números.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage('As senhas informadas nao conferem.');
+      setErrorMessage('As senhas informadas não conferem.');
       return;
     }
 
@@ -68,12 +68,12 @@ export default function ResetPassword() {
         setErrorMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
-            'Nao foi possivel redefinir a senha.',
+            'Não foi possível redefinir a senha.',
         );
         return;
       }
 
-      setErrorMessage('Nao foi possivel redefinir a senha. Tente novamente.');
+      setErrorMessage('Não foi possível redefinir a senha. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -84,11 +84,11 @@ export default function ResetPassword() {
       <Card>
         <Form onSubmit={handleResetPassword}>
           <Brand>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <h1>Nova senha</h1>
-          <Description>Digite sua nova senha para concluir a recuperacao de acesso.</Description>
+          <Description>Digite sua nova senha para concluir a recuperação de acesso.</Description>
 
           <Field>
             <span>Nova senha</span>

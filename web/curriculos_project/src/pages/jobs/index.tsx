@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
@@ -51,14 +51,14 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 function formatLocation(vaga: Vaga) {
-  return [vaga.cidade, vaga.estado].filter(Boolean).join(' / ') || 'Local nao informado';
+  return [vaga.cidade, vaga.estado].filter(Boolean).join(' / ') || 'Local não informado';
 }
 
 function summarizeDescription(description?: string | null, limit = 220) {
   const text = description?.trim();
 
   if (!text) {
-    return 'Descricao nao informada.';
+    return 'Descrição não informada.';
   }
 
   return text.length > limit ? `${text.slice(0, limit).trim()}...` : text;
@@ -101,7 +101,7 @@ export default function Jobs() {
     }
 
     try {
-      const response = await listCandidaturas({ usuarioId: user.id, limit: 100 });
+      const response = await listCandidaturas({ usuarioId: user?.id, limit: 100 });
       setAppliedJobIds(response.data.map((candidatura) => candidatura.vagaId));
       setApplicationByJobId(
         Object.fromEntries(response.data.map((candidatura) => [candidatura.vagaId, candidatura.id])),
@@ -148,8 +148,8 @@ export default function Jobs() {
       setApplyingId(applyTarget.id);
       setMessage('');
       setSuccessMessage('');
-      const candidatura = await createCandidatura(user.id, applyTarget.id);
-      setAppliedJobIds((items) => [...items, applyTarget.id]);
+      const candidatura = await createCandidatura(user?.id, applyTarget.id);
+      setAppliedJobIds((items) => [ ...items, applyTarget.id]);
       setApplicationByJobId((items) => ({ ...items, [applyTarget.id]: candidatura.id }));
       setApplyTarget(null);
       setSuccessMessage('Candidatura realizada com sucesso.');
@@ -174,7 +174,7 @@ export default function Jobs() {
     const candidaturaId = applicationByJobId[revokeTarget.id];
 
     if (!candidaturaId) {
-      setMessage('Nao foi possivel localizar a candidatura para revogar.');
+      setMessage('Não foi possível localizar a candidatura para revogar.');
       setRevokeTarget(null);
       return;
     }
@@ -193,7 +193,7 @@ export default function Jobs() {
       setRevokeTarget(null);
       setSuccessMessage('Candidatura revogada com sucesso.');
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Nao foi possivel revogar sua candidatura.'));
+      setMessage(getErrorMessage(error, 'Não foi possível revogar sua candidatura.'));
     } finally {
       setRevokingId('');
     }
@@ -204,11 +204,11 @@ export default function Jobs() {
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/profile')}>Inicio</NavLink>
+            <NavLink onClick={() => navigate('/profile')}>Início</NavLink>
             <NavLink onClick={() => navigate('/vagas')}>Vagas</NavLink>
             <LogoutButton type="button" onClick={requestLogout}>
               Sair
@@ -221,7 +221,7 @@ export default function Jobs() {
         <SearchBar>
           <div>
             <span>Oportunidades</span>
-            <h1>Vagas Disponiveis</h1>
+            <h1>Vagas Disponíveis</h1>
           </div>
           <SearchInput
             type="text"
@@ -244,7 +244,7 @@ export default function Jobs() {
         {!loading && vagas.length === 0 && (
           <Card>
             <CardTitle>Nenhuma vaga encontrada</CardTitle>
-            <CardDescription>No momento nao há vagas ativas para essa busca.</CardDescription>
+            <CardDescription>No momento não há vagas ativas para essa busca.</CardDescription>
           </Card>
         )}
 
@@ -261,14 +261,14 @@ export default function Jobs() {
                   <StatusBadge>{alreadyApplied ? 'Candidatura enviada' : 'Aberta para candidatura'}</StatusBadge>
                 </UserInfo>
 
-                <ActionLink onClick={() => navigate('/profile')}>Ver meu curriculo &rarr;</ActionLink>
+                <ActionLink onClick={() => navigate('/profile')}>Ver meu currículo &rarr;</ActionLink>
                 <JobActions>
                   <SubmitButton
                     type="button"
                     disabled={alreadyApplied || applyingId === vaga.id}
                     onClick={() => requestApply(vaga)}
                   >
-                    {alreadyApplied ? 'Ja candidatado' : applyingId === vaga.id ? 'Enviando...' : 'Candidatar-se'}
+                    {alreadyApplied ? 'J? candidatado' : applyingId === vaga.id ? 'Enviando...' : 'Candidatar-se'}
                   </SubmitButton>
                   {alreadyApplied && (
                     <DangerButton
@@ -288,9 +288,9 @@ export default function Jobs() {
       <Footer>
         <FooterContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
       {applyTarget && (
@@ -311,7 +311,7 @@ export default function Jobs() {
                   <strong>{formatLocation(applyTarget)}</strong>
                 </ConfirmationItem>
                 <ConfirmationItem>
-                  <span>Descricao</span>
+                  <span>Descrição</span>
                   <p>{summarizeDescription(applyTarget.descricao)}</p>
                 </ConfirmationItem>
               </ConfirmationSummary>
@@ -332,7 +332,7 @@ export default function Jobs() {
           description={
             <ConfirmationDetails>
               <ConfirmationIntro>
-                Ao confirmar, sua candidatura sera removida desta oportunidade.
+                Ao confirmar, sua candidatura será removida desta oportunidade.
               </ConfirmationIntro>
               <ConfirmationSummary>
                 <ConfirmationItem>

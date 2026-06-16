@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -58,8 +58,8 @@ export default function NewEducation() {
       try {
         const curriculo = await getMeuCurriculo();
         if (isCurrent) {
-          setCurriculoId(curriculo.id);
-          setExistingItems(curriculo.escolaridades ?? []);
+          setCurriculoId(curriculo?.id);
+          setExistingItems(curriculo?.escolaridades ?? []);
         }
       } catch {
         if (isCurrent) {
@@ -106,7 +106,7 @@ export default function NewEducation() {
       setLoading(true);
       const curriculo = await updateCurriculo(curriculoId, {
         escolaridades: existingItems
-          .filter((existingItem) => existingItem.id !== deleteTarget.id)
+          .filter((existingItem) => existingItem.id !== deleteTarget?.id)
           .map((existingItem) => ({
             curso: existingItem.curso ?? null,
             escola: existingItem.escola ?? '',
@@ -114,19 +114,19 @@ export default function NewEducation() {
             dataTermino: existingItem.dataTermino?.slice(0, 10) ?? null,
           })),
       });
-      setExistingItems(curriculo.escolaridades ?? []);
-      if (editingId === deleteTarget.id) {
+      setExistingItems(curriculo?.escolaridades ?? []);
+      if (editingId === deleteTarget?.id) {
         resetForm();
       }
       setDeleteTarget(null);
-      setMessage('Formacao removida com sucesso.');
+      setMessage('Formação removida com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
-        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel remover.');
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Não foi possível remover.');
         return;
       }
 
-      setMessage('Nao foi possivel remover. Tente novamente.');
+      setMessage('Não foi possível remover. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -137,17 +137,17 @@ export default function NewEducation() {
     setMessage('');
 
     if (!escola.trim()) {
-      setMessage('Informe a escola ou formacao.');
+      setMessage('Informe a escola ou formação.');
       return;
     }
 
     if (!isValidDateInput(dataInicio) || !isValidDateInput(dataTermino)) {
-      setMessage('Informe datas validas entre 1900 e hoje.');
+      setMessage('Informe datas válidas entre 1900 e hoje.');
       return;
     }
 
     if (dataInicio && dataTermino && dataTermino < dataInicio) {
-      setMessage('A data de termino nao pode ser anterior a data de inicio.');
+      setMessage('A data de termino não pode ser anterior a data de inicio.');
       return;
     }
 
@@ -169,25 +169,24 @@ export default function NewEducation() {
             dataTermino: item.dataTermino?.slice(0, 10) ?? null,
           })),
         });
-        setExistingItems(curriculo.escolaridades ?? []);
+        setExistingItems(curriculo?.escolaridades ?? []);
         resetForm();
-        setMessage('Formacao atualizada com sucesso.');
+        setMessage('Formação atualizada com sucesso.');
         return;
       }
 
-      const curriculo = await addEscolaridade({
-        ...payload,
+      const curriculo = await addEscolaridade({ ...payload,
       });
-      setExistingItems(curriculo.escolaridades ?? []);
+      setExistingItems(curriculo?.escolaridades ?? []);
       resetForm();
-      setMessage('Formacao cadastrada com sucesso.');
+      setMessage('Formação cadastrada com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
-        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Nao foi possivel cadastrar.');
+        setMessage(error.response?.data?.message ?? error.response?.data?.error ?? 'Não foi possível cadastrar.');
         return;
       }
 
-      setMessage('Nao foi possivel cadastrar. Tente novamente.');
+      setMessage('Não foi possível cadastrar. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -198,11 +197,11 @@ export default function NewEducation() {
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <HeaderNav>
-            <NavLink onClick={() => navigate('/profile')}>Inicio</NavLink>
+            <NavLink onClick={() => navigate('/profile')}>Início</NavLink>
             <NavLink onClick={() => navigate('/vagas')}>Vagas</NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair
@@ -213,7 +212,7 @@ export default function NewEducation() {
 
       <Main>
         <Section>
-          <SectionTitle>Cadastrar Formacao Academica</SectionTitle>
+          <SectionTitle>Cadastrar Formação Acadêmica</SectionTitle>
           {message && (
             <FeedbackMessage variant={message.toLowerCase().includes('sucesso') ? 'success' : 'error'}>
               {message}
@@ -221,7 +220,7 @@ export default function NewEducation() {
           )}
 
           <ExistingList>
-            {existingItems.length === 0 && <EmptyState>Nenhuma formacao cadastrada.</EmptyState>}
+            {existingItems.length === 0 && <EmptyState>Nenhuma formação cadastrada.</EmptyState>}
             {existingItems.map((item) => (
               <ExistingItem key={item.id}>
                 <ExistingItemText>
@@ -254,17 +253,17 @@ export default function NewEducation() {
                 />
               </InputGroup>
               <InputGroup>
-                <label>Escola/Formacao</label>
+                <label>Escola/Formação</label>
                 <input
                   type="text"
-                  placeholder="Escola ou formacao"
+                  placeholder="Escola ou formação"
                   maxLength={textLimits.medium}
                   value={escola}
                   onChange={(event) => setEscola(limitText(event.target.value, textLimits.medium))}
                 />
               </InputGroup>
               <InputGroup>
-                <label>Data de Inicio</label>
+                <label>Data de Início</label>
                 <input
                   type="date"
                   min={MIN_DATE}
@@ -287,7 +286,7 @@ export default function NewEducation() {
 
             <ActionButtons>
               <SubmitButton type="submit" disabled={loading}>
-                {loading ? 'Salvando...' : editingId ? 'Salvar Alteracoes' : 'Cadastrar Formacao'}
+                {loading ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Formação'}
               </SubmitButton>
               {editingId && (
                 <BackButton type="button" onClick={resetForm}>
@@ -305,16 +304,16 @@ export default function NewEducation() {
       <Footer>
         <FooterContent>
           <Brand onClick={() => navigate('/profile')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
-          <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
+          <Copyright>Â© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
 
       {deleteTarget && (
         <ConfirmModal
-          title="Excluir formacao?"
-          description={`Esta acao vai remover "${deleteTarget.curso || deleteTarget.escola || 'esta formacao'}" do seu curriculo.`}
+          title="Excluir formação?"
+          description={`Esta ação vai remover "${deleteTarget?.curso || deleteTarget?.escola || 'esta formação'}" do seu currículo.`}
           confirmLabel="Excluir"
           loading={loading}
           onCancel={() => setDeleteTarget(null)}

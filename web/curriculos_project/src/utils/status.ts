@@ -1,4 +1,4 @@
-import type { CurriculoStatus } from '../types/curriculo';
+﻿import type { CurriculoStatus } from '../types/curriculo';
 
 export const statusLabels: Array<{ label: string; status: CurriculoStatus }> = [
   { label: 'Desconsiderado', status: 'desconsiderado' },

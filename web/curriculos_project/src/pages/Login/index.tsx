@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -26,7 +26,7 @@ import {
 
 type LoginResponse = {
   token: string;
-  user?: {
+  user: {
     id: string;
     nome?: string;
     email?: string;
@@ -41,7 +41,7 @@ type LoginErrorResponse = {
   error?: string;
 };
 
-function getLoginRedirectPath(user?: LoginResponse['user']) {
+function getLoginRedirectPath(user: LoginResponse['user']) {
   if (user?.tipo === 'admin') {
     return '/dashboard';
   }
@@ -67,12 +67,12 @@ export default function Login() {
     setErrorMessage('');
 
     if (!email || !password) {
-      setErrorMessage('Informe email e senha para entrar.');
+      setErrorMessage('Informe e-mail e senha para entrar.');
       return;
     }
 
     if (!isValidEmail(email)) {
-      setErrorMessage('Informe um email valido.');
+      setErrorMessage('Informe um e-mail válido.');
       return;
     }
 
@@ -102,12 +102,12 @@ export default function Login() {
         setErrorMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
-            'Nao foi possivel fazer o login. Verifique suas credenciais.',
+            'Não foi possível fazer o login. Verifique suas credenciais.',
         );
         return;
       }
 
-      setErrorMessage('Nao foi possivel fazer o login. Tente novamente.');
+      setErrorMessage('Não foi possível fazer o login. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -118,13 +118,13 @@ export default function Login() {
       <Card>
         <Form onSubmit={handleLogin}>
           <Brand>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <h1>Faça seu Login</h1>
 
           <Field>
-            <span>Email</span>
+            <span>E-mail</span>
             <input
               type="email"
               placeholder="Email"

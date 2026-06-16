@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -43,22 +43,22 @@ export default function Register() {
     setSuccessMessage('');
 
     if (!name || !email || !password) {
-      setErrorMessage('Preencha nome, email e senha para cadastrar.');
+      setErrorMessage('Preencha nome, e-mail e senha para cadastrar.');
       return;
     }
 
     if (!isValidEmail(email)) {
-      setErrorMessage('Informe um email valido.');
+      setErrorMessage('Informe um e-mail válido.');
       return;
     }
 
     if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-      setErrorMessage('A senha deve ter no minimo 8 caracteres, incluindo letras e numeros.');
+      setErrorMessage('A senha deve ter no minimo 8 caracteres, incluindo letras e números.');
       return;
     }
 
     if (!privacyAccepted) {
-      setErrorMessage('Leia e aceite a Politica de Privacidade para continuar.');
+      setErrorMessage('Leia e aceite a Política de Privacidade para continuar.');
       setPolicyOpen(true);
       return;
     }
@@ -81,14 +81,14 @@ export default function Register() {
         setErrorMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
-            'Nao foi possivel realizar o cadastro.',
+            'Não foi possível realizar o cadastro.',
             
         )
         console.error('Erro ao registrar:', error.response?.data ?? error.message);
         return;
       }
 
-      setErrorMessage('Nao foi possivel realizar o cadastro. Tente novamente.');
+      setErrorMessage('Não foi possível realizar o cadastro. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -99,10 +99,10 @@ export default function Register() {
       <Card>
         <Form onSubmit={handleRegister}>
           <Brand>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
-          <p>Seja Bem vindo(a) a Plataforma de Recursos Humanos da Metalurgica Vulcano!</p>
+          <p>Seja Bem vindo(a) a Plataforma de Recursos Humanos da Metalúrgica Vulcano!</p>
 
           <Field>
             <span>Nome</span>
@@ -116,7 +116,7 @@ export default function Register() {
           </Field>
 
           <Field>
-            <span>Email</span>
+            <span>E-mail</span>
             <input
               type="email"
               placeholder="Email"
@@ -147,9 +147,9 @@ export default function Register() {
             <label htmlFor="privacy-policy">
               Li e aceito a{' '}
               <button type="button" onClick={() => setPolicyOpen(true)}>
-                Politica de Privacidade
+                Política de Privacidade
               </button>{' '}
-              da Metalurgica Vulcano.
+              da Metalúrgica Vulcano.
             </label>
           </ConsentBox>
 
@@ -182,7 +182,7 @@ export default function Register() {
         <ModalBackdrop role="presentation">
           <PolicyModal role="dialog" aria-modal="true" aria-labelledby="privacy-policy-title">
             <PolicyHeader>
-              <h2 id="privacy-policy-title">Politica de Privacidade</h2>
+              <h2 id="privacy-policy-title">Política de Privacidade</h2>
               <span>Versao {PRIVACY_POLICY_VERSION}</span>
             </PolicyHeader>
 

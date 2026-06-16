@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -49,17 +49,17 @@ export default function RecoverAccess() {
     setSuccessMessage('');
 
     if (!email || !cpf) {
-      setErrorMessage('Informe email e CPF.');
+      setErrorMessage('Informe e-mail e CPF.');
       return;
     }
 
     if (!isValidEmail(email)) {
-      setErrorMessage('Informe um email valido.');
+      setErrorMessage('Informe um e-mail válido.');
       return;
     }
 
     if (onlyDigits(cpf).length !== 11) {
-      setErrorMessage('Informe um CPF valido.');
+      setErrorMessage('Informe um CPF válido.');
       return;
     }
 
@@ -76,12 +76,12 @@ export default function RecoverAccess() {
         setErrorMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
-            'Nao foi possivel confirmar seus dados.',
+            'Não foi possível confirmar seus dados.',
         );
         return;
       }
 
-      setErrorMessage('Nao foi possivel confirmar seus dados. Tente novamente.');
+      setErrorMessage('Não foi possível confirmar seus dados. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -98,12 +98,12 @@ export default function RecoverAccess() {
     }
 
     if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-      setErrorMessage('A senha deve ter no minimo 8 caracteres, incluindo letras e numeros.');
+      setErrorMessage('A senha deve ter no minimo 8 caracteres, incluindo letras e números.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage('As senhas informadas nao conferem.');
+      setErrorMessage('As senhas informadas não conferem.');
       return;
     }
 
@@ -121,12 +121,12 @@ export default function RecoverAccess() {
         setErrorMessage(
           error.response?.data?.message ??
             error.response?.data?.error ??
-            'Nao foi possivel criar sua senha.',
+            'Não foi possível criar sua senha.',
         );
         return;
       }
 
-      setErrorMessage('Nao foi possivel criar sua senha. Tente novamente.');
+      setErrorMessage('Não foi possível criar sua senha. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -137,20 +137,20 @@ export default function RecoverAccess() {
       <Card>
         <RecoveryForm onSubmit={isPasswordStep ? handleSetupPassword : handleMatch}>
           <Brand>
-            <img src={logo} alt="Metalurgica Vulcano" />
+            <img src={logo} alt="Metalúrgica Vulcano" />
           </Brand>
 
           <h1>{isPasswordStep ? 'Criar senha' : 'Confirmar dados'}</h1>
           <Description>
             {isPasswordStep
-              ? 'Digite uma nova senha para concluir a recuperacao de acesso.'
-              : 'Confirme seu email e CPF para criar a senha da sua conta.'}
+              ? 'Digite uma nova senha para concluir a recuperação de acesso.'
+              : 'Confirme seu e-mail e CPF para criar a senha da sua conta.'}
           </Description>
 
           {!isPasswordStep ? (
             <>
               <Field>
-                <span>Email</span>
+                <span>E-mail</span>
                 <input
                   type="email"
                   placeholder="Email"
