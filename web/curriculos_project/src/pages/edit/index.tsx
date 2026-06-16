@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { AdminLayout } from '../../components/AdminLayout';
+import { UserLayout } from '../../components/UserLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { FeedbackMessage } from '../../components/FeedbackMessage';
@@ -11,6 +12,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { getCurriculo, updateCurriculo } from '../../services/curriculos';
 import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
 import { isAtLeastAge } from '../../utils/date';
+import { MIN_DATE, isValidDateInput, limitText, normalizeDate, textLimits } from '../../utils/formLimits';
 import { formatCnh, formatCpf, formatPhone, formatRg, onlyDigits } from '../../utils/masks';
 import { statusLabels } from '../../utils/status';
 import {
@@ -30,7 +32,6 @@ import {
   LogoutButton,
   Main,
   NavLink,
-  Page,
   ReturnButton,
   Section,
   SectionTitle,
@@ -84,13 +85,40 @@ function formatCep(value: string) {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
+function limitEditField<K extends keyof FormState>(field: K, value: FormState[K]) {
+  const textValue = String(value);
+  const limits: Partial<Record<keyof FormState, number>> = {
+    nome: textLimits.medium,
+    celular: textLimits.phone,
+    telefone: textLimits.phone,
+    rg: textLimits.rg,
+    cpf: textLimits.cpf,
+    numeroCnh: textLimits.cnh,
+    categoriaCnh: 2,
+    cep: textLimits.cep,
+    rua: textLimits.medium,
+    cidade: textLimits.short,
+    numero: textLimits.number,
+    bairro: textLimits.short,
+    estado: textLimits.state,
+    complemento: textLimits.medium,
+  };
+
+  if (field === 'nascimento' || field === 'vencimentoCnh') {
+    return normalizeDate(textValue) as FormState[K];
+  }
+
+  const limited = limitText(textValue, limits[field] ?? textLimits.medium);
+  return (field === 'estado' || field === 'categoriaCnh' ? limited.toUpperCase() : limited) as FormState[K];
+}
+
 function formFromCurriculo(curriculo: Curriculo): FormState {
   const endereco = curriculo.enderecos?.[0];
 
   return {
-    nome: curriculo.nome ?? '',
+    nome: limitEditField('nome', curriculo.nome ?? ''),
     celular: formatPhone(curriculo.celular),
-    nascimento: curriculo.nascimento?.slice(0, 10) ?? '',
+    nascimento: normalizeDate(curriculo.nascimento?.slice(0, 10) ?? ''),
     estadoCivil: curriculo.estadoCivil ?? '',
     rg: formatRg(curriculo.rg),
     telefone: formatPhone(curriculo.telefone),
@@ -98,16 +126,16 @@ function formFromCurriculo(curriculo: Curriculo): FormState {
     cursoAtivo: curriculo.cursoAtivo ? 'Sim' : 'Nao',
     possuiCnh: curriculo.possuiCnh ? 'Sim' : 'Nao',
     numeroCnh: formatCnh(curriculo.numeroCnh),
-    vencimentoCnh: curriculo.vencimentoCnh?.slice(0, 10) ?? '',
-    categoriaCnh: curriculo.categoriaCnh ?? '',
+    vencimentoCnh: normalizeDate(curriculo.vencimentoCnh?.slice(0, 10) ?? ''),
+    categoriaCnh: limitEditField('categoriaCnh', curriculo.categoriaCnh ?? ''),
     status: curriculo.status,
     cep: '',
-    rua: endereco?.rua ?? '',
-    cidade: endereco?.cidade ?? '',
-    numero: endereco?.numero ?? '',
-    bairro: endereco?.bairro ?? '',
-    estado: endereco?.estado ?? '',
-    complemento: endereco?.complemento ?? '',
+    rua: limitEditField('rua', endereco?.rua ?? ''),
+    cidade: limitEditField('cidade', endereco?.cidade ?? ''),
+    numero: limitEditField('numero', endereco?.numero ?? ''),
+    bairro: limitEditField('bairro', endereco?.bairro ?? ''),
+    estado: limitEditField('estado', endereco?.estado ?? ''),
+    complemento: limitEditField('complemento', endereco?.complemento ?? ''),
   };
 }
 
@@ -148,7 +176,7 @@ export default function Edit() {
   }
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
-    setForm((current) => (current ? { ...current, [field]: value } : current));
+    setForm((current) => (current ? { ...current, [field]: limitEditField(field, value) } : current));
   }
 
   async function fetchAddressByCep(cep: string) {
@@ -169,11 +197,11 @@ export default function Edit() {
 
       setForm((current) => current ? {
         ...current,
-        rua: response.data.logradouro ?? current.rua,
-        bairro: response.data.bairro ?? current.bairro,
-        cidade: response.data.localidade ?? current.cidade,
-        estado: response.data.uf ?? current.estado,
-        complemento: response.data.complemento || current.complemento,
+        rua: limitEditField('rua', response.data.logradouro ?? current.rua),
+        bairro: limitEditField('bairro', response.data.bairro ?? current.bairro),
+        cidade: limitEditField('cidade', response.data.localidade ?? current.cidade),
+        estado: limitEditField('estado', response.data.uf ?? current.estado),
+        complemento: limitEditField('complemento', response.data.complemento || current.complemento),
       } : current);
     } catch {
       setMessage('Nao foi possivel buscar o CEP. Preencha o endereco manualmente.');
@@ -205,6 +233,11 @@ export default function Edit() {
 
     if (form.nascimento && !isAtLeastAge(form.nascimento, 16)) {
       setMessage('O candidato deve ter pelo menos 16 anos para cadastrar o curriculo.');
+      return false;
+    }
+
+    if (!isValidDateInput(form.nascimento) || !isValidDateInput(form.vencimentoCnh, { allowFuture: true })) {
+      setMessage('Informe datas validas entre 1900 e 2100.');
       return false;
     }
 
@@ -308,16 +341,18 @@ export default function Edit() {
               <Grid>
                 <Field>
                   <Label>Nome</Label>
-                  <Input type="text" value={form.nome} onChange={(e) => updateField('nome', e.target.value)} />
+                  <Input type="text" maxLength={textLimits.medium} value={form.nome} onChange={(e) => updateField('nome', e.target.value)} />
                 </Field>
                 <Field>
                   <Label>Celular</Label>
-                  <Input type="text" value={form.celular} onChange={(e) => updateField('celular', formatPhone(e.target.value))} />
+                  <Input type="text" maxLength={textLimits.phone} value={form.celular} onChange={(e) => updateField('celular', formatPhone(e.target.value))} />
                 </Field>
                 <Field>
                   <Label>Data de Nascimento</Label>
                   <Input
                     type="date"
+                    min={MIN_DATE}
+                    max={new Date().toISOString().slice(0, 10)}
                     value={form.nascimento}
                     onChange={(e) => updateField('nascimento', e.target.value)}
                   />
@@ -335,16 +370,16 @@ export default function Edit() {
                 </Field>
                 <Field>
                   <Label>RG</Label>
-                  <Input type="text" value={form.rg} onChange={(e) => updateField('rg', formatRg(e.target.value))} />
+                  <Input type="text" maxLength={textLimits.rg} value={form.rg} onChange={(e) => updateField('rg', formatRg(e.target.value))} />
                 </Field>
                 <Field>
                   <Label>Telefone</Label>
-                  <Input type="text" value={form.telefone} onChange={(e) => updateField('telefone', formatPhone(e.target.value))} />
+                  <Input type="text" maxLength={textLimits.phone} value={form.telefone} onChange={(e) => updateField('telefone', formatPhone(e.target.value))} />
                 </Field>
 
                 <Field>
                   <Label>CPF</Label>
-                  <Input type="text" value={form.cpf} onChange={(e) => updateField('cpf', formatCpf(e.target.value))} />
+                  <Input type="text" maxLength={textLimits.cpf} value={form.cpf} onChange={(e) => updateField('cpf', formatCpf(e.target.value))} />
                 </Field>
                 <Field>
                   <Label>Possui curso ativo de CBSP e HUET?</Label>
@@ -383,6 +418,7 @@ export default function Edit() {
                       <Label>Numero da CNH</Label>
                       <Input
                         type="text"
+                        maxLength={textLimits.cnh}
                         value={form.numeroCnh}
                         onChange={(e) => updateField('numeroCnh', formatCnh(e.target.value))}
                       />
@@ -391,6 +427,8 @@ export default function Edit() {
                       <Label>Vencimento da CNH</Label>
                       <Input
                         type="date"
+                        min={MIN_DATE}
+                        max="2100-12-31"
                         value={form.vencimentoCnh}
                         onChange={(e) => updateField('vencimentoCnh', e.target.value)}
                       />
@@ -399,6 +437,7 @@ export default function Edit() {
                       <Label>Categoria da CNH</Label>
                       <Input
                         type="text"
+                        maxLength={2}
                         value={form.categoriaCnh}
                         onChange={(e) => updateField('categoriaCnh', e.target.value)}
                       />
@@ -414,6 +453,7 @@ export default function Edit() {
                   <Input
                     type="text"
                     placeholder="CEP"
+                    maxLength={textLimits.cep}
                     value={form.cep}
                     onChange={(e) => handleCepChange(e.target.value)}
                     onBlur={(e) => fetchAddressByCep(e.target.value)}
@@ -421,30 +461,31 @@ export default function Edit() {
                 </Field>
                 <Field>
                   <Label>Logradouro</Label>
-                  <Input type="text" value={form.rua} onChange={(e) => updateField('rua', e.target.value)} />
+                  <Input type="text" maxLength={textLimits.medium} value={form.rua} onChange={(e) => updateField('rua', e.target.value)} />
                 </Field>
                 <Field>
                   <Label>Cidade</Label>
-                  <Input type="text" value={form.cidade} onChange={(e) => updateField('cidade', e.target.value)} />
+                  <Input type="text" maxLength={textLimits.short} value={form.cidade} onChange={(e) => updateField('cidade', e.target.value)} />
                 </Field>
 
                 <Field>
                   <Label>Numero</Label>
-                  <Input type="text" value={form.numero} onChange={(e) => updateField('numero', e.target.value)} />
+                  <Input type="text" maxLength={textLimits.number} value={form.numero} onChange={(e) => updateField('numero', e.target.value)} />
                 </Field>
                 <Field>
                   <Label>Bairro</Label>
-                  <Input type="text" value={form.bairro} onChange={(e) => updateField('bairro', e.target.value)} />
+                  <Input type="text" maxLength={textLimits.short} value={form.bairro} onChange={(e) => updateField('bairro', e.target.value)} />
                 </Field>
                 <Field>
                   <Label>Estado</Label>
-                  <Input type="text" value={form.estado} onChange={(e) => updateField('estado', e.target.value)} />
+                  <Input type="text" maxLength={textLimits.state} value={form.estado} onChange={(e) => updateField('estado', e.target.value)} />
                 </Field>
 
                 <Field>
                   <Label>Complemento</Label>
                   <Input
                     type="text"
+                    maxLength={textLimits.medium}
                     value={form.complemento}
                     onChange={(e) => updateField('complemento', e.target.value)}
                   />
@@ -491,7 +532,7 @@ export default function Edit() {
   }
 
   return (
-    <Page>
+    <UserLayout>
       <Header>
         <HeaderContent>
           <Brand href={homePath}>
@@ -520,6 +561,6 @@ export default function Edit() {
       </Footer>
       {modals}
       {logoutModal}
-    </Page>
+    </UserLayout>
   );
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { AdminLayout } from '../../components/AdminLayout';
+import { UserLayout } from '../../components/UserLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { useAuth } from '../../hooks/useAuth';
 import { downloadCurriculoArquivo, getCurriculo, updateCurriculo } from '../../services/curriculos';
@@ -27,7 +28,6 @@ import {
   LogoutButton,
   Main,
   NavLink,
-  Page,
   Section,
   SectionTitle,
   StatusLabel,
@@ -277,7 +277,7 @@ export default function View() {
   }
 
   return (
-    <Page>
+    <UserLayout>
       <Header>
         <HeaderContent>
           <Brand href={homePath}>
@@ -307,6 +307,6 @@ export default function View() {
         </FooterContent>
       </Footer>
       {logoutModal}
-    </Page>
+    </UserLayout>
   );
 }

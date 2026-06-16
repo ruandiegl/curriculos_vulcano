@@ -1,12 +1,13 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { FeedbackMessage } from '../../components/FeedbackMessage';
 import { UserLayout } from '../../components/UserLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
-import { PENDING_CURRICULUM_STORAGE_KEY, updateCurriculo } from '../../services/curriculos';
+import { PENDING_CURRICULUM_STORAGE_KEY, getMeuCurriculo, updateCurriculo } from '../../services/curriculos';
+import { limitText, textLimits } from '../../utils/formLimits';
 import {
   ActionButtons,
   Brand,
@@ -80,6 +81,21 @@ function formatCep(value: string) {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
+function limitAddressField(field: keyof FormState, value: string) {
+  const limits: Record<keyof FormState, number> = {
+    cep: textLimits.cep,
+    rua: textLimits.medium,
+    cidade: textLimits.short,
+    numero: textLimits.number,
+    bairro: textLimits.short,
+    estado: textLimits.state,
+    complemento: textLimits.medium,
+  };
+
+  const limited = limitText(value, limits[field]);
+  return field === 'estado' ? limited.toUpperCase() : limited;
+}
+
 export default function NewAddress() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -87,20 +103,65 @@ export default function NewAddress() {
   const state = location.state as LocationState | null;
   const initialCurriculoId = state?.curriculoId ?? sessionStorage.getItem(PENDING_CURRICULUM_STORAGE_KEY) ?? '';
   const [form, setForm] = useState<FormState>(initialForm);
-  const [curriculoId] = useState(initialCurriculoId);
+  const [curriculoId, setCurriculoId] = useState(initialCurriculoId);
+  const [loadingCurriculo, setLoadingCurriculo] = useState(true);
   const [loading, setLoading] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
   const [message, setMessage] = useState(
     initialCurriculoId ? '' : 'Crie os dados pessoais do curriculo antes de informar o endereco.',
   );
-  const messageVariant = initialCurriculoId ? 'error' : 'info';
+  const messageVariant = message.toLowerCase().includes('sucesso')
+    ? 'success'
+    : message.toLowerCase().startsWith('crie')
+      ? 'info'
+      : 'error';
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function loadCurriculo() {
+      try {
+        setLoadingCurriculo(true);
+        const curriculo = await getMeuCurriculo();
+        const endereco = curriculo.enderecos?.[0];
+
+        if (!isCurrent) return;
+
+        setCurriculoId(curriculo.id);
+        setForm({
+          cep: '',
+          rua: limitAddressField('rua', endereco?.rua ?? ''),
+          cidade: limitAddressField('cidade', endereco?.cidade ?? ''),
+          numero: limitAddressField('numero', endereco?.numero ?? ''),
+          bairro: limitAddressField('bairro', endereco?.bairro ?? ''),
+          estado: limitAddressField('estado', endereco?.estado ?? ''),
+          complemento: limitAddressField('complemento', endereco?.complemento ?? ''),
+        });
+        setMessage('');
+      } catch {
+        if (isCurrent && !initialCurriculoId) {
+          setMessage('Crie os dados pessoais do curriculo antes de informar o endereco.');
+        }
+      } finally {
+        if (isCurrent) {
+          setLoadingCurriculo(false);
+        }
+      }
+    }
+
+    loadCurriculo();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [initialCurriculoId]);
 
   function handleLogout() {
     requestLogout();
   }
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => ({ ...current, [field]: limitAddressField(field, value) }));
   }
 
   async function fetchAddressByCep(cep: string) {
@@ -123,11 +184,11 @@ export default function NewAddress() {
 
       setForm((current) => ({
         ...current,
-        rua: response.data.logradouro ?? current.rua,
-        bairro: response.data.bairro ?? current.bairro,
-        cidade: response.data.localidade ?? current.cidade,
-        estado: response.data.uf ?? current.estado,
-        complemento: response.data.complemento || current.complemento,
+        rua: limitAddressField('rua', response.data.logradouro ?? current.rua),
+        bairro: limitAddressField('bairro', response.data.bairro ?? current.bairro),
+        cidade: limitAddressField('cidade', response.data.localidade ?? current.cidade),
+        estado: limitAddressField('estado', response.data.uf ?? current.estado),
+        complemento: limitAddressField('complemento', response.data.complemento || current.complemento),
       }));
     } catch {
       setMessage('Nao foi possivel buscar o CEP. Preencha o endereco manualmente.');
@@ -175,7 +236,7 @@ export default function NewAddress() {
       });
 
       sessionStorage.removeItem(PENDING_CURRICULUM_STORAGE_KEY);
-      navigate(`/profile`);
+      setMessage('Endereco atualizado com sucesso.');
     } catch (error) {
       if (axios.isAxiosError<{ message?: string; error?: string }>(error)) {
         setMessage(
@@ -212,7 +273,7 @@ export default function NewAddress() {
 
       <Main>
         <Greeting>
-          <p>Perfeito, agora vamos precisar de seu endereco:</p>
+          <p>{curriculoId ? 'Atualize seu endereco cadastrado.' : 'Informe seu endereco para continuar.'}</p>
         </Greeting>
 
         <Section>
@@ -226,6 +287,7 @@ export default function NewAddress() {
                 <Input
                   type="text"
                   placeholder="CEP"
+                  maxLength={textLimits.cep}
                   value={form.cep}
                   onChange={(e) => handleCepChange(e.target.value)}
                   onBlur={(e) => fetchAddressByCep(e.target.value)}
@@ -236,6 +298,7 @@ export default function NewAddress() {
                 <Input
                   type="text"
                   placeholder="Logradouro"
+                  maxLength={textLimits.medium}
                   value={form.rua}
                   onChange={(e) => updateField('rua', e.target.value)}
                 />
@@ -245,6 +308,7 @@ export default function NewAddress() {
                 <Input
                   type="text"
                   placeholder="Cidade"
+                  maxLength={textLimits.short}
                   value={form.cidade}
                   onChange={(e) => updateField('cidade', e.target.value)}
                 />
@@ -255,6 +319,7 @@ export default function NewAddress() {
                 <Input
                   type="text"
                   placeholder="Numero"
+                  maxLength={textLimits.number}
                   value={form.numero}
                   onChange={(e) => updateField('numero', e.target.value)}
                 />
@@ -264,6 +329,7 @@ export default function NewAddress() {
                 <Input
                   type="text"
                   placeholder="Bairro"
+                  maxLength={textLimits.short}
                   value={form.bairro}
                   onChange={(e) => updateField('bairro', e.target.value)}
                 />
@@ -273,6 +339,7 @@ export default function NewAddress() {
                 <Input
                   type="text"
                   placeholder="Estado"
+                  maxLength={textLimits.state}
                   value={form.estado}
                   onChange={(e) => updateField('estado', e.target.value)}
                 />
@@ -283,6 +350,7 @@ export default function NewAddress() {
                 <Input
                   type="text"
                   placeholder="Complemento"
+                  maxLength={textLimits.medium}
                   value={form.complemento}
                   onChange={(e) => updateField('complemento', e.target.value)}
                 />
@@ -290,8 +358,8 @@ export default function NewAddress() {
             </Grid>
 
             <ActionButtons>
-              <SubmitButton type="submit" disabled={loading || loadingCep || !curriculoId}>
-                {loading ? 'Salvando...' : loadingCep ? 'Buscando CEP...' : 'Continuar'}
+              <SubmitButton type="submit" disabled={loading || loadingCep || loadingCurriculo || !curriculoId}>
+                {loading ? 'Salvando...' : loadingCep ? 'Buscando CEP...' : curriculoId ? 'Salvar Alteracoes' : 'Continuar'}
               </SubmitButton>
             </ActionButtons>
           </form>

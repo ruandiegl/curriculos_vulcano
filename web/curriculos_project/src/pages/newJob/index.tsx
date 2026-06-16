@@ -14,6 +14,7 @@ import {
   CandidateAvatar,
   CandidateCell,
   CandidateInfo,
+  CharacterCounter,
   ClearButton,
   CloseButton,
   Content,
@@ -46,6 +47,11 @@ import {
 } from './styles';
 
 const PAGE_SIZE = 20;
+const TITLE_LIMIT = 80;
+const CITY_LIMIT = 60;
+const STATE_LIMIT = 2;
+const SEARCH_LIMIT = 100;
+const DESCRIPTION_LIMIT = 300;
 
 type FormState = {
   titulo: string;
@@ -69,20 +75,20 @@ function nullable(value: string) {
 
 function toForm(vaga: Vaga): FormState {
   return {
-    titulo: vaga.titulo ?? '',
-    cidade: vaga.cidade ?? '',
-    estado: vaga.estado ?? '',
-    descricao: vaga.descricao ?? '',
+    titulo: (vaga.titulo ?? '').slice(0, TITLE_LIMIT),
+    cidade: (vaga.cidade ?? '').slice(0, CITY_LIMIT),
+    estado: (vaga.estado ?? '').slice(0, STATE_LIMIT),
+    descricao: (vaga.descricao ?? '').slice(0, DESCRIPTION_LIMIT),
     ativa: vaga.ativa ? 'true' : 'false',
   };
 }
 
 function buildPayload(form: FormState): VagaPayload {
   return {
-    titulo: form.titulo.trim(),
-    cidade: nullable(form.cidade),
-    estado: nullable(form.estado),
-    descricao: nullable(form.descricao),
+    titulo: form.titulo.slice(0, TITLE_LIMIT).trim(),
+    cidade: nullable(form.cidade.slice(0, CITY_LIMIT)),
+    estado: nullable(form.estado.slice(0, STATE_LIMIT)),
+    descricao: nullable(form.descricao.slice(0, DESCRIPTION_LIMIT)),
     ativa: form.ativa === 'true',
   };
 }
@@ -196,7 +202,23 @@ export default function NewJob() {
   }, [search]);
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
-    setForm((current) => ({ ...current, [field]: value }));
+    const nextValue = String(value);
+    const limitedValue = {
+      titulo: nextValue.slice(0, TITLE_LIMIT),
+      cidade: nextValue.slice(0, CITY_LIMIT),
+      estado: nextValue.toUpperCase().slice(0, STATE_LIMIT),
+      descricao: nextValue.slice(0, DESCRIPTION_LIMIT),
+      ativa: nextValue,
+    }[field] as FormState[K];
+
+    setForm((current) => ({
+      ...current,
+      [field]: limitedValue,
+    }));
+  }
+
+  function updateSearch(value: string) {
+    setSearch(value.slice(0, SEARCH_LIMIT));
   }
 
   function openCreateForm() {
@@ -315,8 +337,9 @@ export default function NewJob() {
                   <SearchInput
                     type="text"
                     placeholder="Buscar vaga por titulo, cidade ou estado"
+                    maxLength={SEARCH_LIMIT}
                     value={search}
-                    onChange={(event) => setSearch(event.target.value)}
+                    onChange={(event) => updateSearch(event.target.value)}
                   />
                   <ClearButton type="button" onClick={() => setSearch('')}>
                     Limpar
@@ -450,6 +473,7 @@ export default function NewJob() {
                   <Label>Nome da Vaga</Label>
                   <Input
                     placeholder="Nome da vaga"
+                    maxLength={TITLE_LIMIT}
                     value={form.titulo}
                     onChange={(event) => updateField('titulo', event.target.value)}
                   />
@@ -458,6 +482,7 @@ export default function NewJob() {
                   <Label>Cidade</Label>
                   <Input
                     placeholder="Cidade"
+                    maxLength={CITY_LIMIT}
                     value={form.cidade}
                     onChange={(event) => updateField('cidade', event.target.value)}
                   />
@@ -466,8 +491,9 @@ export default function NewJob() {
                   <Label>Estado</Label>
                   <Input
                     placeholder="UF"
+                    maxLength={STATE_LIMIT}
                     value={form.estado}
-                    onChange={(event) => updateField('estado', event.target.value.toUpperCase().slice(0, 2))}
+                    onChange={(event) => updateField('estado', event.target.value)}
                   />
                 </Field>
                 <Field>
@@ -480,10 +506,14 @@ export default function NewJob() {
                 <Field $fullWidth>
                   <Label>Descricao da vaga</Label>
                   <TextArea
-                    placeholder="Descricao da vaga"
+                    placeholder="Descreva a oportunidade de forma breve"
+                    maxLength={DESCRIPTION_LIMIT}
                     value={form.descricao}
                     onChange={(event) => updateField('descricao', event.target.value)}
                   />
+                  <CharacterCounter>
+                    {form.descricao.length}/{DESCRIPTION_LIMIT}
+                  </CharacterCounter>
                 </Field>
               </FormGrid>
 
@@ -518,7 +548,7 @@ export default function NewJob() {
                 </div>
                 <div>
                   <strong>Descricao</strong>
-                  <span>{selectedVaga.descricao || '-'}</span>
+                  <span>{truncateText(selectedVaga.descricao, DESCRIPTION_LIMIT)}</span>
                 </div>
               </DetailGrid>
 

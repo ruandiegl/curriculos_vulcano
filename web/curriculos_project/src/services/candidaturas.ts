@@ -33,3 +33,7 @@ export async function createCandidatura(usuarioId: string, vagaId: string) {
   const response = await api.post<Candidatura>('/candidaturas', { usuarioId, vagaId });
   return response.data;
 }
+
+export async function deleteCandidatura(id: string) {
+  await api.delete(`/candidaturas/${id}`);
+}

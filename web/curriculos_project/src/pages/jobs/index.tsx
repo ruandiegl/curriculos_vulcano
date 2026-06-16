@@ -7,15 +7,20 @@ import { FeedbackMessage } from '../../components/FeedbackMessage';
 import { UserLayout } from '../../components/UserLayout';
 import { useAuth } from '../../hooks/useAuth';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
-import { createCandidatura, listCandidaturas } from '../../services/candidaturas';
+import { createCandidatura, deleteCandidatura, listCandidaturas } from '../../services/candidaturas';
 import { listVagas } from '../../services/vagas';
 import type { Vaga } from '../../types/vaga';
+import { limitText, textLimits } from '../../utils/formLimits';
 import {
   ActionLink,
   Brand,
   Card,
   CardDescription,
   CardTitle,
+  ConfirmationDetails,
+  ConfirmationIntro,
+  ConfirmationItem,
+  ConfirmationSummary,
   Copyright,
   Footer,
   FooterContent,
@@ -23,12 +28,14 @@ import {
   HeaderContent,
   HeaderNav,
   InfoText,
+  JobActions,
   LogoutButton,
   Main,
   NavLink,
   SearchBar,
   SearchInput,
   StatusBadge,
+  DangerButton,
   SubmitButton,
   UserInfo,
 } from './styles';
@@ -47,6 +54,16 @@ function formatLocation(vaga: Vaga) {
   return [vaga.cidade, vaga.estado].filter(Boolean).join(' / ') || 'Local nao informado';
 }
 
+function summarizeDescription(description?: string | null, limit = 220) {
+  const text = description?.trim();
+
+  if (!text) {
+    return 'Descricao nao informada.';
+  }
+
+  return text.length > limit ? `${text.slice(0, limit).trim()}...` : text;
+}
+
 export default function Jobs() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -56,7 +73,10 @@ export default function Jobs() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [applyingId, setApplyingId] = useState('');
+  const [revokingId, setRevokingId] = useState('');
   const [applyTarget, setApplyTarget] = useState<Vaga | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<Vaga | null>(null);
+  const [applicationByJobId, setApplicationByJobId] = useState<Record<string, string>>({});
   const [message, setMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -83,8 +103,12 @@ export default function Jobs() {
     try {
       const response = await listCandidaturas({ usuarioId: user.id, limit: 100 });
       setAppliedJobIds(response.data.map((candidatura) => candidatura.vagaId));
+      setApplicationByJobId(
+        Object.fromEntries(response.data.map((candidatura) => [candidatura.vagaId, candidatura.id])),
+      );
     } catch {
       setAppliedJobIds([]);
+      setApplicationByJobId({});
     }
   }, [user]);
 
@@ -124,14 +148,54 @@ export default function Jobs() {
       setApplyingId(applyTarget.id);
       setMessage('');
       setSuccessMessage('');
-      await createCandidatura(user.id, applyTarget.id);
+      const candidatura = await createCandidatura(user.id, applyTarget.id);
       setAppliedJobIds((items) => [...items, applyTarget.id]);
+      setApplicationByJobId((items) => ({ ...items, [applyTarget.id]: candidatura.id }));
       setApplyTarget(null);
       setSuccessMessage('Candidatura realizada com sucesso.');
     } catch (error) {
       setMessage(getErrorMessage(error, 'Não foi possivel registrar sua candidatura.'));
     } finally {
       setApplyingId('');
+    }
+  }
+
+  function requestRevoke(vaga: Vaga) {
+    setMessage('');
+    setSuccessMessage('');
+    setRevokeTarget(vaga);
+  }
+
+  async function confirmRevoke() {
+    if (!revokeTarget) {
+      return;
+    }
+
+    const candidaturaId = applicationByJobId[revokeTarget.id];
+
+    if (!candidaturaId) {
+      setMessage('Nao foi possivel localizar a candidatura para revogar.');
+      setRevokeTarget(null);
+      return;
+    }
+
+    try {
+      setRevokingId(revokeTarget.id);
+      setMessage('');
+      setSuccessMessage('');
+      await deleteCandidatura(candidaturaId);
+      setAppliedJobIds((items) => items.filter((id) => id !== revokeTarget.id));
+      setApplicationByJobId((items) => {
+        const nextItems = { ...items };
+        delete nextItems[revokeTarget.id];
+        return nextItems;
+      });
+      setRevokeTarget(null);
+      setSuccessMessage('Candidatura revogada com sucesso.');
+    } catch (error) {
+      setMessage(getErrorMessage(error, 'Nao foi possivel revogar sua candidatura.'));
+    } finally {
+      setRevokingId('');
     }
   }
 
@@ -162,8 +226,9 @@ export default function Jobs() {
           <SearchInput
             type="text"
             placeholder="Buscar vaga"
+            maxLength={textLimits.search}
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => setSearch(limitText(event.target.value, textLimits.search))}
           />
         </SearchBar>
 
@@ -190,20 +255,31 @@ export default function Jobs() {
             return (
               <Card key={vaga.id}>
                 <CardTitle>{vaga.titulo}</CardTitle>
-                <CardDescription>{vaga.descricao || 'Descricao nao informada.'}</CardDescription>
+                <CardDescription>{summarizeDescription(vaga.descricao, 260)}</CardDescription>
                 <UserInfo>
                   <InfoText>{formatLocation(vaga)}</InfoText>
                   <StatusBadge>{alreadyApplied ? 'Candidatura enviada' : 'Aberta para candidatura'}</StatusBadge>
                 </UserInfo>
 
                 <ActionLink onClick={() => navigate('/profile')}>Ver meu curriculo &rarr;</ActionLink>
-                <SubmitButton
-                  type="button"
-                  disabled={alreadyApplied || applyingId === vaga.id}
-                  onClick={() => requestApply(vaga)}
-                >
-                  {alreadyApplied ? 'Ja candidatado' : applyingId === vaga.id ? 'Enviando...' : 'Candidatar-se'}
-                </SubmitButton>
+                <JobActions>
+                  <SubmitButton
+                    type="button"
+                    disabled={alreadyApplied || applyingId === vaga.id}
+                    onClick={() => requestApply(vaga)}
+                  >
+                    {alreadyApplied ? 'Ja candidatado' : applyingId === vaga.id ? 'Enviando...' : 'Candidatar-se'}
+                  </SubmitButton>
+                  {alreadyApplied && (
+                    <DangerButton
+                      type="button"
+                      disabled={revokingId === vaga.id}
+                      onClick={() => requestRevoke(vaga)}
+                    >
+                      {revokingId === vaga.id ? 'Revogando...' : 'Revogar candidatura'}
+                    </DangerButton>
+                  )}
+                </JobActions>
               </Card>
             );
           })}
@@ -220,7 +296,27 @@ export default function Jobs() {
       {applyTarget && (
         <ConfirmModal
           title="Confirmar candidatura?"
-          description={`Vaga: ${applyTarget.titulo}. Local: ${formatLocation(applyTarget)}. ${applyTarget.descricao || 'Descricao nao informada.'}`}
+          description={
+            <ConfirmationDetails>
+              <ConfirmationIntro>
+                Revise as informacoes da oportunidade antes de enviar sua candidatura.
+              </ConfirmationIntro>
+              <ConfirmationSummary>
+                <ConfirmationItem>
+                  <span>Vaga</span>
+                  <strong>{applyTarget.titulo}</strong>
+                </ConfirmationItem>
+                <ConfirmationItem>
+                  <span>Local</span>
+                  <strong>{formatLocation(applyTarget)}</strong>
+                </ConfirmationItem>
+                <ConfirmationItem>
+                  <span>Descricao</span>
+                  <p>{summarizeDescription(applyTarget.descricao)}</p>
+                </ConfirmationItem>
+              </ConfirmationSummary>
+            </ConfirmationDetails>
+          }
           confirmLabel="Confirmar"
           cancelLabel="Cancelar"
           loadingLabel="Enviando..."
@@ -228,6 +324,34 @@ export default function Jobs() {
           loading={applyingId === applyTarget.id}
           onCancel={() => setApplyTarget(null)}
           onConfirm={confirmApply}
+        />
+      )}
+      {revokeTarget && (
+        <ConfirmModal
+          title="Revogar candidatura?"
+          description={
+            <ConfirmationDetails>
+              <ConfirmationIntro>
+                Ao confirmar, sua candidatura sera removida desta oportunidade.
+              </ConfirmationIntro>
+              <ConfirmationSummary>
+                <ConfirmationItem>
+                  <span>Vaga</span>
+                  <strong>{revokeTarget.titulo}</strong>
+                </ConfirmationItem>
+                <ConfirmationItem>
+                  <span>Local</span>
+                  <strong>{formatLocation(revokeTarget)}</strong>
+                </ConfirmationItem>
+              </ConfirmationSummary>
+            </ConfirmationDetails>
+          }
+          confirmLabel="Revogar"
+          cancelLabel="Cancelar"
+          loadingLabel="Revogando..."
+          loading={revokingId === revokeTarget.id}
+          onCancel={() => setRevokeTarget(null)}
+          onConfirm={confirmRevoke}
         />
       )}
     </UserLayout>

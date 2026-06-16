@@ -28,6 +28,9 @@ export type CurriculoUpdatePayload = Partial<{
   cursoAtivo: boolean;
   enderecos: EnderecoPayload[];
   atuacoes: AtuacaoPayload[];
+  cursos: CursoPayload[];
+  experiencias: ExperienciaPayload[];
+  escolaridades: EscolaridadePayload[];
 }>;
 
 export type EnderecoPayload = {
