@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { useConfirmLogout } from '../../hooks/useConfirmLogout';
+import { UserLayout } from '../../components/UserLayout';
 import { useAuth } from '../../hooks/useAuth';
 import { PENDING_CURRICULUM_STORAGE_KEY, createCurriculo } from '../../services/curriculos';
 import type { CurriculoCreatePayload } from '../../services/curriculos';
@@ -20,15 +20,9 @@ import {
   FooterContent,
   Grid,
   Greeting,
-  Header,
-  HeaderContent,
-  HeaderNav,
   Input,
   Label,
-  LogoutButton,
   Main,
-  NavLink,
-  Page,
   RadioGroup,
   RadioLabel,
   Section,
@@ -44,14 +38,9 @@ function nullable(value: string) {
 export default function NewCurriculum() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { requestLogout, logoutModal } = useConfirmLogout();
   const [form, setForm] = useState<FormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-
-  function handleLogout() {
-    requestLogout();
-  }
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -117,27 +106,10 @@ export default function NewCurriculum() {
   }
 
   return (
-    <Page>
-      <Header>
-        <HeaderContent>
-          <Brand onClick={() => navigate('/')}>
-            <img src={logo} alt="Metalurgica Vulcano" />
-          </Brand>
-
-          <HeaderNav>
-            <NavLink onClick={() => navigate('/')}>Inicio</NavLink>
-            <NavLink onClick={() => navigate('/vagas')}>Vagas</NavLink>
-            <LogoutButton type="button" onClick={handleLogout}>
-              Sair
-            </LogoutButton>
-          </HeaderNav>
-        </HeaderContent>
-      </Header>
-
+    <UserLayout>
       <Main>
         <Greeting>
-          <p>Seja bem vindo(a) a central de Recursos Humanos do Grupo Metalurgica Vulcano!</p>
-          <p>Vamos precisar de suas informacoes - Preencha seus dados pessoais</p>
+          <p>Preencha seus dados pessoais para iniciar seu curriculo.</p>
         </Greeting>
 
         <Section>
@@ -356,7 +328,6 @@ export default function NewCurriculum() {
           <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
-      {logoutModal}
-    </Page>
+    </UserLayout>
   );
 }

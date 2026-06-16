@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { FeedbackMessage } from '../../components/FeedbackMessage';
+import { UserLayout } from '../../components/UserLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { addExperiencia } from '../../services/curriculos';
 import {
@@ -21,7 +22,6 @@ import {
   LogoutButton,
   Main,
   NavLink,
-  Page,
   Section,
   SectionTitle,
   SubmitButton,
@@ -29,7 +29,7 @@ import {
 
 export default function NewExperience() {
   const navigate = useNavigate();
-  const { requestLogout, logoutModal } = useConfirmLogout();
+  const { requestLogout } = useConfirmLogout();
   const [empresa, setEmpresa] = useState('');
   const [cargo, setCargo] = useState('');
   const [dataInicio, setDataInicio] = useState('');
@@ -74,7 +74,7 @@ export default function NewExperience() {
   }
 
   return (
-    <Page>
+    <UserLayout>
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
@@ -162,7 +162,6 @@ export default function NewExperience() {
           <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
-      {logoutModal}
-    </Page>
+    </UserLayout>
   );
 }

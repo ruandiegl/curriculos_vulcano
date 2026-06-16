@@ -91,44 +91,49 @@ export const LogoutButton = styled.button`
 export const Main = styled.main`
   width: min(1000px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 60px 0 80px;
+  padding: 0 0 48px;
   flex: 1;
 `;
 
 export const Greeting = styled.div`
-  margin-bottom: 40px;
+  margin-bottom: 20px;
+  padding: 22px 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
   
   p {
-    color: #64748b;
-    font-size: 18px;
-    font-weight: 500;
-    margin: 4px 0;
+    color: #102a43;
+    font-size: 16px;
+    font-weight: 800;
+    margin: 0;
   }
 `;
 
 export const Section = styled.section`
-  background: #111827; /* Dark navy from image */
-  padding: 50px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  background: #fff;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
 `;
 
 export const SectionTitle = styled.h2`
-  color: #fff;
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 40px;
+  color: #102a43;
+  font-size: 22px;
+  font-weight: 900;
+  margin: 0 0 22px;
 `;
 
 export const FormAlert = styled.div`
   width: 100%;
-  margin: -18px 0 32px;
+  margin: 0 0 22px;
   padding: 14px 18px;
-  border: 1px solid rgba(248, 113, 113, 0.85);
+  border: 1px solid #fecdd3;
   border-left: 5px solid #ef4444;
   border-radius: 8px;
-  background: rgba(127, 29, 29, 0.92);
-  color: #fff;
+  background: #fff1f2;
+  color: #991b1b;
   font-size: 14px;
   font-weight: 800;
   line-height: 1.45;
@@ -138,7 +143,7 @@ export const FormAlert = styled.div`
 export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 36px 30px;
+  gap: 24px 20px;
 
   @media (max-width: 900px) {
     grid-template-columns: repeat(2, 1fr);
@@ -152,65 +157,76 @@ export const Grid = styled.div`
 export const Field = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 `;
 
 export const Label = styled.label`
-  color: #fff;
-  font-size: 12px;
-  font-weight: 800;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
   text-transform: uppercase;
 `;
 
 export const Input = styled.input`
   width: 100%;
-  height: 36px;
-  background: transparent;
-  border: none;
-  border-bottom: 1.5px solid #fff;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 500;
+  height: 42px;
+  padding: 0 12px;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #223044;
+  font-size: 14px;
+  font-weight: 700;
   outline: none;
-  padding: 0 2px;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: #94a3b8;
+  }
+
+  &:focus {
+    border-color: #ff8424;
+    box-shadow: 0 0 0 3px rgba(255, 132, 36, 0.16);
   }
 `;
 
 export const Select = styled.select`
   width: 100%;
-  height: 36px;
-  background: transparent;
-  border: none;
-  border-bottom: 1.5px solid #fff;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 500;
+  height: 42px;
+  padding: 0 12px;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #223044;
+  font-size: 14px;
+  font-weight: 700;
   outline: none;
   cursor: pointer;
   
   option {
-    background: #111827;
-    color: #fff;
+    background: #fff;
+    color: #223044;
+  }
+
+  &:focus {
+    border-color: #ff8424;
+    box-shadow: 0 0 0 3px rgba(255, 132, 36, 0.16);
   }
 `;
 
 export const RadioGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
-  height: 36px;
+  gap: 12px;
+  min-height: 42px;
 `;
 
 export const RadioLabel = styled.label`
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
+  color: #223044;
+  font-size: 13px;
+  font-weight: 800;
   cursor: pointer;
 
   input {
@@ -222,27 +238,33 @@ export const RadioLabel = styled.label`
 
 export const ActionButtons = styled.div`
   display: flex;
-  margin-top: 50px;
+  margin-top: 28px;
 `;
 
 export const SubmitButton = styled.button`
-  height: 48px;
-  padding: 0 50px;
+  min-height: 40px;
+  padding: 0 18px;
   border: 0;
-  border-radius: 999px;
-  background: #fff;
-  color: #063e66;
+  border-radius: 8px;
+  background: #ff8424;
+  color: #fff;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 900;
   text-transform: uppercase;
 
   &:hover {
-    background: #f1f5f9;
+    background: #fb7900;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.68;
   }
 `;
 
 export const Footer = styled.footer`
+  display: none;
   background: #fff;
   padding: 60px 0;
   border-top: 1px solid rgba(226, 232, 240, 0.8);

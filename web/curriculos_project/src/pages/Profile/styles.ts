@@ -13,6 +13,7 @@ export const Page = styled.div`
 `;
 
 export const Header = styled.header`
+  display: none;
   background: rgba(255, 255, 255, 0.96);
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 `;
@@ -89,9 +90,9 @@ export const LogoutButton = styled.button`
 `;
 
 export const Main = styled.main`
-  width: min(800px, calc(100% - 48px));
+  width: min(900px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 60px 0 80px;
+  padding: 0 0 48px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -100,18 +101,19 @@ export const Main = styled.main`
 
 export const Card = styled.section`
   background: #fff;
-  padding: 32px 40px;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
   gap: 12px;
 `;
 
 export const CardTitle = styled.h2`
-  color: #063e66;
+  color: #102a43;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   margin-bottom: 4px;
 `;
 
@@ -153,6 +155,7 @@ export const ActionLink = styled.div`
 `;
 
 export const Footer = styled.footer`
+  display: none;
   background: #fff;
   padding: 60px 0;
   border-top: 1px solid rgba(226, 232, 240, 0.8);

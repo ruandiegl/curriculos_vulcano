@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { FeedbackMessage } from '../../components/FeedbackMessage';
+import { UserLayout } from '../../components/UserLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import {
   deleteCurriculoArquivo,
@@ -35,7 +36,6 @@ import {
   LogoutButton,
   Main,
   NavLink,
-  Page,
   Section,
   SectionTitle,
   SubmitButton,
@@ -43,7 +43,7 @@ import {
 
 export default function UploadPDF() {
   const navigate = useNavigate();
-  const { requestLogout, logoutModal } = useConfirmLogout();
+  const { requestLogout } = useConfirmLogout();
   const [curriculoId, setCurriculoId] = useState('');
   const [arquivos, setArquivos] = useState<CurriculoRelation[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -70,11 +70,11 @@ export default function UploadPDF() {
           setArquivos(curriculo.arquivos ?? []);
           setMessage('');
         }
-      } catch (error) {
+      } catch {
         if (isCurrent) {
           setCurriculoId('');
           setArquivos([]);
-          setMessage(getErrorMessage(error, 'Nao foi possivel localizar seu curriculo.'));
+          setMessage('');
         }
       } finally {
         if (isCurrent) {
@@ -194,7 +194,7 @@ export default function UploadPDF() {
   }
 
   return (
-    <Page>
+    <UserLayout>
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
@@ -288,7 +288,6 @@ export default function UploadPDF() {
           <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
-      {logoutModal}
       {confirmReplaceOpen && (
         <ConfirmModal
           title="Substituir curriculo em PDF?"
@@ -312,7 +311,7 @@ export default function UploadPDF() {
           onConfirm={handleDelete}
         />
       )}
-    </Page>
+    </UserLayout>
   );
 }
 

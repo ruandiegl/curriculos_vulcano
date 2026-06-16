@@ -12,6 +12,10 @@ export const AdminPage = styled.div<{ $sidebarOpen: boolean }>`
   font-family: Inter, "Segoe UI", Arial, sans-serif;
   overflow: hidden;
   transition: grid-template-columns 180ms ease;
+
+  @media (max-width: 640px) {
+    grid-template-columns: ${({ $sidebarOpen }) => ($sidebarOpen ? '1fr' : '64px minmax(0, 1fr)')};
+  }
 `;
 
 export const Sidebar = styled.aside<{ $open: boolean }>`
@@ -27,6 +31,16 @@ export const Sidebar = styled.aside<{ $open: boolean }>`
   box-shadow: 10px 0 28px rgba(15, 23, 42, 0.18);
   overflow: hidden;
   z-index: 4;
+
+  @media (max-width: 640px) {
+    padding: ${({ $open }) => ($open ? '14px 12px' : '14px 8px')};
+    gap: 16px;
+    width: ${({ $open }) => ($open ? '100vw' : '64px')};
+    max-width: 100vw;
+    position: ${({ $open }) => ($open ? 'fixed' : 'relative')};
+    inset: ${({ $open }) => ($open ? '0' : 'auto')};
+    z-index: ${({ $open }) => ($open ? 40 : 4)};
+  }
 `;
 
 export const SidebarHeader = styled.div<{ $open: boolean }>`
@@ -75,12 +89,22 @@ export const MenuButton = styled.button`
   &:hover {
     background: rgba(255, 255, 255, 0.18);
   }
+
+  @media (max-width: 640px) {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
 `;
 
 export const SidebarNav = styled.nav`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
 `;
 
 export const NavButton = styled.button<{ $active?: boolean; $open: boolean }>`
@@ -124,6 +148,17 @@ export const NavButton = styled.button<{ $active?: boolean; $open: boolean }>`
 
   &:hover {
     background: ${({ $active }) => ($active ? '#ff8424' : 'rgba(255, 255, 255, 0.1)')};
+  }
+
+  @media (max-width: 640px) {
+    min-height: 42px;
+    padding: ${({ $open }) => ($open ? '0 12px' : '0')};
+
+    svg {
+      width: 28px;
+      height: 28px;
+      flex-basis: 28px;
+    }
   }
 `;
 
@@ -226,6 +261,6 @@ export const Main = styled.main`
   overflow-x: hidden;
 
   @media (max-width: 640px) {
-    padding: 18px 12px 28px;
+    padding: 16px 10px 28px;
   }
 `;
