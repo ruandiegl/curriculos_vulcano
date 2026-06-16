@@ -70,7 +70,7 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
   const navigate = useNavigate();
   const { user } = useAuth();
   const { requestLogout, logoutModal } = useConfirmLogout();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const userName = user?.nome?.trim() || (user?.tipo === 'admin' ? 'Administrador' : 'Usuario');
   const userEmail = user?.email?.trim() || 'Email nao informado';
   const userInitials = getInitials(user?.nome, user?.email);

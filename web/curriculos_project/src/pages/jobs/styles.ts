@@ -25,6 +25,10 @@ export const Main = styled(ProfileMain)`
 `;
 
 export const SearchBar = styled.div`
+  padding: 22px 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -40,10 +44,10 @@ export const SearchBar = styled.div`
 
   h1 {
     margin: 0;
-    color: #063e66;
-    font-size: 28px;
+    color: #102a43;
+    font-size: 24px;
     line-height: 1.2;
-    font-weight: 500;
+    font-weight: 900;
   }
 
   @media (max-width: 680px) {
@@ -55,11 +59,11 @@ export const SearchBar = styled.div`
 export const SearchInput = styled.input`
   width: min(100%, 340px);
   height: 42px;
-  padding: 0 18px;
-  border: 1.5px solid #8da0b8;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.96);
-  color: #2c3547;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #223044;
   font-size: 13px;
   font-weight: 700;
   outline: none;
@@ -97,9 +101,9 @@ export const SubmitButton = styled.button`
   width: fit-content;
   min-height: 40px;
   margin-top: 8px;
-  padding: 0 24px;
+  padding: 0 18px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 8px;
   background: #ff8424;
   color: #fff;
   cursor: pointer;

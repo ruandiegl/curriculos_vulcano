@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { UserLayout } from '../../components/UserLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { getMeuCurriculo } from '../../services/curriculos';
 import type { Curriculo, CurriculoRelation } from '../../types/curriculo';
@@ -20,7 +21,6 @@ import {
   LogoutButton,
   Main,
   NavLink,
-  Page,
   UserInfo,
 } from './styles';
 
@@ -49,7 +49,7 @@ function renderRelations(items: CurriculoRelation[] | undefined, getLabel: (item
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { requestLogout, logoutModal } = useConfirmLogout();
+  const { requestLogout } = useConfirmLogout();
   const [curriculo, setCurriculo] = useState<Curriculo | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -89,7 +89,7 @@ export default function Profile() {
   }
 
   return (
-    <Page>
+    <UserLayout>
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
@@ -211,7 +211,6 @@ export default function Profile() {
           <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
-      {logoutModal}
-    </Page>
+    </UserLayout>
   );
 }

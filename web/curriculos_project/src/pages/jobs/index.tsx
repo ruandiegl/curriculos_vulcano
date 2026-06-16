@@ -1,8 +1,10 @@
 import axios from 'axios';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { ConfirmModal } from '../../components/ConfirmModal';
 import { FeedbackMessage } from '../../components/FeedbackMessage';
+import { UserLayout } from '../../components/UserLayout';
 import { useAuth } from '../../hooks/useAuth';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { createCandidatura, listCandidaturas } from '../../services/candidaturas';
@@ -24,7 +26,6 @@ import {
   LogoutButton,
   Main,
   NavLink,
-  Page,
   SearchBar,
   SearchInput,
   StatusBadge,
@@ -49,30 +50,19 @@ function formatLocation(vaga: Vaga) {
 export default function Jobs() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { requestLogout, logoutModal } = useConfirmLogout();
+  const { requestLogout } = useConfirmLogout();
   const [vagas, setVagas] = useState<Vaga[]>([]);
   const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [applyingId, setApplyingId] = useState('');
+  const [applyTarget, setApplyTarget] = useState<Vaga | null>(null);
   const [message, setMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
   const appliedSet = useMemo(() => new Set(appliedJobIds), [appliedJobIds]);
 
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      loadJobs();
-    }, 250);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [search]);
-
-  useEffect(() => {
-    loadApplications();
-  }, [user?.id]);
-
-  async function loadJobs() {
+  const loadJobs = useCallback(async () => {
     try {
       setLoading(true);
       setMessage('');
@@ -83,9 +73,9 @@ export default function Jobs() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [search]);
 
-  async function loadApplications() {
+  const loadApplications = useCallback(async () => {
     if (!user?.id) {
       return;
     }
@@ -96,20 +86,47 @@ export default function Jobs() {
     } catch {
       setAppliedJobIds([]);
     }
-  }
+  }, [user]);
 
-  async function handleApply(vaga: Vaga) {
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      loadJobs();
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [loadJobs]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      loadApplications();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [loadApplications]);
+
+  function requestApply(vaga: Vaga) {
     if (!user?.id) {
       setMessage('Entre na sua conta para se candidatar.');
       return;
     }
 
+    setMessage('');
+    setSuccessMessage('');
+    setApplyTarget(vaga);
+  }
+
+  async function confirmApply() {
+    if (!user?.id || !applyTarget) {
+      return;
+    }
+
     try {
-      setApplyingId(vaga.id);
+      setApplyingId(applyTarget.id);
       setMessage('');
       setSuccessMessage('');
-      await createCandidatura(user.id, vaga.id);
-      setAppliedJobIds((items) => [...items, vaga.id]);
+      await createCandidatura(user.id, applyTarget.id);
+      setAppliedJobIds((items) => [...items, applyTarget.id]);
+      setApplyTarget(null);
       setSuccessMessage('Candidatura realizada com sucesso.');
     } catch (error) {
       setMessage(getErrorMessage(error, 'Não foi possivel registrar sua candidatura.'));
@@ -119,7 +136,7 @@ export default function Jobs() {
   }
 
   return (
-    <Page>
+    <UserLayout>
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
@@ -183,7 +200,7 @@ export default function Jobs() {
                 <SubmitButton
                   type="button"
                   disabled={alreadyApplied || applyingId === vaga.id}
-                  onClick={() => handleApply(vaga)}
+                  onClick={() => requestApply(vaga)}
                 >
                   {alreadyApplied ? 'Ja candidatado' : applyingId === vaga.id ? 'Enviando...' : 'Candidatar-se'}
                 </SubmitButton>
@@ -200,7 +217,19 @@ export default function Jobs() {
           <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
-      {logoutModal}
-    </Page>
+      {applyTarget && (
+        <ConfirmModal
+          title="Confirmar candidatura?"
+          description={`Vaga: ${applyTarget.titulo}. Local: ${formatLocation(applyTarget)}. ${applyTarget.descricao || 'Descricao nao informada.'}`}
+          confirmLabel="Confirmar"
+          cancelLabel="Cancelar"
+          loadingLabel="Enviando..."
+          tone="default"
+          loading={applyingId === applyTarget.id}
+          onCancel={() => setApplyTarget(null)}
+          onConfirm={confirmApply}
+        />
+      )}
+    </UserLayout>
   );
 }

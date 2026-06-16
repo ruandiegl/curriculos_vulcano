@@ -13,6 +13,7 @@ export const Page = styled.div`
 `;
 
 export const Header = styled.header`
+  display: none;
   background: rgba(255, 255, 255, 0.96);
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 `;
@@ -91,24 +92,25 @@ export const LogoutButton = styled.button`
 export const Main = styled.main`
   width: min(1000px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 60px 0 80px;
+  padding: 0 0 48px;
   flex: 1;
 `;
 
 export const Section = styled.section`
-  background: #778899;
-  padding: 50px;
-  border-radius: 4px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
   gap: 30px;
 `;
 
 export const SectionTitle = styled.h2`
-  color: #fff;
-  font-size: 24px;
-  font-weight: 500;
+  color: #102a43;
+  font-size: 22px;
+  font-weight: 900;
   margin: 0;
 `;
 
@@ -128,28 +130,38 @@ export const InputGroup = styled.div`
   gap: 8px;
 
   label {
-    color: #fff;
-    font-size: 13px;
-    font-weight: 700;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
   }
 
   input, textarea {
-    background: transparent;
-    border: 0;
-    border-bottom: 1.5px solid #fff;
-    color: #fff;
-    padding: 8px 0;
-    font-size: 15px;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #223044;
+    padding: 0 12px;
+    min-height: 42px;
+    font-size: 14px;
+    font-weight: 700;
     outline: none;
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.7);
+      color: #94a3b8;
+    }
+
+    &:focus {
+      border-color: #ff8424;
+      box-shadow: 0 0 0 3px rgba(255, 132, 36, 0.16);
     }
   }
 
   textarea {
-    resize: none;
-    min-height: 80px;
+    resize: vertical;
+    min-height: 92px;
+    padding-top: 12px;
   }
 `;
 
@@ -164,40 +176,41 @@ export const ActionButtons = styled.div`
 `;
 
 export const SubmitButton = styled.button`
-  height: 45px;
-  padding: 0 30px;
+  min-height: 40px;
+  padding: 0 18px;
   border: 0;
-  border-radius: 999px;
-  background: #fff;
-  color: #063e66;
+  border-radius: 8px;
+  background: #ff8424;
+  color: #fff;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 900;
   text-transform: uppercase;
 
   &:hover {
-    background: #f1f5f9;
+    background: #fb7900;
   }
 `;
 
 export const BackButton = styled.button`
-  height: 45px;
-  padding: 0 50px;
+  min-height: 40px;
+  padding: 0 18px;
   border: 0;
-  border-radius: 999px;
-  background: #fff;
-  color: #063e66;
+  border-radius: 8px;
+  background: #e2e8f0;
+  color: #334155;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 900;
   text-transform: uppercase;
 
   &:hover {
-    background: #f1f5f9;
+    background: #cbd5e1;
   }
 `;
 
 export const Footer = styled.footer`
+  display: none;
   background: #fff;
   padding: 60px 0;
   border-top: 1px solid rgba(226, 232, 240, 0.8);

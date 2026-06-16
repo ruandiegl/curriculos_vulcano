@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { FeedbackMessage } from '../../components/FeedbackMessage';
+import { UserLayout } from '../../components/UserLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { addCurso } from '../../services/curriculos';
 import {
@@ -21,7 +22,6 @@ import {
   LogoutButton,
   Main,
   NavLink,
-  Page,
   Section,
   SectionTitle,
   SubmitButton,
@@ -29,7 +29,7 @@ import {
 
 export default function NewCertification() {
   const navigate = useNavigate();
-  const { requestLogout, logoutModal } = useConfirmLogout();
+  const { requestLogout } = useConfirmLogout();
   const [nome, setNome] = useState('');
   const [instituicao, setInstituicao] = useState('');
   const [cargaHoraria, setCargaHoraria] = useState('');
@@ -70,7 +70,7 @@ export default function NewCertification() {
   }
 
   return (
-    <Page>
+    <UserLayout>
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/profile')}>
@@ -143,7 +143,6 @@ export default function NewCertification() {
           <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
-      {logoutModal}
-    </Page>
+    </UserLayout>
   );
 }

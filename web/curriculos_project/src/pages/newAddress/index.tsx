@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { FeedbackMessage } from '../../components/FeedbackMessage';
+import { UserLayout } from '../../components/UserLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { PENDING_CURRICULUM_STORAGE_KEY, updateCurriculo } from '../../services/curriculos';
 import {
@@ -23,7 +24,6 @@ import {
   LogoutButton,
   Main,
   NavLink,
-  Page,
   Section,
   SectionTitle,
   SubmitButton,
@@ -83,7 +83,7 @@ function formatCep(value: string) {
 export default function NewAddress() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { requestLogout, logoutModal } = useConfirmLogout();
+  const { requestLogout } = useConfirmLogout();
   const state = location.state as LocationState | null;
   const initialCurriculoId = state?.curriculoId ?? sessionStorage.getItem(PENDING_CURRICULUM_STORAGE_KEY) ?? '';
   const [form, setForm] = useState<FormState>(initialForm);
@@ -148,7 +148,6 @@ export default function NewAddress() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage('');
-    console.log('clicou');
 
     if (!curriculoId) {
       setMessage('Nao encontrei o curriculo iniciado. Volte e preencha os dados pessoais novamente.');
@@ -194,7 +193,7 @@ export default function NewAddress() {
   }
 
   return (
-    <Page>
+    <UserLayout>
       <Header>
         <HeaderContent>
           <Brand onClick={() => navigate('/')}>
@@ -307,7 +306,6 @@ export default function NewAddress() {
           <Copyright>© 2026 Cesar Garcia Consultoria de TI</Copyright>
         </FooterContent>
       </Footer>
-      {logoutModal}
-    </Page>
+    </UserLayout>
   );
 }
