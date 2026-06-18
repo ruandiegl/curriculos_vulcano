@@ -10,7 +10,7 @@ import { UserLayout } from '../../components/UserLayout';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import { addEscolaridade, getMeuCurriculo, updateCurriculo } from '../../services/curriculos';
 import type { CurriculoRelation } from '../../types/curriculo';
-import { MIN_DATE, isValidDateInput, limitText, normalizeDate, textLimits } from '../../utils/formLimits';
+import { MAX_DATE, MIN_DATE, isValidDateInput, limitText, normalizeDate, textLimits } from '../../utils/formLimits';
 import {
   ActionButtons,
   BackButton,
@@ -141,13 +141,13 @@ export default function NewEducation() {
       return;
     }
 
-    if (!isValidDateInput(dataInicio) || !isValidDateInput(dataTermino)) {
-      setMessage('Informe datas válidas entre 1900 e hoje.');
+    if (!isValidDateInput(dataInicio) || !isValidDateInput(dataTermino, { allowFuture: true })) {
+      setMessage('Informe datas válidas entre 1900 e 2100.');
       return;
     }
 
     if (dataInicio && dataTermino && dataTermino < dataInicio) {
-      setMessage('A data de termino não pode ser anterior a data de inicio.');
+      setMessage('A data de término não pode ser anterior à data de início.');
       return;
     }
 
@@ -273,11 +273,11 @@ export default function NewEducation() {
                 />
               </InputGroup>
               <InputGroup>
-                <label>Data de Termino</label>
+                <label>Data de Término</label>
                 <input
                   type="date"
                   min={MIN_DATE}
-                  max={new Date().toISOString().slice(0, 10)}
+                  max={MAX_DATE}
                   value={dataTermino}
                   onChange={(event) => setDataTermino(normalizeDate(event.target.value))}
                 />

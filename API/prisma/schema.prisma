@@ -76,6 +76,7 @@ model Endereco {
   curriculoId String    @map("curriculo_id") @db.Uuid
   rua         String?
   numero      String?
+  cep         String?
   complemento String?
   bairro      String?
   cidade      String?

@@ -6,6 +6,7 @@ const nullableText = z.string().optional().nullable();
 export const enderecoSchema = z.object({
   rua: nullableText,
   numero: nullableText,
+  cep: nullableText,
   complemento: nullableText,
   bairro: nullableText,
   cidade: nullableText,

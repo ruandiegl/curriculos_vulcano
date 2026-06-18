@@ -156,12 +156,49 @@ export const InputGroup = styled.div`
       border-color: #ff8424;
       box-shadow: 0 0 0 3px rgba(255, 132, 36, 0.16);
     }
+
+    &:disabled {
+      background: #f8fafc;
+      border-color: #dbe6ef;
+      color: #475569;
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
   }
 
   textarea {
     resize: vertical;
     min-height: 92px;
     padding-top: 12px;
+  }
+`;
+
+export const CurrentWorkOption = styled.label`
+  width: fit-content;
+  max-width: 100%;
+  min-height: 28px;
+  margin-top: -2px;
+  padding: 6px 9px;
+  border: 1px solid #dbe6ef;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: none;
+
+  input {
+    width: 13px;
+    height: 13px;
+    min-height: 13px;
+    padding: 0;
+    accent-color: #ff8424;
+    flex: 0 0 13px;
   }
 `;
 

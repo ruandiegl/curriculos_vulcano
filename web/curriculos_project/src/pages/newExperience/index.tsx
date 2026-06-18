@@ -29,6 +29,7 @@ import {
   HeaderNav,
   IconActionButton,
   InputGroup,
+  CurrentWorkOption,
   LogoutButton,
   Main,
   NavLink,
@@ -44,6 +45,7 @@ export default function NewExperience() {
   const [cargo, setCargo] = useState('');
   const [dataInicio, setDataInicio] = useState('');
   const [dataTermino, setDataTermino] = useState('');
+  const [trabalhoAtual, setTrabalhoAtual] = useState(false);
   const [funcoes, setFuncoes] = useState('');
   const [loading, setLoading] = useState(false);
   const [existingItems, setExistingItems] = useState<CurriculoRelation[]>([]);
@@ -86,6 +88,7 @@ export default function NewExperience() {
     setCargo('');
     setDataInicio('');
     setDataTermino('');
+    setTrabalhoAtual(false);
     setFuncoes('');
     setEditingId('');
   }
@@ -95,6 +98,7 @@ export default function NewExperience() {
     setCargo(limitText(item.cargo ?? '', textLimits.medium));
     setDataInicio(normalizeDate(item.dataInicio?.slice(0, 10) ?? ''));
     setDataTermino(normalizeDate(item.dataTermino?.slice(0, 10) ?? ''));
+    setTrabalhoAtual(!item.dataTermino);
     setFuncoes(limitText(item.funcoes ?? '', textLimits.long));
     setEditingId(item.id);
     setMessage('');
@@ -145,13 +149,13 @@ export default function NewExperience() {
       return;
     }
 
-    if (!isValidDateInput(dataInicio) || !isValidDateInput(dataTermino)) {
+    if (!isValidDateInput(dataInicio) || (!trabalhoAtual && !isValidDateInput(dataTermino))) {
       setMessage('Informe datas válidas entre 1900 e hoje.');
       return;
     }
 
-    if (dataInicio && dataTermino && dataTermino < dataInicio) {
-      setMessage('A data de termino não pode ser anterior a data de inicio.');
+    if (dataInicio && !trabalhoAtual && dataTermino && dataTermino < dataInicio) {
+      setMessage('A data de término não pode ser anterior à data de início.');
       return;
     }
 
@@ -161,7 +165,7 @@ export default function NewExperience() {
         empresa: empresa.trim(),
         cargo: cargo.trim() || null,
         dataInicio: dataInicio || null,
-        dataTermino: dataTermino || null,
+        dataTermino: trabalhoAtual ? null : dataTermino || null,
         funcoes: funcoes.trim() || null,
       };
 
@@ -230,7 +234,7 @@ export default function NewExperience() {
             {existingItems.map((item) => (
               <ExistingItem key={item.id}>
                 <ExistingItemText>
-                  {[item.empresa, item.cargo, item.dataInicio?.slice(0, 10), item.dataTermino?.slice(0, 10), item.funcoes]
+                  {[item.empresa, item.cargo, item.dataInicio?.slice(0, 10), item.dataTermino?.slice(0, 10) ?? 'Atual', item.funcoes]
                     .filter(Boolean)
                     .join(' - ')}
                 </ExistingItemText>
@@ -279,19 +283,33 @@ export default function NewExperience() {
                 />
               </InputGroup>
               <InputGroup>
-                <label>Data de Termino</label>
+                <label>Data de Término</label>
                 <input
                   type="date"
                   min={MIN_DATE}
                   max={new Date().toISOString().slice(0, 10)}
                   value={dataTermino}
+                  disabled={trabalhoAtual}
                   onChange={(event) => setDataTermino(normalizeDate(event.target.value))}
                 />
+                <CurrentWorkOption>
+                  <input
+                    type="checkbox"
+                    checked={trabalhoAtual}
+                    onChange={(event) => {
+                      setTrabalhoAtual(event.target.checked);
+                      if (event.target.checked) {
+                        setDataTermino('');
+                      }
+                    }}
+                  />
+                  atual
+                </CurrentWorkOption>
               </InputGroup>
               <InputGroup>
-                <label>Funcoes</label>
+                <label>Funções</label>
                 <textarea
-                  placeholder="Funcoes"
+                  placeholder="Funções"
                   maxLength={textLimits.long}
                   value={funcoes}
                   onChange={(event) => setFuncoes(limitText(event.target.value, textLimits.long))}
