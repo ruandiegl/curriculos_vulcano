@@ -129,7 +129,7 @@ export default function NewAddress() {
 
         setCurriculoId(curriculo?.id);
         setForm({
-          cep: '',
+          cep: limitAddressField('cep', endereco?.cep ?? ''),
           rua: limitAddressField('rua', endereco?.rua ?? ''),
           cidade: limitAddressField('cidade', endereco?.cidade ?? ''),
           numero: limitAddressField('numero', endereco?.numero ?? ''),
@@ -226,6 +226,7 @@ export default function NewAddress() {
           {
             rua: nullable(form.rua),
             numero: nullable(form.numero),
+            cep: nullable(form.cep),
             complemento: nullable(form.complemento),
             bairro: nullable(form.bairro),
             cidade: nullable(form.cidade),

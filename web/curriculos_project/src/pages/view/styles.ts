@@ -162,14 +162,36 @@ export const Value = styled.span`
 
 export const ActionButtons = styled.div`
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
 
   @media (max-width: 480px) {
     flex-direction: column;
     align-items: stretch;
   }
+`;
+
+export const ActionPanel = styled.section`
+  background: #fff;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  @media (max-width: 720px) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+`;
+
+export const ActionGroup = styled(ActionButtons)`
+  justify-content: flex-start;
 `;
 
 export const ActionButton = styled.a`
@@ -187,6 +209,7 @@ export const ActionButton = styled.a`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  font-family: inherit;
 
   &:hover {
     background: #fb7900;
@@ -222,33 +245,6 @@ export const StatusSelect = styled.select`
   font-weight: 800;
   outline: none;
   background: #fff;
-`;
-
-export const DownloadLinks = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
-`;
-
-export const DownloadLink = styled.a`
-  width: fit-content;
-  min-height: 34px;
-  padding: 0 12px;
-  border: 1px solid #dbe6ef;
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #102a43;
-  text-decoration: none;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-
-  &:hover {
-    border-color: #ff8424;
-    color: #fb7900;
-  }
 `;
 
 export const Footer = styled.footer`

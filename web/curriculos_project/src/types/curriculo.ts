@@ -18,6 +18,7 @@ export type CurriculoRelation = {
   bairro?: string | null;
   rua?: string | null;
   numero?: string | null;
+  cep?: string | null;
   complemento?: string | null;
   nomeOriginal?: string | null;
   createdAt?: string | null;

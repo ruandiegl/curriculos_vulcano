@@ -129,7 +129,7 @@ function formFromCurriculo(curriculo: Curriculo): FormState {
     vencimentoCnh: normalizeDate(curriculo?.vencimentoCnh?.slice(0, 10) ?? ''),
     categoriaCnh: limitEditField('categoriaCnh', curriculo?.categoriaCnh ?? ''),
     status: curriculo?.status,
-    cep: '',
+    cep: limitEditField('cep', endereco?.cep ?? ''),
     rua: limitEditField('rua', endereco?.rua ?? ''),
     cidade: limitEditField('cidade', endereco?.cidade ?? ''),
     numero: limitEditField('numero', endereco?.numero ?? ''),
@@ -311,6 +311,7 @@ export default function Edit() {
           {
             rua: nullable(form.rua),
             numero: nullable(form.numero),
+            cep: nullable(form.cep),
             complemento: nullable(form.complemento),
             bairro: nullable(form.bairro),
             cidade: nullable(form.cidade),

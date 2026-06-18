@@ -36,6 +36,7 @@ export type CurriculoUpdatePayload = Partial<{
 export type EnderecoPayload = {
   rua: string | null;
   numero: string | null;
+  cep?: string | null;
   complemento: string | null;
   bairro: string | null;
   cidade: string | null;

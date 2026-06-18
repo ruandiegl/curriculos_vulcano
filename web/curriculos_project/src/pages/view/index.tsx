@@ -13,11 +13,11 @@ import { formatList, getStatusColor, getStatusLabel, statusLabels } from '../../
 import {
   ActionButton,
   ActionButtons,
+  ActionGroup,
+  ActionPanel,
   Brand,
   Copyright,
   DataItem,
-  DownloadLink,
-  DownloadLinks,
   Footer,
   FooterContent,
   Grid,
@@ -35,6 +35,10 @@ import {
   StatusWrapper,
   Value,
 } from './styles';
+
+function formatDate(value?: string | null) {
+  return value?.slice(0, 10) || null;
+}
 
 export default function View() {
   const { id } = useParams();
@@ -147,6 +151,25 @@ export default function View() {
 
       {curriculo && (
         <>
+          <ActionPanel>
+            <ActionGroup>
+              {isAdmin && (
+                <>
+                  <ActionButton as="button" type="button" onClick={() => downloadCurriculoSistemaPdf(curriculo)}>
+                    Baixar PDF do Sistema
+                  </ActionButton>
+                  <ActionButton as="button" type="button" onClick={handleDownloadUploadedPdf}>
+                    Baixar PDF Enviado
+                  </ActionButton>
+                </>
+              )}
+            </ActionGroup>
+            <ActionButtons>
+              <ActionButton href={homePath}>Voltar</ActionButton>
+              <ActionButton href={`/edit/${curriculo?.id}`}>Alterar Currículo</ActionButton>
+            </ActionButtons>
+          </ActionPanel>
+
           <Section>
             <SectionTitle>Dados Pessoais</SectionTitle>
             <Grid>
@@ -190,16 +213,8 @@ export default function View() {
               </DataItem>
 
               <DataItem>
-                <Label>Cargo/Area de Atuação desejado</Label>
+                <Label>Cargo/Área de Atuação desejado</Label>
                 <Value>{formatList(curriculo?.atuacoes)}</Value>
-              </DataItem>
-              <DataItem>
-                <Label>Cursos</Label>
-                <Value>{formatList(curriculo?.cursos)}</Value>
-              </DataItem>
-              <DataItem>
-                <Label>Experiências</Label>
-                <Value>{formatList(curriculo?.experiencias)}</Value>
               </DataItem>
 
               {curriculo?.possuiCnh && (
@@ -225,12 +240,16 @@ export default function View() {
             <SectionTitle>Endereço</SectionTitle>
             <Grid>
               <DataItem>
+                <Label>CEP</Label>
+                <Value>{valueOrDash(firstAddress?.cep)}</Value>
+              </DataItem>
+              <DataItem>
                 <Label>Logradouro</Label>
                 <Value>{valueOrDash(firstAddress?.rua)}</Value>
               </DataItem>
               <DataItem>
                 <Label>Complemento</Label>
-                <Value>{valueOrDash(firstAddress?.bairro)}</Value>
+                <Value>{valueOrDash(firstAddress?.complemento)}</Value>
               </DataItem>
               <DataItem>
                 <Label>Cidade</Label>
@@ -250,22 +269,61 @@ export default function View() {
                 <Value>{valueOrDash(firstAddress?.estado)}</Value>
               </DataItem>
             </Grid>
+          </Section>
 
-            <ActionButtons>
-              <ActionButton href={`/edit/${curriculo?.id}`}>Alterar Currículo</ActionButton>
-              <ActionButton href={homePath}>Voltar</ActionButton>
-            </ActionButtons>
+          <Section>
+            <SectionTitle>Formação Acadêmica</SectionTitle>
+            <Grid>
+              {(curriculo?.escolaridades?.length ? curriculo.escolaridades : [null]).map((item, index) => (
+                <DataItem key={item?.id ?? `empty-education-${index}`}>
+                  <Label>{item ? valueOrDash(item.curso ?? item.escola) : 'Formação'}</Label>
+                  <Value>
+                    {item
+                      ? [item.escola, formatDate(item.dataInicio), formatDate(item.dataTermino)]
+                        .filter(Boolean)
+                        .join(' - ')
+                      : 'Nenhuma formação cadastrada'}
+                  </Value>
+                </DataItem>
+              ))}
+            </Grid>
+          </Section>
 
-            {isAdmin && (
-              <DownloadLinks>
-                <DownloadLink as="button" type="button" onClick={() => downloadCurriculoSistemaPdf(curriculo)}>
-                  + Download PDF (Sistema)
-                </DownloadLink>
-                <DownloadLink as="button" type="button" onClick={handleDownloadUploadedPdf}>
-                  + Download PDF (Usuario)
-                </DownloadLink>
-              </DownloadLinks>
-            )}
+          <Section>
+            <SectionTitle>Experiência Profissional</SectionTitle>
+            <Grid>
+              {(curriculo?.experiencias?.length ? curriculo.experiencias : [null]).map((item, index) => (
+                <DataItem key={item?.id ?? `empty-experience-${index}`}>
+                  <Label>{item ? valueOrDash(item.empresa) : 'Experiência'}</Label>
+                  <Value>
+                    {item
+                      ? [
+                        item.cargo,
+                        formatDate(item.dataInicio),
+                        formatDate(item.dataTermino) ?? 'Atual',
+                        item.funcoes,
+                      ].filter(Boolean).join(' - ')
+                      : 'Nenhuma experiência cadastrada'}
+                  </Value>
+                </DataItem>
+              ))}
+            </Grid>
+          </Section>
+
+          <Section>
+            <SectionTitle>Cursos e Certificações</SectionTitle>
+            <Grid>
+              {(curriculo?.cursos?.length ? curriculo.cursos : [null]).map((item, index) => (
+                <DataItem key={item?.id ?? `empty-course-${index}`}>
+                  <Label>{item ? valueOrDash(item.nome) : 'Curso ou certificação'}</Label>
+                  <Value>
+                    {item
+                      ? [item.instituicao, item.cargaHoraria].filter(Boolean).join(' - ') || valueOrDash(item.nome)
+                      : 'Nenhum curso ou certificação cadastrado'}
+                  </Value>
+                </DataItem>
+              ))}
+            </Grid>
           </Section>
         </>
       )}

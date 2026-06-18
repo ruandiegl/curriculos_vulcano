@@ -612,6 +612,35 @@ export default function Reports() {
                 </ChartArea>
               </Panel>
 
+                 <Panel>
+                <PanelHeader>
+                  <div>
+                    <h2>Detalhe interativo</h2>
+                    <span>{activeChart ? activeChart.label : 'Clique em um gráfico'}</span>
+                  </div>
+                </PanelHeader>
+                {selectedDetails.length === 0 ? (
+                  <StateMessage>Selecione uma barra ou coluna para ver registros relacionados.</StateMessage>
+                ) : (
+                  <Table>
+                    <thead>
+                      <tr>
+                        <th>Registro</th>
+                        <th>Detalhe</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedDetails.map((item) => (
+                        <tr key={`${item.title}-${item.detail}`}>
+                          <td>{item.title}</td>
+                          <td>{item.detail}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                )}
+              </Panel>
+
               <Panel>
                 <PanelHeader>
                   <div>
@@ -733,34 +762,7 @@ export default function Reports() {
                 </BarList>
               </Panel>
 
-              <Panel>
-                <PanelHeader>
-                  <div>
-                    <h2>Detalhe interativo</h2>
-                    <span>{activeChart ? activeChart.label : 'Clique em um gráfico'}</span>
-                  </div>
-                </PanelHeader>
-                {selectedDetails.length === 0 ? (
-                  <StateMessage>Selecione uma barra ou coluna para ver registros relacionados.</StateMessage>
-                ) : (
-                  <Table>
-                    <thead>
-                      <tr>
-                        <th>Registro</th>
-                        <th>Detalhe</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedDetails.map((item) => (
-                        <tr key={`${item.title}-${item.detail}`}>
-                          <td>{item.title}</td>
-                          <td>{item.detail}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                )}
-              </Panel>
+            
             </ReportGrid>
           </>
         )}
