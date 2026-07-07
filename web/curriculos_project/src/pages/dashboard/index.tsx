@@ -7,6 +7,7 @@ import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
 import { formatList, getStatusLabel, statusLabels } from '../../utils/status';
 import {
   ActionButtons,
+  AdvancedFilterButton,
   CandidateAvatar,
   CandidateCell,
   CandidateInfo,
@@ -16,7 +17,19 @@ import {
   Dot,
   FilterBadge,
   FilterButton,
+  FilterField,
   FilterGroup,
+  FilterGrid,
+  FilterInput,
+  FilterLabel,
+  FilterModal,
+  FilterModalActions,
+  FilterModalBackdrop,
+  FilterModalBody,
+  FilterModalButton,
+  FilterModalCloseButton,
+  FilterModalHeader,
+  FilterSelect,
   IconActionButton,
   MetricCard,
   MetricsGrid,
@@ -34,17 +47,78 @@ import {
   TableSection,
   TableWrapper,
 } from './styles';
+import { limitText, textLimits } from '../../utils/formLimits';
 
 const PAGE_SIZE = 20;
 const DASHBOARD_SEARCH_STORAGE_KEY = 'dashboardSearch';
 const DASHBOARD_APPLIED_SEARCH_STORAGE_KEY = 'dashboardAppliedSearch';
 const DASHBOARD_PAGE_STORAGE_KEY = 'dashboardPage';
 const DASHBOARD_STATUS_STORAGE_KEY = 'dashboardStatus';
+const DASHBOARD_ADVANCED_FILTERS_STORAGE_KEY = 'dashboardAdvancedFilters';
 
 type StatusFilter = 'todos' | CurriculoStatus;
+type BooleanFilter = '' | 'true' | 'false';
+
+type AdvancedFilters = {
+  cidade: string;
+  estado: string;
+  atuacao: string;
+  cursoAtivo: BooleanFilter;
+  possuiCnh: BooleanFilter;
+};
+
+const emptyAdvancedFilters: AdvancedFilters = {
+  cidade: '',
+  estado: '',
+  atuacao: '',
+  cursoAtivo: '',
+  possuiCnh: '',
+};
 
 function getStoredValue(key: string) {
   return sessionStorage.getItem(key) ?? '';
+}
+
+function normalizeBooleanFilter(value: string | null | undefined): BooleanFilter {
+  return value === 'true' || value === 'false' ? value : '';
+}
+
+function getStoredAdvancedFilters(): AdvancedFilters {
+  try {
+    const stored = JSON.parse(getStoredValue(DASHBOARD_ADVANCED_FILTERS_STORAGE_KEY)) as Partial<AdvancedFilters> | null;
+
+    return {
+      cidade: stored?.cidade ?? '',
+      estado: stored?.estado ?? '',
+      atuacao: stored?.atuacao ?? '',
+      cursoAtivo: normalizeBooleanFilter(stored?.cursoAtivo),
+      possuiCnh: normalizeBooleanFilter(stored?.possuiCnh),
+    };
+  } catch {
+    return emptyAdvancedFilters;
+  }
+}
+
+function getInitialAdvancedFilters(searchParams: URLSearchParams): AdvancedFilters {
+  const stored = getStoredAdvancedFilters();
+
+  return {
+    cidade: searchParams.get('cidade') ?? stored.cidade,
+    estado: searchParams.get('estado') ?? stored.estado,
+    atuacao: searchParams.get('atuacao') ?? stored.atuacao,
+    cursoAtivo: normalizeBooleanFilter(searchParams.get('cursoAtivo') ?? stored.cursoAtivo),
+    possuiCnh: normalizeBooleanFilter(searchParams.get('possuiCnh') ?? stored.possuiCnh),
+  };
+}
+
+function getRequestAdvancedFilters(filters: AdvancedFilters) {
+  return {
+    cidade: filters.cidade || undefined,
+    estado: filters.estado || undefined,
+    atuacao: filters.atuacao || undefined,
+    cursoAtivo: filters.cursoAtivo || undefined,
+    possuiCnh: filters.possuiCnh || undefined,
+  };
 }
 
 function getInitialPage(searchParams: URLSearchParams) {
@@ -97,6 +171,14 @@ function TrashIcon() {
   );
 }
 
+function FilterIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 6h16M7 12h10M10 18h4" />
+    </svg>
+  );
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -110,7 +192,11 @@ export default function Dashboard() {
   const [appliedSearch, setAppliedSearch] = useState(
     () => searchParams.get('search') ?? getStoredValue(DASHBOARD_APPLIED_SEARCH_STORAGE_KEY),
   );
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>(() => getInitialAdvancedFilters(searchParams));
+  const [draftFilters, setDraftFilters] = useState<AdvancedFilters>(() => getInitialAdvancedFilters(searchParams));
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(() => getInitialStatus(searchParams));
+  const [draftStatusFilter, setDraftStatusFilter] = useState<StatusFilter>(() => getInitialStatus(searchParams));
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [statusTotals, setStatusTotals] = useState<Record<CurriculoStatus, number>>({
     desconsiderado: 0,
     entrevistado: 0,
@@ -132,6 +218,12 @@ export default function Dashboard() {
     const totalByStatus = Object.values(statusTotals).reduce((sum, count) => sum + count, 0);
     return totalByStatus || total;
   }, [statusTotals, total]);
+
+  const activeFilterCount = useMemo(
+    () => Object.values(advancedFilters).filter(Boolean).length + (statusFilter === 'todos' ? 0 : 1),
+    [advancedFilters, statusFilter],
+  );
+
   useEffect(() => {
     let isCurrent = true;
 
@@ -145,6 +237,7 @@ export default function Dashboard() {
           limit: PAGE_SIZE,
           search: appliedSearch,
           status: statusFilter === 'todos' ? undefined : statusFilter,
+          ...getRequestAdvancedFilters(advancedFilters),
         });
 
         if (!isCurrent) return;
@@ -168,7 +261,7 @@ export default function Dashboard() {
     return () => {
       isCurrent = false;
     };
-  }, [page, appliedSearch, statusFilter]);
+  }, [page, appliedSearch, statusFilter, advancedFilters]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -181,6 +274,7 @@ export default function Dashboard() {
               page: 1,
               limit: 1,
               search: appliedSearch,
+              ...getRequestAdvancedFilters(advancedFilters),
               status: item.status,
             });
 
@@ -208,7 +302,21 @@ export default function Dashboard() {
     return () => {
       isCurrent = false;
     };
-  }, [appliedSearch]);
+  }, [appliedSearch, advancedFilters]);
+
+  useEffect(() => {
+    if (!filtersOpen) return undefined;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setFiltersOpen(false);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [filtersOpen]);
 
   useEffect(() => {
     sessionStorage.setItem(DASHBOARD_SEARCH_STORAGE_KEY, search);
@@ -227,6 +335,7 @@ export default function Dashboard() {
     sessionStorage.setItem(DASHBOARD_APPLIED_SEARCH_STORAGE_KEY, appliedSearch);
     sessionStorage.setItem(DASHBOARD_PAGE_STORAGE_KEY, String(page));
     sessionStorage.setItem(DASHBOARD_STATUS_STORAGE_KEY, statusFilter);
+    sessionStorage.setItem(DASHBOARD_ADVANCED_FILTERS_STORAGE_KEY, JSON.stringify(advancedFilters));
 
     const nextParams = new URLSearchParams();
 
@@ -242,11 +351,72 @@ export default function Dashboard() {
       nextParams.set('status', statusFilter);
     }
 
+    if (advancedFilters.cidade) {
+      nextParams.set('cidade', advancedFilters.cidade);
+    }
+
+    if (advancedFilters.estado) {
+      nextParams.set('estado', advancedFilters.estado);
+    }
+
+    if (advancedFilters.atuacao) {
+      nextParams.set('atuacao', advancedFilters.atuacao);
+    }
+
+    if (advancedFilters.cursoAtivo) {
+      nextParams.set('cursoAtivo', advancedFilters.cursoAtivo);
+    }
+
+    if (advancedFilters.possuiCnh) {
+      nextParams.set('possuiCnh', advancedFilters.possuiCnh);
+    }
+
     setSearchParams(nextParams, { replace: true });
-  }, [appliedSearch, page, statusFilter, setSearchParams]);
+  }, [appliedSearch, page, statusFilter, advancedFilters, setSearchParams]);
 
   function handleClearSearch() {
     setSearch('');
+  }
+
+  function handleOpenFilters() {
+    setDraftFilters(advancedFilters);
+    setDraftStatusFilter(statusFilter);
+    setFiltersOpen(true);
+  }
+
+  function updateDraftFilter(field: keyof AdvancedFilters, value: string) {
+    setDraftFilters((current) => {
+      const nextFilters = { ...current };
+
+      if (field === 'cursoAtivo' || field === 'possuiCnh') {
+        nextFilters[field] = normalizeBooleanFilter(value);
+        return nextFilters;
+      }
+
+      nextFilters[field] = field === 'estado'
+        ? limitText(value.toUpperCase(), textLimits.state)
+        : limitText(value, textLimits.search);
+
+      return nextFilters;
+    });
+  }
+
+  function handleClearFilters() {
+    setDraftFilters(emptyAdvancedFilters);
+    setDraftStatusFilter('todos');
+  }
+
+  function handleApplyFilters() {
+    setAdvancedFilters({
+      cidade: draftFilters.cidade.trim(),
+      estado: draftFilters.estado.trim().toUpperCase(),
+      atuacao: draftFilters.atuacao.trim(),
+      cursoAtivo: draftFilters.cursoAtivo,
+      possuiCnh: draftFilters.possuiCnh,
+    });
+    setStatusFilter(draftStatusFilter);
+    setPage(1);
+    setFiltersOpen(false);
   }
 
   function handleStatusFilter(nextStatus: StatusFilter) {
@@ -304,6 +474,12 @@ export default function Dashboard() {
                 </ClearButton>
               </SearchInputWrapper>
             </SearchContainer>
+
+            <AdvancedFilterButton type="button" $active={activeFilterCount > 0} onClick={handleOpenFilters}>
+              <FilterIcon />
+              Filtros
+              {activeFilterCount > 0 && <FilterBadge>{activeFilterCount}</FilterBadge>}
+            </AdvancedFilterButton>
 
             <FilterGroup aria-label="Filtrar currículos por status">
               <FilterButton type="button" $active={statusFilter === 'todos'} onClick={() => handleStatusFilter('todos')}>
@@ -453,6 +629,131 @@ export default function Dashboard() {
             <StateMessage>{total} currículos encontrados. Limite de {PAGE_SIZE} por página.</StateMessage>
           </TableSection>
         </Content>
+
+      {filtersOpen && (
+        <FilterModalBackdrop
+          role="presentation"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setFiltersOpen(false);
+            }
+          }}
+        >
+          <FilterModal
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="filter-modal-title"
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleApplyFilters();
+            }}
+          >
+            <FilterModalHeader>
+              <div>
+                <h2 id="filter-modal-title">Filtros de currículos</h2>
+                <p>Combine os critérios que quiser para refinar a lista.</p>
+              </div>
+              <FilterModalCloseButton type="button" aria-label="Fechar filtros" onClick={() => setFiltersOpen(false)}>
+                x
+              </FilterModalCloseButton>
+            </FilterModalHeader>
+
+            <FilterModalBody>
+              <FilterGrid>
+                <FilterField>
+                  <FilterLabel htmlFor="status-filter">Status</FilterLabel>
+                  <FilterSelect
+                    id="status-filter"
+                    value={draftStatusFilter}
+                    onChange={(event) => setDraftStatusFilter(event.target.value as StatusFilter)}
+                  >
+                    <option value="todos">Todos</option>
+                    {statusLabels.map((item) => (
+                      <option key={item.status} value={item.status}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </FilterSelect>
+                </FilterField>
+
+                <FilterField>
+                  <FilterLabel htmlFor="city-filter">Cidade</FilterLabel>
+                  <FilterInput
+                    id="city-filter"
+                    type="text"
+                    maxLength={textLimits.search}
+                    value={draftFilters.cidade}
+                    onChange={(event) => updateDraftFilter('cidade', event.target.value)}
+                    placeholder="Ex.: Americana"
+                  />
+                </FilterField>
+
+                <FilterField>
+                  <FilterLabel htmlFor="state-filter">Estado</FilterLabel>
+                  <FilterInput
+                    id="state-filter"
+                    type="text"
+                    maxLength={textLimits.state}
+                    value={draftFilters.estado}
+                    onChange={(event) => updateDraftFilter('estado', event.target.value)}
+                    placeholder="SP"
+                  />
+                </FilterField>
+
+                <FilterField>
+                  <FilterLabel htmlFor="role-filter">Atuação</FilterLabel>
+                  <FilterInput
+                    id="role-filter"
+                    type="text"
+                    maxLength={textLimits.search}
+                    value={draftFilters.atuacao}
+                    onChange={(event) => updateDraftFilter('atuacao', event.target.value)}
+                    placeholder="Ex.: Soldador"
+                  />
+                </FilterField>
+
+                <FilterField>
+                  <FilterLabel htmlFor="course-filter">Curso ativo</FilterLabel>
+                  <FilterSelect
+                    id="course-filter"
+                    value={draftFilters.cursoAtivo}
+                    onChange={(event) => updateDraftFilter('cursoAtivo', event.target.value)}
+                  >
+                    <option value="">Todos</option>
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                  </FilterSelect>
+                </FilterField>
+
+                <FilterField>
+                  <FilterLabel htmlFor="cnh-filter">Possui CNH</FilterLabel>
+                  <FilterSelect
+                    id="cnh-filter"
+                    value={draftFilters.possuiCnh}
+                    onChange={(event) => updateDraftFilter('possuiCnh', event.target.value)}
+                  >
+                    <option value="">Todos</option>
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                  </FilterSelect>
+                </FilterField>
+              </FilterGrid>
+            </FilterModalBody>
+
+            <FilterModalActions>
+              <FilterModalButton type="button" onClick={handleClearFilters}>
+                Limpar filtros
+              </FilterModalButton>
+              <FilterModalButton type="button" onClick={() => setFiltersOpen(false)}>
+                Cancelar
+              </FilterModalButton>
+              <FilterModalButton type="submit" $primary>
+                Aplicar
+              </FilterModalButton>
+            </FilterModalActions>
+          </FilterModal>
+        </FilterModalBackdrop>
+      )}
 
       {deleteTarget && (
         <ConfirmModal

@@ -17,6 +17,7 @@ export function buildCurriculoWhere(query) {
   const estado = query.estado?.trim();
   const atuacao = query.atuacao?.trim();
   const cursoAtivo = query.cursoAtivo;
+  const possuiCnh = query.possuiCnh;
 
   const and = [];
 
@@ -45,6 +46,10 @@ export function buildCurriculoWhere(query) {
 
   if (cursoAtivo === 'true' || cursoAtivo === 'false') {
     and.push({ cursoAtivo: cursoAtivo === 'true' });
+  }
+
+  if (possuiCnh === 'true' || possuiCnh === 'false') {
+    and.push({ possuiCnh: possuiCnh === 'true' });
   }
 
   if (search) {

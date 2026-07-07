@@ -42,7 +42,7 @@ type LoginErrorResponse = {
 };
 
 function getLoginRedirectPath(user: LoginResponse['user']) {
-  if (user?.tipo === 'admin') {
+  if (user?.tipo === 'admin' || user?.tipo === 'superAdmin') {
     return '/dashboard';
   }
 

@@ -5,7 +5,7 @@ import { CandidaturaController } from './app/controllers/CandidaturaController.j
 import { CurriculoController } from './app/controllers/CurriculoController.js';
 import { UsuarioController } from './app/controllers/UsuarioController.js';
 import { VagaController } from './app/controllers/VagaController.js';
-import { adminCreationRoutes, adminRoutes, privateRoutes } from './app/middlewares/Auth.js';
+import { adminCreationRoutes, adminRoutes, privateRoutes, superAdminRoutes } from './app/middlewares/Auth.js';
 import { asyncHandler } from './app/middlewares/asyncHandler.js';
 import { authRateLimitKey, rateLimiter } from './app/middlewares/rateLimiter.js';
 import { uploadCurriculoPdf } from './app/middlewares/uploadCurriculoPdf.js';
@@ -43,11 +43,11 @@ router.post('/login/register-admin', authLimiter, adminCreationRoutes, asyncHand
 
 router.use(privateRoutes);
 
-router.get('/usuarios', adminRoutes, asyncHandler(usuarios.index));
-router.post('/usuarios', adminRoutes, asyncHandler(usuarios.store));
-router.get('/usuarios/:id', adminRoutes, asyncHandler(usuarios.show));
-router.put('/usuarios/:id', adminRoutes, asyncHandler(usuarios.update));
-router.delete('/usuarios/:id', adminRoutes, asyncHandler(usuarios.delete));
+router.get('/usuarios', superAdminRoutes, asyncHandler(usuarios.index));
+router.post('/usuarios', superAdminRoutes, asyncHandler(usuarios.store));
+router.get('/usuarios/:id', superAdminRoutes, asyncHandler(usuarios.show));
+router.put('/usuarios/:id', superAdminRoutes, asyncHandler(usuarios.update));
+router.delete('/usuarios/:id', superAdminRoutes, asyncHandler(usuarios.delete));
 
 router.get('/curriculos', adminRoutes, asyncHandler(curriculos.index));
 router.post('/curriculos', asyncHandler(curriculos.store));

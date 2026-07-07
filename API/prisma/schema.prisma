@@ -15,11 +15,14 @@ model Usuario {
   passHash        String?           @map("pass_hash")
   cpf             String?           @unique
   tipo            String            @default("usuario")
+  createdById     String?           @map("created_by_id") @db.Uuid
   possuiCurriculo Boolean           @default(false) @map("possui_curriculo")
   dataCheck       DateTime?         @map("data_check") @db.Date
   horaCheck       DateTime?         @map("hora_check") @db.Time(6)
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
+  createdBy       Usuario?          @relation("UsuarioCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdUsers    Usuario[]         @relation("UsuarioCreatedBy")
   curriculos      Curriculo[]
   candidaturas    Candidatura[]
   novidades       NovidadeUsuario[]

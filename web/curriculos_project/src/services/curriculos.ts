@@ -8,6 +8,11 @@ type ListCurriculosParams = {
   limit: number;
   search?: string;
   status?: CurriculoStatus;
+  cidade?: string;
+  estado?: string;
+  atuacao?: string;
+  cursoAtivo?: 'true' | 'false';
+  possuiCnh?: 'true' | 'false';
 };
 
 export type CurriculoUpdatePayload = Partial<{
@@ -73,13 +78,28 @@ export type CurriculoCreatePayload = Omit<CurriculoUpdatePayload, 'nome'> & {
   nome: string;
 };
 
-export async function listCurriculos({ page, limit, search, status }: ListCurriculosParams) {
+export async function listCurriculos({
+  page,
+  limit,
+  search,
+  status,
+  cidade,
+  estado,
+  atuacao,
+  cursoAtivo,
+  possuiCnh,
+}: ListCurriculosParams) {
   const response = await api.get<CurriculosResponse>('/curriculos', {
     params: {
       page,
       limit,
       ...(search ? { search } : {}),
       ...(status ? { status } : {}),
+      ...(cidade ? { cidade } : {}),
+      ...(estado ? { estado } : {}),
+      ...(atuacao ? { atuacao } : {}),
+      ...(cursoAtivo ? { cursoAtivo } : {}),
+      ...(possuiCnh ? { possuiCnh } : {}),
     },
   });
 

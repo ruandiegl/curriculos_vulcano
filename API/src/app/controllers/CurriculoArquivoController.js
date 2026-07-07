@@ -2,11 +2,12 @@ import { open, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { CurriculoArquivoRepository } from '../Repositories/CurriculoArquivoRepository.js';
 import { auditLog } from '../services/auditLogger.js';
+import { isAdminUser } from '../middlewares/Auth.js';
 
 const repository = new CurriculoArquivoRepository();
 
 function canManageCurriculoArquivo(req, curriculo) {
-  return req.userTipo === 'admin' || curriculo.usuarioId === req.userId;
+  return isAdminUser(req.userTipo) || curriculo.usuarioId === req.userId;
 }
 
 async function removeUploadedFile(filePath) {

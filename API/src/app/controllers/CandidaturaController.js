@@ -2,6 +2,7 @@ import { CandidaturaRepository } from '../Repositories/CandidaturaRepository.js'
 import { getPagination, paginatedResponse } from '../DTO/pagination.js';
 import { candidaturaSchema } from '../validators/candidaturaValidator.js';
 import { auditLog } from '../services/auditLogger.js';
+import { isAdminUser } from '../middlewares/Auth.js';
 
 const repository = new CandidaturaRepository();
 
@@ -9,7 +10,7 @@ export class CandidaturaController {
   async index(req, res) {
     const { page, limit, skip, take } = getPagination(req.query);
     const filters = {
-      usuarioId: req.userTipo === 'admin' ? req.query.usuarioId : req.userId,
+      usuarioId: isAdminUser(req.userTipo) ? req.query.usuarioId : req.userId,
       vagaId: req.query.vagaId,
     };
 
@@ -23,7 +24,7 @@ export class CandidaturaController {
 
   async store(req, res) {
     const payload = candidaturaSchema.parse(req.body);
-    const usuarioId = req.userTipo === 'admin' ? payload.usuarioId : req.userId;
+    const usuarioId = isAdminUser(req.userTipo) ? payload.usuarioId : req.userId;
 
     if (!usuarioId) {
       return res.status(400).json({ message: 'Informe o usuario da candidatura.' });
@@ -48,7 +49,7 @@ export class CandidaturaController {
       return res.status(404).json({ message: 'Candidatura nao encontrada.' });
     }
 
-    if (req.userTipo !== 'admin' && candidatura.usuarioId !== req.userId) {
+    if (!isAdminUser(req.userTipo) && candidatura.usuarioId !== req.userId) {
       return res.status(403).json({ message: 'Acesso permitido apenas ao dono da candidatura.' });
     }
 

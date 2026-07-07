@@ -11,11 +11,12 @@ import {
   experienciaSchema,
 } from '../validators/curriculoValidator.js';
 import { auditLog } from '../services/auditLogger.js';
+import { isAdminUser } from '../middlewares/Auth.js';
 
 const repository = new CurriculoRepository();
 
 function canAccessCurriculo(req, curriculo) {
-  return req.userTipo === 'admin' || curriculo.usuarioId === req.userId;
+  return isAdminUser(req.userTipo) || curriculo.usuarioId === req.userId;
 }
 
 async function findCurrentUserCurriculo(req, res) {
@@ -65,7 +66,7 @@ export class CurriculoController {
   }
 
   async store(req, res) {
-    const payload = req.userTipo === 'admin'
+    const payload = isAdminUser(req.userTipo)
       ? curriculoSchema.parse(req.body)
       : {
           ...curriculoUserCreateSchema.parse(req.body),
@@ -91,7 +92,7 @@ export class CurriculoController {
       return res.status(403).json({ message: 'Acesso permitido apenas ao dono do curriculo.' });
     }
 
-    const payload = req.userTipo === 'admin'
+    const payload = isAdminUser(req.userTipo)
       ? curriculoUpdateSchema.parse(req.body)
       : curriculoUserUpdateSchema.parse(req.body);
 

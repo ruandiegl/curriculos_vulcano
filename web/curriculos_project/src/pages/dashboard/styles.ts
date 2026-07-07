@@ -383,6 +383,42 @@ export const ClearButton = styled.button`
   }
 `;
 
+export const AdvancedFilterButton = styled.button<{ $active?: boolean }>`
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid ${({ $active }) => ($active ? '#ff8424' : '#cbd5e1')};
+  border-radius: 8px;
+  background: ${({ $active }) => ($active ? '#fff7ed' : '#fff')};
+  color: ${({ $active }) => ($active ? '#fb7900' : '#334155')};
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+
+  svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    border-color: #ff8424;
+    color: #fb7900;
+  }
+
+  @media (max-width: 740px) {
+    width: 100%;
+    justify-content: center;
+  }
+`;
+
 export const FilterGroup = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -726,6 +762,164 @@ export const CloseButton = styled(SubmitButton)`
 
   &:hover {
     background: #cbd5e1;
+  }
+`;
+
+export const FilterModalBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.66);
+`;
+
+export const FilterModal = styled.form`
+  width: min(620px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 22px 64px rgba(15, 23, 42, 0.32);
+  overflow-y: auto;
+`;
+
+export const FilterModalHeader = styled.header`
+  padding: 24px 26px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  h2 {
+    margin: 0;
+    color: #102a43;
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 900;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+`;
+
+export const FilterModalCloseButton = styled.button`
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border: 0;
+  border-radius: 8px;
+  background: #eef5fb;
+  color: #334155;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+
+  &:hover {
+    background: #e2e8f0;
+  }
+`;
+
+export const FilterModalBody = styled.div`
+  padding: 24px 26px 8px;
+`;
+
+export const FilterGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+
+  @media (max-width: 620px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const FilterField = styled.div<{ $fullWidth?: boolean }>`
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  grid-column: ${({ $fullWidth }) => ($fullWidth ? '1 / -1' : 'auto')};
+`;
+
+export const FilterLabel = styled.label`
+  color: #475569;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+`;
+
+export const FilterInput = styled.input`
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #223044;
+  font-size: 14px;
+  font-weight: 700;
+  outline: none;
+
+  &:focus {
+    border-color: #ff8424;
+    box-shadow: 0 0 0 3px rgba(255, 132, 36, 0.16);
+  }
+`;
+
+export const FilterSelect = styled.select`
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #223044;
+  font-size: 14px;
+  font-weight: 700;
+  outline: none;
+
+  &:focus {
+    border-color: #ff8424;
+    box-shadow: 0 0 0 3px rgba(255, 132, 36, 0.16);
+  }
+`;
+
+export const FilterModalActions = styled.div`
+  padding: 22px 26px 26px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  @media (max-width: 520px) {
+    flex-direction: column-reverse;
+  }
+`;
+
+export const FilterModalButton = styled.button<{ $primary?: boolean }>`
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  background: ${({ $primary }) => ($primary ? '#ff8424' : '#e2e8f0')};
+  color: ${({ $primary }) => ($primary ? '#fff' : '#334155')};
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+
+  &:hover {
+    background: ${({ $primary }) => ($primary ? '#fb7900' : '#cbd5e1')};
   }
 `;
 

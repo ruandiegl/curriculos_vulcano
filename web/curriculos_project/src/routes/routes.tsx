@@ -20,15 +20,21 @@ import UploadPDF from '../pages/UploadPDF/index.tsx';
 import NewJob from '../pages/newJob/index.tsx';
 import Jobs from '../pages/jobs/index.tsx';
 import Reports from '../pages/reports/index.tsx';
+import Users from '../pages/users/index.tsx';
 
 type RouteGuardProps = {
   children: ReactNode;
   adminOnly?: boolean;
+  superAdminOnly?: boolean;
   userOnly?: boolean;
 };
 
+function isAdminTipo(tipo?: string) {
+  return tipo === 'admin' || tipo === 'superAdmin';
+}
+
 function getAuthenticatedPath(user: ReturnType<typeof useAuth>['user']) {
-  if (user?.tipo === 'admin') {
+  if (isAdminTipo(user?.tipo)) {
     return '/dashboard';
   }
 
@@ -49,18 +55,22 @@ function PublicRoute({ children }: RouteGuardProps) {
   return children;
 }
 
-function PrivateRoute({ children, adminOnly = false, userOnly = false }: RouteGuardProps) {
+function PrivateRoute({ children, adminOnly = false, superAdminOnly = false, userOnly = false }: RouteGuardProps) {
   const { isAuthenticated, user } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
-  if (adminOnly && user?.tipo !== 'admin') {
+  if (adminOnly && !isAdminTipo(user?.tipo)) {
     return <Navigate to={getAuthenticatedPath(user)} replace />;
   }
 
-  if (userOnly && user?.tipo === 'admin') {
+  if (superAdminOnly && user?.tipo !== 'superAdmin') {
+    return <Navigate to={getAuthenticatedPath(user)} replace />;
+  }
+
+  if (userOnly && isAdminTipo(user?.tipo)) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -183,6 +193,14 @@ export function AppRoutes() {
         element={
           <PrivateRoute adminOnly>
             <Reports />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/users"
+        element={
+          <PrivateRoute superAdminOnly>
+            <Users />
           </PrivateRoute>
         }
       />

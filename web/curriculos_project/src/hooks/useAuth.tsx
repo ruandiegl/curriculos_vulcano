@@ -9,7 +9,7 @@ type User = {
   id: string;
   nome?: string;
   email?: string;
-  tipo?: string;
+  tipo?: 'usuario' | 'admin' | 'superAdmin' | string;
   possuiCurriculo?: boolean;
   iat?: number;
   exp?: number;
@@ -28,7 +28,7 @@ type AuthProviderProps = {
 
 type TokenPayload = {
   id: string;
-  tipo?: string;
+  tipo?: 'usuario' | 'admin' | 'superAdmin' | string;
   iat?: number;
   exp?: number;
 };

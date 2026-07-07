@@ -93,8 +93,8 @@ export default function View() {
 
   const firstAddress = curriculo?.enderecos?.[0];
   const possuiCNH = curriculo?.possuiCnh ? 'Sim' : 'Não';
-  const isAdmin = user?.tipo === 'admin';
-  const homePath = user?.tipo === 'admin' ? '/dashboard' : '/profile';
+  const isAdmin = user?.tipo === 'admin' || user?.tipo === 'superAdmin';
+  const homePath = isAdmin ? '/dashboard' : '/profile';
 
   async function handleDownloadUploadedPdf() {
     const arquivo = curriculo?.arquivos?.[0];
@@ -343,9 +343,9 @@ export default function View() {
           </Brand>
 
           <HeaderNav>
-            <NavLink href={homePath}>{user?.tipo === 'admin' ? 'Gerenciar Currículos' : 'Início'}</NavLink>
-            <NavLink href={user?.tipo === 'admin' ? '/newJob' : '/vagas'}>
-              {user?.tipo === 'admin' ? 'Gerenciar Vagas' : 'Vagas'}
+            <NavLink href={homePath}>{isAdmin ? 'Gerenciar Currículos' : 'Início'}</NavLink>
+            <NavLink href={isAdmin ? '/newJob' : '/vagas'}>
+              {isAdmin ? 'Gerenciar Vagas' : 'Vagas'}
             </NavLink>
             <LogoutButton type="button" onClick={handleLogout}>
               Sair

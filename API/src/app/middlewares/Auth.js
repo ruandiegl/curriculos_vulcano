@@ -1,5 +1,13 @@
 import jwt from 'jsonwebtoken';
 
+export function isAdminUser(tipo) {
+  return tipo === 'admin' || tipo === 'superAdmin';
+}
+
+export function isSuperAdminUser(tipo) {
+  return tipo === 'superAdmin';
+}
+
 const publicRoutes = new Set([
   '/login',
   '/login/register',
@@ -37,8 +45,16 @@ export function privateRoutes(req, res, next) {
 }
 
 export function adminRoutes(req, res, next) {
-  if (req.userTipo !== 'admin') {
+  if (!isAdminUser(req.userTipo)) {
     return res.status(403).json({ message: 'Acesso permitido apenas para administradores.' });
+  }
+
+  return next();
+}
+
+export function superAdminRoutes(req, res, next) {
+  if (!isSuperAdminUser(req.userTipo)) {
+    return res.status(403).json({ message: 'Acesso permitido apenas para super administradores.' });
   }
 
   return next();
@@ -68,7 +84,7 @@ export function adminCreationRoutes(req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (decoded.tipo !== 'admin') {
+    if (!isAdminUser(decoded.tipo)) {
       return res.status(403).json({ message: 'Acesso permitido apenas para administradores.' });
     }
 

@@ -105,7 +105,7 @@ export const swaggerDocument = {
         tags: ['Admin'],
         summary: 'Cria um usuario administrador',
         description:
-          'Rota protegida. Use um token Bearer de admin existente ou a chave x-admin-secret configurada no .env para criar o primeiro administrador.',
+          'Rota protegida. Use um token Bearer de admin/superAdmin existente ou a chave x-admin-secret configurada no .env para criar o primeiro administrador.',
         security: [{ bearerAuth: [] }, { adminSecretAuth: [] }],
         requestBody: {
           required: true,
@@ -194,6 +194,16 @@ export const swaggerDocument = {
             in: 'query',
             schema: { type: 'string' },
             description: 'Busca por nome, email, CPF ou Firebase UID.',
+          },
+          {
+            name: 'scope',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: ['createdByMe', 'admins', 'usuarios', 'all'],
+              default: 'createdByMe',
+            },
+            description: 'Escopo de gestao do superAdmin.',
           },
         ],
         responses: {
@@ -322,6 +332,11 @@ export const swaggerDocument = {
           },
           {
             name: 'cursoAtivo',
+            in: 'query',
+            schema: { type: 'boolean' },
+          },
+          {
+            name: 'possuiCnh',
             in: 'query',
             schema: { type: 'boolean' },
           },
@@ -918,7 +933,8 @@ export const swaggerDocument = {
           nome: { type: 'string' },
           email: { type: 'string', format: 'email' },
           cpf: { type: 'string', nullable: true },
-          tipo: { type: 'string', example: 'usuario' },
+          tipo: { type: 'string', enum: ['usuario', 'admin', 'superAdmin'], example: 'usuario' },
+          createdById: { type: 'string', format: 'uuid', nullable: true },
           possuiCurriculo: { type: 'boolean' },
           dataCheck: { type: 'string', format: 'date', nullable: true },
           horaCheck: { type: 'string', nullable: true },
@@ -928,12 +944,19 @@ export const swaggerDocument = {
       },
       UsuarioInput: {
         type: 'object',
-        required: ['firebaseUid', 'nome', 'email'],
+        required: ['nome', 'email'],
         properties: {
           firebaseUid: { type: 'string', example: 'firebase_uid_123' },
           nome: { type: 'string', example: 'Maria Souza' },
           email: { type: 'string', format: 'email', example: 'maria@email.com' },
+          password: {
+            type: 'string',
+            format: 'password',
+            nullable: true,
+            description: 'Obrigatoria ao criar usuarios admin ou superAdmin.',
+          },
           cpf: { type: 'string', nullable: true, example: '12345678900' },
+          tipo: { type: 'string', enum: ['usuario', 'admin', 'superAdmin'], example: 'admin' },
           possuiCurriculo: { type: 'boolean', example: false },
           dataCheck: { type: 'string', format: 'date', nullable: true },
           horaCheck: { type: 'string', nullable: true, example: '14:30:00' },

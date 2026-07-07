@@ -7,6 +7,7 @@ const usuarioSafeSelect = {
   email: true,
   cpf: true,
   tipo: true,
+  createdById: true,
   possuiCurriculo: true,
   dataCheck: true,
   horaCheck: true,
@@ -30,6 +31,14 @@ export class UsuarioRepository {
       orderBy: { createdAt: 'desc' },
       select: {
         ...usuarioSafeSelect,
+        createdBy: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            tipo: true,
+          },
+        },
         curriculos: true,
       },
     });
@@ -44,6 +53,14 @@ export class UsuarioRepository {
       where: { id },
       select: {
         ...usuarioSafeSelect,
+        createdBy: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            tipo: true,
+          },
+        },
         curriculos: true,
         candidaturas: { include: { vaga: true } },
         novidades: { include: { vaga: true } },

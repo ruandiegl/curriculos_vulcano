@@ -216,7 +216,7 @@ export default function Edit() {
     }
   }
 
-  const isAdmin = user?.tipo === 'admin';
+  const isAdmin = user?.tipo === 'admin' || user?.tipo === 'superAdmin';
   const homePath = isAdmin ? '/dashboard' : '/profile';
   const messageVariant = message.toLowerCase().includes('sucesso') ? 'success' : 'error';
 

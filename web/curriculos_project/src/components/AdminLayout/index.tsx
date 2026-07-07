@@ -20,7 +20,7 @@ import {
   UserInfo,
 } from './styles';
 
-type AdminSection = 'curriculos' | 'vagas' | 'relatorios';
+type AdminSection = 'curriculos' | 'vagas' | 'relatorios' | 'usuarios';
 
 type AdminLayoutProps = {
   activeSection?: AdminSection;
@@ -70,6 +70,16 @@ function ReportsIcon() {
   );
 }
 
+function UsersIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M16 11a4 4 0 1 0-8 0" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+      <path d="M18 5h3M19.5 3.5v3" />
+    </svg>
+  );
+}
+
 function LogoutIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -84,7 +94,8 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
   const { user } = useAuth();
   const { requestLogout, logoutModal } = useConfirmLogout();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const userName = user?.nome?.trim() || (user?.tipo === 'admin' ? 'Administrador' : 'Usuário');
+  const isSuperAdmin = user?.tipo === 'superAdmin';
+  const userName = user?.nome?.trim() || (user?.tipo === 'admin' || isSuperAdmin ? 'Administrador' : 'Usuário');
   const userEmail = user?.email?.trim() || 'E-mail não informado';
   const userInitials = getInitials(user?.nome, user?.email);
 
@@ -139,6 +150,18 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
             <ReportsIcon />
             <span className="nav-label">Relatórios RH</span>
           </NavButton>
+          {isSuperAdmin && (
+            <NavButton
+              type="button"
+              $active={activeSection === 'usuarios'}
+              $open={sidebarOpen}
+              title="Gerenciar Usuários"
+              onClick={() => navigate('/users')}
+            >
+              <UsersIcon />
+              <span className="nav-label">Gerenciar Usuários</span>
+            </NavButton>
+          )}
         </SidebarNav>
 
         <SidebarFooter $open={sidebarOpen}>
