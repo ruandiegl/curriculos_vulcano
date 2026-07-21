@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { useRef } from 'react';
+import type { MouseEvent, PointerEvent, ReactNode } from 'react';
 import styled from 'styled-components';
 
 type ConfirmModalProps = {
@@ -13,27 +14,68 @@ type ConfirmModalProps = {
   onConfirm: () => void;
 };
 
+const MOBILE_DRAWER_QUERY = '(max-width: 640px)';
+const DRAWER_CLOSE_DISTANCE = 90;
+
+function isMobileDrawer() {
+  return typeof window !== 'undefined' && window.matchMedia(MOBILE_DRAWER_QUERY).matches;
+}
+
 const Backdrop = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 30;
+  z-index: 60;
   display: grid;
   place-items: center;
   padding: 24px;
   background: rgba(15, 23, 42, 0.66);
+
+  @media (max-width: 640px) {
+    align-items: end;
+    padding: 0;
+    overflow: hidden;
+  }
 `;
 
 const Modal = styled.div`
   width: min(440px, 100%);
+  max-height: min(720px, calc(100vh - 48px));
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 22px 64px rgba(15, 23, 42, 0.32);
-  overflow: hidden;
+  overflow-y: auto;
+  touch-action: pan-y;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    max-height: min(86dvh, 620px);
+    border-radius: 18px 18px 0 0;
+    padding-top: 14px;
+    box-shadow: 0 -18px 44px rgba(15, 23, 42, 0.28);
+  }
+`;
+
+const DrawerHandle = styled.div`
+  display: none;
+
+  @media (max-width: 640px) {
+    width: 42px;
+    height: 4px;
+    margin: 0 auto 2px;
+    border-radius: 999px;
+    background: #cbd5e1;
+    display: block;
+    cursor: grab;
+  }
 `;
 
 const Header = styled.div<{ $tone: 'danger' | 'default' }>`
   padding: 26px 28px 16px;
   border-bottom: 1px solid #e2e8f0;
+
+  @media (max-width: 640px) {
+    padding: 18px 22px 14px;
+  }
 
   span {
     width: 42px;
@@ -60,6 +102,10 @@ const Header = styled.div<{ $tone: 'danger' | 'default' }>`
 const Body = styled.div`
   padding: 18px 28px 6px;
 
+  @media (max-width: 640px) {
+    padding: 16px 22px 4px;
+  }
+
   p {
     margin: 0;
     color: #475569;
@@ -82,7 +128,8 @@ const Actions = styled.div`
   justify-content: flex-end;
   gap: 12px;
 
-  @media (max-width: 460px) {
+  @media (max-width: 640px) {
+    padding: 18px 22px calc(22px + env(safe-area-inset-bottom));
     flex-direction: column-reverse;
   }
 `;
@@ -126,9 +173,48 @@ export function ConfirmModal({
   onCancel,
   onConfirm,
 }: ConfirmModalProps) {
+  const dragStartYRef = useRef<number | null>(null);
+
+  function handleBackdropClick(event: MouseEvent<HTMLDivElement>) {
+    if (event.target === event.currentTarget) {
+      onCancel();
+    }
+  }
+
+  function handleDrawerPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (!isMobileDrawer()) {
+      return;
+    }
+
+    dragStartYRef.current = event.clientY;
+  }
+
+  function handleDrawerPointerUp(event: PointerEvent<HTMLDivElement>) {
+    const startY = dragStartYRef.current;
+    dragStartYRef.current = null;
+
+    if (!isMobileDrawer() || startY === null) {
+      return;
+    }
+
+    if (event.clientY - startY >= DRAWER_CLOSE_DISTANCE) {
+      onCancel();
+    }
+  }
+
   return (
-    <Backdrop role="presentation">
-      <Modal role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+    <Backdrop role="presentation" onClick={handleBackdropClick}>
+      <Modal
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
+        onPointerDown={handleDrawerPointerDown}
+        onPointerUp={handleDrawerPointerUp}
+        onPointerCancel={() => {
+          dragStartYRef.current = null;
+        }}
+      >
+        <DrawerHandle aria-hidden="true" />
         <Header $tone={tone}>
           <span aria-hidden="true">{tone === 'danger' ? '!' : '✓'}</span>
           <h2 id="confirm-modal-title">{title}</h2>

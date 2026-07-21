@@ -632,8 +632,8 @@ export default function Reports() {
                     <tbody>
                       {selectedDetails.map((item) => (
                         <tr key={`${item.title}-${item.detail}`}>
-                          <td>{item.title}</td>
-                          <td>{item.detail}</td>
+                          <td data-label="Registro">{item.title}</td>
+                          <td data-label="Detalhe">{item.detail}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -713,9 +713,9 @@ export default function Reports() {
                   <tbody>
                     {topJobs.map((vaga) => (
                       <tr key={vaga.id}>
-                        <td>{vaga.titulo}</td>
-                        <td>{formatLocation(vaga)}</td>
-                        <td>{vaga.candidaturas?.length ?? 0}</td>
+                        <td data-label="Vaga">{vaga.titulo}</td>
+                        <td data-label="Local">{formatLocation(vaga)}</td>
+                        <td data-label="Candidatos">{vaga.candidaturas?.length ?? 0}</td>
                       </tr>
                     ))}
                   </tbody>

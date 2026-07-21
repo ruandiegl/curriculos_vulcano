@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { useEffect, useMemo, useState } from 'react';
-import type { FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { FormEvent, MouseEvent, PointerEvent } from 'react';
 import { AdminLayout } from '../../components/AdminLayout';
+import { EditIcon, TrashIcon } from '../../components/ActionIcons';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { createUsuario, deleteUsuario, listUsuarios, updateUsuario } from '../../services/usuarios';
 import type { UsuarioPayload, UsuarioScope } from '../../services/usuarios';
@@ -18,8 +19,14 @@ import {
   FormActions,
   FormSection,
   FormTitle,
+  IconActionButton,
   Input,
   MetricCard,
+  ModalActions,
+  ModalBody,
+  ModalCloseButton,
+  ModalHeader,
+  ModalTitle,
   PageButton,
   Pagination,
   RowActions,
@@ -36,12 +43,17 @@ import {
   TableSection,
   TableWrapper,
   TypeBadge,
+  UserModal,
+  UserModalBackdrop,
+  UserModalHandle,
   UserCell,
   UserInfo,
   WorkspaceGrid,
 } from './styles';
 
 const PAGE_SIZE = 20;
+const MOBILE_DRAWER_QUERY = '(max-width: 640px)';
+const DRAWER_CLOSE_DISTANCE = 90;
 
 type FormState = {
   nome: string;
@@ -63,10 +75,14 @@ const initialForm: FormState = {
 
 const scopes: Array<{ value: UsuarioScope; label: string }> = [
   { value: 'createdByMe', label: 'Criados por mim' },
-  { value: 'admins', label: 'Admins existentes' },
+  { value: 'admins', label: 'Admins e super admins' },
   { value: 'usuarios', label: 'Usuários comuns' },
   { value: 'all', label: 'Todos' },
 ];
+
+function isMobileDrawer() {
+  return typeof window !== 'undefined' && window.matchMedia(MOBILE_DRAWER_QUERY).matches;
+}
 
 function getInitials(name?: string, email?: string) {
   const source = name?.trim() || email?.split('@')[0] || 'US';
@@ -121,6 +137,7 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 export default function Users() {
+  const editDragStartYRef = useRef<number | null>(null);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [scope, setScope] = useState<UsuarioScope>('createdByMe');
   const [search, setSearch] = useState('');
@@ -265,6 +282,37 @@ export default function Users() {
     }
   }
 
+  function closeEditModal() {
+    resetForm();
+  }
+
+  function handleEditBackdropClick(event: MouseEvent<HTMLDivElement>) {
+    if (event.target === event.currentTarget) {
+      closeEditModal();
+    }
+  }
+
+  function handleEditPointerDown(event: PointerEvent<HTMLFormElement>) {
+    if (!isMobileDrawer()) {
+      return;
+    }
+
+    editDragStartYRef.current = event.clientY;
+  }
+
+  function handleEditPointerUp(event: PointerEvent<HTMLFormElement>) {
+    const startY = editDragStartYRef.current;
+    editDragStartYRef.current = null;
+
+    if (!isMobileDrawer() || startY === null) {
+      return;
+    }
+
+    if (event.clientY - startY >= DRAWER_CLOSE_DISTANCE) {
+      closeEditModal();
+    }
+  }
+
   return (
     <AdminLayout activeSection="usuarios">
       <Content>
@@ -311,7 +359,7 @@ export default function Users() {
 
         <WorkspaceGrid>
           <FormSection onSubmit={handleSubmit}>
-            <FormTitle>{editingUser ? 'Editar usuário' : 'Novo usuário'}</FormTitle>
+            <FormTitle>Novo usuário</FormTitle>
 
             <Field>
               Nome
@@ -324,7 +372,7 @@ export default function Users() {
             </Field>
 
             <Field>
-              Senha {editingUser ? '(opcional)' : ''}
+              Senha
               <Input
                 type="password"
                 value={form.password}
@@ -363,13 +411,8 @@ export default function Users() {
 
             <FormActions>
               <Button type="submit" disabled={saving}>
-                {saving ? 'Salvando...' : editingUser ? 'Salvar alterações' : 'Criar usuário'}
+                {saving ? 'Salvando...' : 'Criar usuário'}
               </Button>
-              {editingUser && (
-                <Button type="button" $secondary onClick={resetForm}>
-                  Cancelar
-                </Button>
-              )}
             </FormActions>
           </FormSection>
 
@@ -398,7 +441,7 @@ export default function Users() {
                   <tbody>
                     {usuarios.map((usuario) => (
                       <tr key={usuario.id}>
-                        <td>
+                        <td data-label="Usuário">
                           <UserCell>
                             <Avatar>{getInitials(usuario.nome, usuario.email)}</Avatar>
                             <UserInfo>
@@ -407,18 +450,30 @@ export default function Users() {
                             </UserInfo>
                           </UserCell>
                         </td>
-                        <td>
+                        <td data-label="Perfil">
                           <TypeBadge $type={usuario.tipo}>{getTypeLabel(usuario.tipo)}</TypeBadge>
                         </td>
-                        <td>{usuario.createdBy?.nome ?? '-'}</td>
-                        <td>
+                        <td data-label="Criado por">{usuario.createdBy?.nome ?? '-'}</td>
+                        <td data-label="Ações">
                           <RowActions>
-                            <Button type="button" $secondary onClick={() => editUsuario(usuario)}>
-                              Editar
-                            </Button>
-                            <Button type="button" $danger onClick={() => setDeleteTarget(usuario)}>
-                              Remover
-                            </Button>
+                            <IconActionButton
+                              type="button"
+                              aria-label={`Editar usuario ${usuario.nome}`}
+                              title="Editar usuario"
+                              $variant="edit"
+                              onClick={() => editUsuario(usuario)}
+                            >
+                              <EditIcon />
+                            </IconActionButton>
+                            <IconActionButton
+                              type="button"
+                              aria-label={`Remover usuario ${usuario.nome}`}
+                              title="Remover usuario"
+                              $variant="delete"
+                              onClick={() => setDeleteTarget(usuario)}
+                            >
+                              <TrashIcon />
+                            </IconActionButton>
                           </RowActions>
                         </td>
                       </tr>
@@ -454,6 +509,92 @@ export default function Users() {
           </TableSection>
         </WorkspaceGrid>
       </Content>
+
+      {editingUser && (
+        <UserModalBackdrop role="presentation" onClick={handleEditBackdropClick}>
+          <UserModal
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-user-title"
+            onSubmit={handleSubmit}
+            onPointerDown={handleEditPointerDown}
+            onPointerUp={handleEditPointerUp}
+            onPointerCancel={() => {
+              editDragStartYRef.current = null;
+            }}
+          >
+            <UserModalHandle aria-hidden="true" />
+            <ModalHeader>
+              <div>
+                <SectionCategory>Editar usuario</SectionCategory>
+                <ModalTitle id="edit-user-title">{editingUser.nome}</ModalTitle>
+              </div>
+              <ModalCloseButton type="button" aria-label="Fechar edicao" onClick={closeEditModal}>
+                x
+              </ModalCloseButton>
+            </ModalHeader>
+
+            <ModalBody>
+              <Field>
+                Nome
+                <Input value={form.nome} onChange={(event) => updateField('nome', event.target.value)} />
+              </Field>
+
+              <Field>
+                E-mail
+                <Input type="email" value={form.email} onChange={(event) => updateField('email', event.target.value)} />
+              </Field>
+
+              <Field>
+                Senha (opcional)
+                <Input
+                  type="password"
+                  value={form.password}
+                  onChange={(event) => updateField('password', event.target.value)}
+                />
+              </Field>
+
+              <Field>
+                CPF
+                <Input value={form.cpf} onChange={(event) => updateField('cpf', event.target.value)} />
+              </Field>
+
+              <Field>
+                Perfil
+                <Select
+                  value={form.tipo}
+                  onChange={(event) => updateField('tipo', event.target.value as UsuarioTipo)}
+                >
+                  <option value="admin">Admin</option>
+                  <option value="usuario">Usuario comum</option>
+                  <option value="superAdmin">Super admin</option>
+                </Select>
+              </Field>
+
+              <CheckboxRow>
+                <input
+                  type="checkbox"
+                  checked={form.possuiCurriculo}
+                  onChange={(event) => updateField('possuiCurriculo', event.target.checked)}
+                />
+                Possui curriculo
+              </CheckboxRow>
+
+              {message && <StateMessage $variant="success">{message}</StateMessage>}
+              {errorMessage && <StateMessage $variant="error">{errorMessage}</StateMessage>}
+            </ModalBody>
+
+            <ModalActions>
+              <Button type="button" $secondary onClick={closeEditModal}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={saving}>
+                {saving ? 'Salvando...' : 'Salvar alteracoes'}
+              </Button>
+            </ModalActions>
+          </UserModal>
+        </UserModalBackdrop>
+      )}
 
       {deleteTarget && (
         <ConfirmModal

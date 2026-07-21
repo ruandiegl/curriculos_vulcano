@@ -1,5 +1,5 @@
 ﻿import axios from 'axios';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/AdminLayout';
 import { ConfirmModal } from '../../components/ConfirmModal';
@@ -154,6 +154,8 @@ function TrashIcon() {
 
 export default function NewJob() {
   const navigate = useNavigate();
+  const formSectionRef = useRef<HTMLElement | null>(null);
+  const detailsSectionRef = useRef<HTMLElement | null>(null);
   const [vagas, setVagas] = useState<Vaga[]>([]);
   const [selectedVaga, setSelectedVaga] = useState<Vaga | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -220,12 +222,20 @@ export default function NewJob() {
     setSearch(value.slice(0, SEARCH_LIMIT));
   }
 
+  function scrollToPanel(target: 'form' | 'details') {
+    window.setTimeout(() => {
+      const element = target === 'form' ? formSectionRef.current : detailsSectionRef.current;
+      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  }
+
   function openCreateForm() {
     setSelectedVaga(null);
     setEditingVaga(null);
     setForm(initialForm);
     setMessage('');
     setShowForm(true);
+    scrollToPanel('form');
   }
 
   function openEditForm(vaga: Vaga) {
@@ -234,6 +244,7 @@ export default function NewJob() {
     setForm(toForm(vaga));
     setMessage('');
     setShowForm(true);
+    scrollToPanel('form');
   }
 
   function closeForm() {
@@ -295,8 +306,10 @@ export default function NewJob() {
       setShowForm(false);
       setEditingVaga(null);
       setForm(initialForm);
+      setSelectedVaga(vaga);
       setLoadingDetails(true);
       setMessage('');
+      scrollToPanel('details');
       const details = await getVaga(vaga.id);
       setSelectedVaga(details);
     } catch (error) {
@@ -398,7 +411,7 @@ export default function NewJob() {
                           }
                         }}
                       >
-                        <td>
+                        <td data-label="Vaga">
                           <CandidateCell>
                             <CandidateAvatar>{getInitials(vaga.titulo)}</CandidateAvatar>
                             <CandidateInfo>
@@ -407,15 +420,15 @@ export default function NewJob() {
                             </CandidateInfo>
                           </CandidateCell>
                         </td>
-                        <td>{formatLocation(vaga)}</td>
-                        <td>
+                        <td data-label="Local">{formatLocation(vaga)}</td>
+                        <td data-label="Status">
                           <StatusBadge $active={vaga.ativa}>
                             <span aria-hidden="true" />
                             {vaga.ativa ? 'Ativa' : 'Inativa'}
                           </StatusBadge>
                         </td>
-                        <td>{vaga.candidaturas?.length ?? 0}</td>
-                        <td>
+                        <td data-label="Candidatos">{vaga.candidaturas?.length ?? 0}</td>
+                        <td data-label="Ações">
                           <ActionButtons>
                             <IconActionButton
                               type="button"
@@ -463,7 +476,7 @@ export default function NewJob() {
           </TableSection>
 
           {showForm && (
-            <FormSection>
+            <FormSection ref={formSectionRef}>
               <SectionCategory>{editingVaga ? 'Editar vaga' : 'Cadastro'}</SectionCategory>
               <SectionTitle>{editingVaga ? 'Alterar Vaga' : 'Cadastrar Vaga'}</SectionTitle>
 
@@ -528,7 +541,7 @@ export default function NewJob() {
           )}
 
           {selectedVaga && (
-            <FormSection>
+            <FormSection ref={detailsSectionRef}>
               <SectionCategory>{loadingDetails ? 'Carregando detalhes' : 'Detalhes da vaga'}</SectionCategory>
               <SectionTitle>{selectedVaga?.titulo}</SectionTitle>
 
@@ -575,12 +588,12 @@ export default function NewJob() {
 
                       return (
                         <tr key={candidatura.id}>
-                          <td>{curriculo?.nome ?? candidatura.usuario?.nome ?? '-'}</td>
-                          <td>{curriculo?.email ?? candidatura.usuario?.email ?? '-'}</td>
-                          <td>{curriculo?.celular ?? curriculo?.telefone ?? '-'}</td>
-                          <td>{formatList(curriculo?.atuacoes)}</td>
-                          <td>{curriculo?.status ? getStatusLabel(curriculo?.status) : '-'}</td>
-                          <td>
+                          <td data-label="Candidato">{curriculo?.nome ?? candidatura.usuario?.nome ?? '-'}</td>
+                          <td data-label="E-mail">{curriculo?.email ?? candidatura.usuario?.email ?? '-'}</td>
+                          <td data-label="Telefone">{curriculo?.celular ?? curriculo?.telefone ?? '-'}</td>
+                          <td data-label="Atuação">{formatList(curriculo?.atuacoes)}</td>
+                          <td data-label="Status">{curriculo?.status ? getStatusLabel(curriculo?.status) : '-'}</td>
+                          <td data-label="Ações">
                             {curriculo ? (
                               <ActionButton type="button" onClick={() => navigate(`/view/${curriculo?.id}`)}>
                                 Ver Currículo

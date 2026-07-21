@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import Dashboard from '../pages/dashboard/index.tsx';
@@ -77,8 +78,20 @@ function PrivateRoute({ children, adminOnly = false, superAdminOnly = false, use
   return children;
 }
 
+function ScrollToRouteTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, [pathname]);
+
+  return null;
+}
+
 export function AppRoutes() {
   return (
+    <>
+    <ScrollToRouteTop />
     <Routes>
       <Route
         path="/"
@@ -214,5 +227,6 @@ export function AppRoutes() {
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }

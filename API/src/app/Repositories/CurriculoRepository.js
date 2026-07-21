@@ -1,5 +1,10 @@
 import { prisma } from '../../databases/prisma.js';
-import { buildCurriculoWhere, curriculoInclude } from '../DTO/curriculoSearch.js';
+import {
+  buildCurriculoWhere,
+  curriculoInclude,
+  filterCurriculosByText,
+  hasCurriculoTextFilters,
+} from '../DTO/curriculoSearch.js';
 
 const relationKeys = ['enderecos', 'atuacoes', 'cursos', 'experiencias', 'escolaridades'];
 const relationDelegate = {
@@ -33,7 +38,17 @@ function relationCreate(relations, key) {
 }
 
 export class CurriculoRepository {
-  list({ query, skip, take }) {
+  async list({ query, skip, take }) {
+    if (hasCurriculoTextFilters(query)) {
+      const data = await prisma.curriculo.findMany({
+        where: buildCurriculoWhere(query, { includeTextFilters: false }),
+        orderBy: [{ createdAt: 'desc' }],
+        include: curriculoInclude,
+      });
+
+      return filterCurriculosByText(query, data).slice(skip, skip + take);
+    }
+
     return prisma.curriculo.findMany({
       where: buildCurriculoWhere(query),
       skip,
@@ -43,7 +58,17 @@ export class CurriculoRepository {
     });
   }
 
-  count(query) {
+  async count(query) {
+    if (hasCurriculoTextFilters(query)) {
+      const data = await prisma.curriculo.findMany({
+        where: buildCurriculoWhere(query, { includeTextFilters: false }),
+        orderBy: [{ createdAt: 'desc' }],
+        include: curriculoInclude,
+      });
+
+      return filterCurriculosByText(query, data).length;
+    }
+
     return prisma.curriculo.count({ where: buildCurriculoWhere(query) });
   }
 

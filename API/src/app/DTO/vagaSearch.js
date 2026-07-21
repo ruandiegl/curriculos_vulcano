@@ -1,10 +1,14 @@
-export function buildVagaWhere(query) {
+import { hasSearchText, textIncludes } from '../utils/textSearch.js';
+
+const searchableFields = ['titulo', 'descricao', 'cidade', 'estado'];
+
+export function buildVagaWhere(query, { includeTextFilters = true } = {}) {
   const search = query.search?.trim();
   const ativa = query.ativa;
 
   return {
     ...(ativa === 'true' || ativa === 'false' ? { ativa: ativa === 'true' } : {}),
-    ...(search
+    ...(includeTextFilters && search
       ? {
           OR: [
             { titulo: { contains: search, mode: 'insensitive' } },
@@ -15,4 +19,18 @@ export function buildVagaWhere(query) {
         }
       : {}),
   };
+}
+
+export function hasVagaTextFilters(query) {
+  return hasSearchText(query.search);
+}
+
+export function filterVagasByText(query, vagas) {
+  const search = query.search?.trim();
+
+  if (!hasSearchText(search)) {
+    return vagas;
+  }
+
+  return vagas.filter((vaga) => searchableFields.some((field) => textIncludes(vaga[field], search)));
 }

@@ -73,6 +73,11 @@ export const SearchSection = styled.section`
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+
+  @media (max-width: 560px) {
+    padding: 14px;
+    gap: 12px;
+  }
 `;
 
 export const SearchInputWrapper = styled.div`
@@ -81,16 +86,25 @@ export const SearchInputWrapper = styled.div`
   padding: 4px;
   display: flex;
   align-items: center;
+  gap: 4px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   background: #fff;
   flex: 1 1 280px;
+
+  @media (max-width: 560px) {
+    min-height: auto;
+    width: 100%;
+    flex-basis: 100%;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
 `;
 
 export const SearchInput = styled.input`
   min-width: 0;
   flex: 1;
-  height: 100%;
+  height: 38px;
   padding: 0 14px;
   border: 0;
   background: transparent;
@@ -101,6 +115,10 @@ export const SearchInput = styled.input`
 
   &::placeholder {
     color: #94a3b8;
+  }
+
+  @media (max-width: 560px) {
+    flex: 1 1 190px;
   }
 `;
 
@@ -117,6 +135,10 @@ export const ClearButton = styled.button`
 
   &:hover {
     background: #cbd5e1;
+  }
+
+  @media (max-width: 420px) {
+    width: 100%;
   }
 `;
 
@@ -268,6 +290,42 @@ export const Button = styled.button<{ $secondary?: boolean; $danger?: boolean }>
   }
 `;
 
+const actionVariantColor = {
+  edit: '#38a6f4',
+  delete: '#ef4444',
+  default: '#102a43',
+};
+
+export const IconActionButton = styled.button<{ $variant?: 'edit' | 'delete' }>`
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  flex: 0 0 32px;
+  padding: 0;
+  border: 1px solid ${({ $variant }) => actionVariantColor[$variant ?? 'default']};
+  border-radius: 10px;
+  background: ${({ $variant }) => `${actionVariantColor[$variant ?? 'default']}12`};
+  color: ${({ $variant }) => actionVariantColor[$variant ?? 'default']};
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    background: ${({ $variant }) => `${actionVariantColor[$variant ?? 'default']}22`};
+  }
+`;
+
 export const TableSection = styled.section`
   min-width: 0;
   display: flex;
@@ -280,6 +338,12 @@ export const TableWrapper = styled.div`
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #fff;
+
+  @media (max-width: 680px) {
+    overflow-x: visible;
+    border: 0;
+    background: transparent;
+  }
 `;
 
 export const Table = styled.table`
@@ -317,6 +381,52 @@ export const Table = styled.table`
   tbody tr:last-child td {
     border-bottom: 0;
   }
+
+  @media (max-width: 680px) {
+    min-width: 0;
+    display: block;
+
+    colgroup,
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: grid;
+      gap: 12px;
+    }
+
+    tr {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    td {
+      min-width: 0;
+      padding: 0;
+      border-bottom: 0;
+      display: grid;
+      grid-template-columns: 84px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      overflow: visible;
+      text-overflow: clip;
+      white-space: normal;
+    }
+
+    td::before {
+      content: attr(data-label);
+      color: #64748b;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+  }
 `;
 
 export const UserCell = styled.div`
@@ -324,6 +434,10 @@ export const UserCell = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @media (max-width: 680px) {
+    align-items: flex-start;
+  }
 `;
 
 export const Avatar = styled.div`
@@ -364,6 +478,14 @@ export const UserInfo = styled.div`
     font-size: 12px;
     font-weight: 600;
   }
+
+  @media (max-width: 680px) {
+    strong,
+    span {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
 `;
 
 export const TypeBadge = styled.span<{ $type: string }>`
@@ -384,6 +506,122 @@ export const RowActions = styled.div`
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+
+  @media (max-width: 680px) {
+    justify-content: flex-start;
+  }
+`;
+
+export const UserModalBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.66);
+
+  @media (max-width: 640px) {
+    align-items: end;
+    padding: 0;
+    overflow: hidden;
+  }
+`;
+
+export const UserModal = styled.form`
+  width: min(560px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 22px 64px rgba(15, 23, 42, 0.32);
+  overflow-y: auto;
+  touch-action: pan-y;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    max-height: min(88dvh, 720px);
+    border-radius: 18px 18px 0 0;
+    padding-top: 14px;
+    box-shadow: 0 -18px 44px rgba(15, 23, 42, 0.28);
+  }
+`;
+
+export const UserModalHandle = styled.div`
+  display: none;
+
+  @media (max-width: 640px) {
+    width: 42px;
+    height: 4px;
+    margin: 0 auto 2px;
+    border-radius: 999px;
+    background: #cbd5e1;
+    display: block;
+    cursor: grab;
+  }
+`;
+
+export const ModalHeader = styled.header`
+  padding: 24px 26px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    padding: 18px 22px 14px;
+  }
+`;
+
+export const ModalTitle = styled.h2`
+  margin: 0;
+  color: #102a43;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 900;
+`;
+
+export const ModalCloseButton = styled.button`
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border: 0;
+  border-radius: 8px;
+  background: #eef5fb;
+  color: #334155;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+
+  &:hover {
+    background: #e2e8f0;
+  }
+`;
+
+export const ModalBody = styled.div`
+  padding: 22px 26px 8px;
+  display: grid;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    padding: 18px 22px 8px;
+  }
+`;
+
+export const ModalActions = styled.div`
+  padding: 22px 26px 26px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  @media (max-width: 640px) {
+    padding: 18px 22px calc(22px + env(safe-area-inset-bottom));
+    flex-direction: column-reverse;
+  }
 `;
 
 export const StateMessage = styled.div<{ $variant?: 'error' | 'success' | 'default' }>`

@@ -1,5 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRef } from 'react';
+import type { MouseEvent, PointerEvent } from 'react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { deleteCurriculo, listCurriculos } from '../../services/curriculos';
@@ -50,6 +52,8 @@ import {
 import { limitText, textLimits } from '../../utils/formLimits';
 
 const PAGE_SIZE = 20;
+const MOBILE_DRAWER_QUERY = '(max-width: 640px)';
+const DRAWER_CLOSE_DISTANCE = 90;
 const DASHBOARD_SEARCH_STORAGE_KEY = 'dashboardSearch';
 const DASHBOARD_APPLIED_SEARCH_STORAGE_KEY = 'dashboardAppliedSearch';
 const DASHBOARD_PAGE_STORAGE_KEY = 'dashboardPage';
@@ -74,6 +78,10 @@ const emptyAdvancedFilters: AdvancedFilters = {
   cursoAtivo: '',
   possuiCnh: '',
 };
+
+function isMobileDrawer() {
+  return typeof window !== 'undefined' && window.matchMedia(MOBILE_DRAWER_QUERY).matches;
+}
 
 function getStoredValue(key: string) {
   return sessionStorage.getItem(key) ?? '';
@@ -181,6 +189,7 @@ function FilterIcon() {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const filterDragStartYRef = useRef<number | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [curriculos, setCurriculos] = useState<Curriculo[]>([]);
   const [page, setPage] = useState(() => getInitialPage(searchParams));
@@ -378,6 +387,33 @@ export default function Dashboard() {
     setSearch('');
   }
 
+  function handleFilterBackdropClick(event: MouseEvent<HTMLDivElement>) {
+    if (event.target === event.currentTarget) {
+      setFiltersOpen(false);
+    }
+  }
+
+  function handleFilterPointerDown(event: PointerEvent<HTMLFormElement>) {
+    if (!isMobileDrawer()) {
+      return;
+    }
+
+    filterDragStartYRef.current = event.clientY;
+  }
+
+  function handleFilterPointerUp(event: PointerEvent<HTMLFormElement>) {
+    const startY = filterDragStartYRef.current;
+    filterDragStartYRef.current = null;
+
+    if (!isMobileDrawer() || startY === null) {
+      return;
+    }
+
+    if (event.clientY - startY >= DRAWER_CLOSE_DISTANCE) {
+      setFiltersOpen(false);
+    }
+  }
+
   function handleOpenFilters() {
     setDraftFilters(advancedFilters);
     setDraftStatusFilter(statusFilter);
@@ -512,9 +548,9 @@ export default function Dashboard() {
               {!loading && !errorMessage && curriculos.length > 0 && (
                 <Table>
                   <colgroup>
-                    <col style={{ width: '34%' }} />
-                    <col style={{ width: '38%' }} />
-                    <col style={{ width: '14%' }} />
+                    <col style={{ width: '32%' }} />
+                    <col style={{ width: '36%' }} />
+                    <col style={{ width: '18%' }} />
                     <col style={{ width: '14%' }} />
                   </colgroup>
                   <thead>
@@ -540,7 +576,7 @@ export default function Dashboard() {
                           }
                         }}
                       >
-                        <td>
+                        <td data-label="Candidato">
                           <CandidateCell>
                             <CandidateAvatar>{getInitials(item.nome, item.email ?? undefined)}</CandidateAvatar>
                             <CandidateInfo>
@@ -549,14 +585,14 @@ export default function Dashboard() {
                             </CandidateInfo>
                           </CandidateCell>
                         </td>
-                        <td>{formatList(item.atuacoes)}</td>
-                        <td>
+                        <td data-label="Funções">{formatList(item.atuacoes)}</td>
+                        <td data-label="Status">
                           <StatusPill $status={item.status}>
                             <Dot $status={item.status} />
                             {getStatusLabel(item.status)}
                           </StatusPill>
                         </td>
-                        <td>
+                        <td data-label="Ações">
                           <ActionButtons>
                             <IconActionButton
                               type="button"
@@ -633,16 +669,17 @@ export default function Dashboard() {
       {filtersOpen && (
         <FilterModalBackdrop
           role="presentation"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) {
-              setFiltersOpen(false);
-            }
-          }}
+          onClick={handleFilterBackdropClick}
         >
           <FilterModal
             role="dialog"
             aria-modal="true"
             aria-labelledby="filter-modal-title"
+            onPointerDown={handleFilterPointerDown}
+            onPointerUp={handleFilterPointerUp}
+            onPointerCancel={() => {
+              filterDragStartYRef.current = null;
+            }}
             onSubmit={(event) => {
               event.preventDefault();
               handleApplyFilters();

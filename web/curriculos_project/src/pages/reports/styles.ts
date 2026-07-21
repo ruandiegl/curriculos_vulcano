@@ -284,6 +284,45 @@ export const Table = styled.table`
     font-weight: 700;
     vertical-align: top;
   }
+
+  @media (max-width: 680px) {
+    display: block;
+
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: grid;
+      gap: 10px;
+    }
+
+    tr {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    td {
+      padding: 0;
+      border-bottom: 0;
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 10px;
+      overflow-wrap: anywhere;
+    }
+
+    td::before {
+      content: attr(data-label);
+      color: #64748b;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+  }
 `;
 
 export const AlertList = styled.div`

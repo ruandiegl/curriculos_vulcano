@@ -1,11 +1,14 @@
 ﻿import type { ReactNode } from 'react';
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo-sidebar.png';
 import { useAuth } from '../../hooks/useAuth';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
 import {
   AdminPage,
+  BottomNav,
+  BottomNavButton,
   Brand,
   LogoutButton,
   Main,
@@ -181,6 +184,50 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
       </Sidebar>
 
       <Main>{children}</Main>
+      <BottomNav style={{ '--bottom-count': isSuperAdmin ? 5 : 4 } as CSSProperties & Record<'--bottom-count', number>}>
+        <BottomNavButton
+          type="button"
+          $active={activeSection === 'curriculos'}
+          aria-label="Currículos"
+          onClick={() => navigate('/dashboard')}
+        >
+          <CurriculumIcon />
+          <span>Currículos</span>
+        </BottomNavButton>
+        <BottomNavButton
+          type="button"
+          $active={activeSection === 'vagas'}
+          aria-label="Vagas"
+          onClick={() => navigate('/newJob')}
+        >
+          <JobsIcon />
+          <span>Vagas</span>
+        </BottomNavButton>
+        <BottomNavButton
+          type="button"
+          $active={activeSection === 'relatorios'}
+          aria-label="Relatórios"
+          onClick={() => navigate('/reports')}
+        >
+          <ReportsIcon />
+          <span>Relatórios</span>
+        </BottomNavButton>
+        {isSuperAdmin && (
+          <BottomNavButton
+            type="button"
+            $active={activeSection === 'usuarios'}
+            aria-label="Usuários"
+            onClick={() => navigate('/users')}
+          >
+            <UsersIcon />
+            <span>Usuários</span>
+          </BottomNavButton>
+        )}
+        <BottomNavButton type="button" $danger aria-label="Sair" onClick={requestLogout}>
+          <LogoutIcon />
+          <span>Sair</span>
+        </BottomNavButton>
+      </BottomNav>
       {logoutModal}
     </AdminPage>
   );

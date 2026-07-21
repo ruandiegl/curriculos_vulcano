@@ -14,7 +14,7 @@ export const AdminPage = styled.div<{ $sidebarOpen: boolean }>`
   transition: grid-template-columns 180ms ease;
 
   @media (max-width: 640px) {
-    grid-template-columns: ${({ $sidebarOpen }) => ($sidebarOpen ? '1fr' : '64px minmax(0, 1fr)')};
+    grid-template-columns: minmax(0, 1fr);
   }
 `;
 
@@ -33,13 +33,7 @@ export const Sidebar = styled.aside<{ $open: boolean }>`
   z-index: 4;
 
   @media (max-width: 640px) {
-    padding: ${({ $open }) => ($open ? '14px 12px' : '14px 8px')};
-    gap: 16px;
-    width: ${({ $open }) => ($open ? '100vw' : '64px')};
-    max-width: 100vw;
-    position: ${({ $open }) => ($open ? 'fixed' : 'relative')};
-    inset: ${({ $open }) => ($open ? '0' : 'auto')};
-    z-index: ${({ $open }) => ($open ? 40 : 4)};
+    display: none;
   }
 `;
 
@@ -261,6 +255,66 @@ export const Main = styled.main`
   overflow-x: hidden;
 
   @media (max-width: 640px) {
-    padding: 16px 10px 28px;
+    padding: 16px 10px 92px;
+  }
+`;
+
+export const BottomNav = styled.nav`
+  display: none;
+
+  @media (max-width: 640px) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 35;
+    min-height: 74px;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(17, 24, 45, 0.98);
+    box-shadow: 0 -14px 34px rgba(15, 23, 42, 0.28);
+    backdrop-filter: blur(14px);
+    display: grid;
+    grid-template-columns: repeat(var(--bottom-count, 4), minmax(0, 1fr));
+    gap: 4px;
+  }
+`;
+
+export const BottomNavButton = styled.button<{ $active?: boolean; $danger?: boolean }>`
+  min-width: 0;
+  min-height: 56px;
+  border: 0;
+  border-radius: 8px;
+  background: ${({ $active }) => ($active ? 'rgba(255, 132, 36, 0.16)' : 'transparent')};
+  color: ${({ $active, $danger }) => {
+    if ($danger) return '#f87171';
+    return $active ? '#ff8424' : '#cbd5e1';
+  }};
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 10px;
+  line-height: 1.1;
+  font-weight: 900;
+  text-align: center;
+
+  svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 `;

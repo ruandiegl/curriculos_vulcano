@@ -314,6 +314,11 @@ export const SearchSection = styled.section`
   align-items: center;
   gap: 24px;
   flex-wrap: wrap;
+
+  @media (max-width: 560px) {
+    padding: 14px;
+    gap: 12px;
+  }
 `;
 
 export const SearchActions = styled.div`
@@ -333,6 +338,11 @@ export const SearchContainer = styled.form`
   display: flex;
   min-width: 0;
   flex: 1 1 320px;
+
+  @media (max-width: 560px) {
+    width: 100%;
+    flex-basis: 100%;
+  }
 `;
 
 export const SearchInputWrapper = styled.div`
@@ -341,6 +351,7 @@ export const SearchInputWrapper = styled.div`
   padding: 4px;
   display: flex;
   align-items: center;
+  gap: 4px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   background: #fff;
@@ -348,12 +359,22 @@ export const SearchInputWrapper = styled.div`
   @media (max-width: 740px) {
     width: 100%;
   }
+
+  @media (max-width: 560px) {
+    min-height: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 `;
 
 export const SearchInput = styled.input`
   min-width: 0;
   flex: 1;
-  height: 100%;
+  height: 38px;
   padding: 0 14px;
   border: 0;
   background: transparent;
@@ -364,6 +385,14 @@ export const SearchInput = styled.input`
 
   &::placeholder {
     color: #94a3b8;
+  }
+
+  @media (max-width: 560px) {
+    flex: 1 1 100%;
+    height: 42px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
   }
 `;
 
@@ -380,6 +409,11 @@ export const ClearButton = styled.button`
 
   &:hover {
     background: #cbd5e1;
+  }
+
+  @media (max-width: 560px) {
+    width: 100%;
+    height: 38px;
   }
 `;
 
@@ -425,6 +459,14 @@ export const FilterGroup = styled.div`
   align-items: center;
   gap: 10px;
   flex: 999 1 460px;
+
+  @media (max-width: 560px) {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    flex-basis: 100%;
+  }
 `;
 
 export const FilterButton = styled.button<{ $active?: boolean }>`
@@ -444,6 +486,13 @@ export const FilterButton = styled.button<{ $active?: boolean }>`
   &:hover {
     background: ${({ $active }) => ($active ? '#ff8424' : '#f1f5f9')};
     color: ${({ $active }) => ($active ? '#fff' : '#102a43')};
+  }
+
+  @media (max-width: 560px) {
+    width: 100%;
+    justify-content: center;
+    padding: 0 10px;
+    font-size: 11px;
   }
 `;
 
@@ -491,6 +540,12 @@ export const TableWrapper = styled.div`
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #fff;
+
+  @media (max-width: 680px) {
+    overflow-x: visible;
+    border: 0;
+    background: transparent;
+  }
 `;
 
 export const Table = styled.table`
@@ -525,6 +580,12 @@ export const Table = styled.table`
     text-overflow: ellipsis;
   }
 
+  td[data-label='Status'],
+  td[data-label='Ações'] {
+    overflow: visible;
+    text-overflow: clip;
+  }
+
   tbody tr:last-child td {
     border-bottom: 0;
   }
@@ -542,6 +603,67 @@ export const Table = styled.table`
     outline: 2px solid #ff8424;
     outline-offset: -2px;
   }
+
+  @media (max-width: 680px) {
+    min-width: 0;
+    display: block;
+
+    colgroup,
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: grid;
+      gap: 12px;
+    }
+
+    tr,
+    tbody tr[role='button'] {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    td {
+      min-width: 0;
+      padding: 0;
+      border-bottom: 0;
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      overflow: visible;
+      text-overflow: clip;
+      white-space: normal;
+    }
+
+    td::before {
+      content: attr(data-label);
+      color: #64748b;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    tbody tr:hover td {
+      background: transparent;
+    }
+
+    tbody tr[role='button']:focus-visible {
+      outline: 2px solid #ff8424;
+      outline-offset: 2px;
+    }
+
+    tbody tr[role='button']:focus-visible td {
+      background: transparent;
+      outline: 0;
+    }
+  }
 `;
 
 export const ActionButtons = styled.div`
@@ -551,6 +673,11 @@ export const ActionButtons = styled.div`
   justify-content: flex-start;
   gap: 8px;
   min-width: max-content;
+
+  @media (max-width: 680px) {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
 `;
 
 export const ActionButton = styled.button`
@@ -615,6 +742,10 @@ export const CandidateCell = styled.div`
   display: flex;
   align-items: center;
   gap: 14px;
+
+  @media (max-width: 680px) {
+    align-items: flex-start;
+  }
 `;
 
 export const CandidateAvatar = styled.div`
@@ -662,12 +793,21 @@ export const CandidateInfo = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  @media (max-width: 680px) {
+    strong,
+    span {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
 `;
 
 export const StatusPill = styled.span<{ $status: string }>`
-  width: fit-content;
+  width: max-content;
+  max-width: 100%;
   min-height: 28px;
-  padding: 0 12px;
+  padding: 0 10px;
   border-radius: 999px;
   background: ${({ $status }) => `${getStatusColor($status)}18`};
   color: ${({ $status }) => getStatusColor($status)};
@@ -676,6 +816,7 @@ export const StatusPill = styled.span<{ $status: string }>`
   gap: 7px;
   font-size: 12px;
   font-weight: 800;
+  white-space: nowrap;
 `;
 
 export const Pagination = styled.div`
@@ -768,11 +909,17 @@ export const CloseButton = styled(SubmitButton)`
 export const FilterModalBackdrop = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 30;
+  z-index: 60;
   display: grid;
   place-items: center;
   padding: 24px;
   background: rgba(15, 23, 42, 0.66);
+
+  @media (max-width: 640px) {
+    align-items: end;
+    padding: 0;
+    overflow: hidden;
+  }
 `;
 
 export const FilterModal = styled.form`
@@ -782,6 +929,25 @@ export const FilterModal = styled.form`
   background: #fff;
   box-shadow: 0 22px 64px rgba(15, 23, 42, 0.32);
   overflow-y: auto;
+  touch-action: pan-y;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    max-height: min(88dvh, 720px);
+    border-radius: 18px 18px 0 0;
+    padding-top: 14px;
+    box-shadow: 0 -18px 44px rgba(15, 23, 42, 0.28);
+
+    &::before {
+      content: '';
+      width: 42px;
+      height: 4px;
+      margin: 0 auto 2px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      display: block;
+    }
+  }
 `;
 
 export const FilterModalHeader = styled.header`
@@ -791,6 +957,10 @@ export const FilterModalHeader = styled.header`
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+
+  @media (max-width: 640px) {
+    padding: 18px 22px 14px;
+  }
 
   h2 {
     margin: 0;
@@ -832,6 +1002,10 @@ export const FilterModalCloseButton = styled.button`
 
 export const FilterModalBody = styled.div`
   padding: 24px 26px 8px;
+
+  @media (max-width: 640px) {
+    padding: 18px 22px 8px;
+  }
 `;
 
 export const FilterGrid = styled.div`
@@ -901,7 +1075,8 @@ export const FilterModalActions = styled.div`
   justify-content: flex-end;
   gap: 12px;
 
-  @media (max-width: 520px) {
+  @media (max-width: 640px) {
+    padding: 18px 22px calc(22px + env(safe-area-inset-bottom));
     flex-direction: column-reverse;
   }
 `;

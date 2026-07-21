@@ -1,3 +1,5 @@
+import { hasSearchText, textIncludes } from '../utils/textSearch.js';
+
 const searchableFields = [
   'nome',
   'email',
@@ -10,7 +12,7 @@ const searchableFields = [
   'numeroCnh',
 ];
 
-export function buildCurriculoWhere(query) {
+export function buildCurriculoWhere(query, { includeTextFilters = true } = {}) {
   const search = query.search?.trim();
   const status = query.status?.trim();
   const cidade = query.cidade?.trim();
@@ -25,7 +27,7 @@ export function buildCurriculoWhere(query) {
     and.push({ status });
   }
 
-  if (cidade || estado) {
+  if (includeTextFilters && (cidade || estado)) {
     and.push({
       enderecos: {
         some: {
@@ -36,7 +38,7 @@ export function buildCurriculoWhere(query) {
     });
   }
 
-  if (atuacao) {
+  if (includeTextFilters && atuacao) {
     and.push({
       atuacoes: {
         some: { nome: { contains: atuacao, mode: 'insensitive' } },
@@ -52,7 +54,7 @@ export function buildCurriculoWhere(query) {
     and.push({ possuiCnh: possuiCnh === 'true' });
   }
 
-  if (search) {
+  if (includeTextFilters && search) {
     and.push({
       OR: [
         ...searchableFields.map((field) => ({
@@ -67,12 +69,64 @@ export function buildCurriculoWhere(query) {
         { cursos: { some: { instituicao: { contains: search, mode: 'insensitive' } } } },
         { experiencias: { some: { empresa: { contains: search, mode: 'insensitive' } } } },
         { experiencias: { some: { cargo: { contains: search, mode: 'insensitive' } } } },
+        { experiencias: { some: { funcoes: { contains: search, mode: 'insensitive' } } } },
         { escolaridades: { some: { escola: { contains: search, mode: 'insensitive' } } } },
+        { escolaridades: { some: { curso: { contains: search, mode: 'insensitive' } } } },
       ],
     });
   }
 
   return and.length ? { AND: and } : {};
+}
+
+export function hasCurriculoTextFilters(query) {
+  return [query.search, query.cidade, query.estado, query.atuacao].some(hasSearchText);
+}
+
+function someRelationMatches(items, field, search) {
+  return Array.isArray(items) && items.some((item) => textIncludes(item?.[field], search));
+}
+
+function matchesCurriculoSearch(curriculo, search) {
+  const directValues = searchableFields.map((field) => curriculo[field]);
+  const relationValues = [
+    curriculo.usuario?.nome,
+    curriculo.usuario?.email,
+    ...(curriculo.enderecos ?? []).flatMap((endereco) => [endereco.cidade, endereco.bairro, endereco.estado, endereco.cep]),
+    ...(curriculo.atuacoes ?? []).map((atuacao) => atuacao.nome),
+    ...(curriculo.cursos ?? []).flatMap((curso) => [curso.nome, curso.instituicao, curso.cargaHoraria]),
+    ...(curriculo.experiencias ?? []).flatMap((experiencia) => [
+      experiencia.empresa,
+      experiencia.cargo,
+      experiencia.funcoes,
+    ]),
+    ...(curriculo.escolaridades ?? []).flatMap((escolaridade) => [escolaridade.escola, escolaridade.curso]),
+  ];
+
+  return [...directValues, ...relationValues].some((value) => textIncludes(value, search));
+}
+
+export function filterCurriculosByText(query, curriculos) {
+  const search = query.search?.trim();
+  const cidade = query.cidade?.trim();
+  const estado = query.estado?.trim();
+  const atuacao = query.atuacao?.trim();
+
+  return curriculos.filter((curriculo) => {
+    if (hasSearchText(cidade) && !someRelationMatches(curriculo.enderecos, 'cidade', cidade)) {
+      return false;
+    }
+
+    if (hasSearchText(estado) && !someRelationMatches(curriculo.enderecos, 'estado', estado)) {
+      return false;
+    }
+
+    if (hasSearchText(atuacao) && !someRelationMatches(curriculo.atuacoes, 'nome', atuacao)) {
+      return false;
+    }
+
+    return !hasSearchText(search) || matchesCurriculoSearch(curriculo, search);
+  });
 }
 
 export const curriculoInclude = {

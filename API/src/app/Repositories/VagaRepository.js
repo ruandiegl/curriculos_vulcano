@@ -1,8 +1,18 @@
 import { prisma } from '../../databases/prisma.js';
-import { buildVagaWhere } from '../DTO/vagaSearch.js';
+import { buildVagaWhere, filterVagasByText, hasVagaTextFilters } from '../DTO/vagaSearch.js';
 
 export class VagaRepository {
-  list({ query, skip, take }) {
+  async list({ query, skip, take }) {
+    if (hasVagaTextFilters(query)) {
+      const data = await prisma.vaga.findMany({
+        where: buildVagaWhere(query, { includeTextFilters: false }),
+        orderBy: { createdAt: 'desc' },
+        include: { candidaturas: true },
+      });
+
+      return filterVagasByText(query, data).slice(skip, skip + take);
+    }
+
     return prisma.vaga.findMany({
       where: buildVagaWhere(query),
       skip,
@@ -12,7 +22,17 @@ export class VagaRepository {
     });
   }
 
-  count(query) {
+  async count(query) {
+    if (hasVagaTextFilters(query)) {
+      const data = await prisma.vaga.findMany({
+        where: buildVagaWhere(query, { includeTextFilters: false }),
+        orderBy: { createdAt: 'desc' },
+        include: { candidaturas: true },
+      });
+
+      return filterVagasByText(query, data).length;
+    }
+
     return prisma.vaga.count({ where: buildVagaWhere(query) });
   }
 

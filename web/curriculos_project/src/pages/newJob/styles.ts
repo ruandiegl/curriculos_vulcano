@@ -314,6 +314,11 @@ export const SearchSection = styled.section`
   align-items: center;
   gap: 24px;
   flex-wrap: wrap;
+
+  @media (max-width: 560px) {
+    padding: 14px;
+    gap: 12px;
+  }
 `;
 
 export const SearchActions = styled.div`
@@ -333,6 +338,11 @@ export const SearchContainer = styled.form`
   display: flex;
   min-width: 0;
   flex: 1 1 320px;
+
+  @media (max-width: 560px) {
+    width: 100%;
+    flex-basis: 100%;
+  }
 `;
 
 export const SearchInputWrapper = styled.div`
@@ -341,6 +351,7 @@ export const SearchInputWrapper = styled.div`
   padding: 4px;
   display: flex;
   align-items: center;
+  gap: 4px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   background: #fff;
@@ -348,12 +359,18 @@ export const SearchInputWrapper = styled.div`
   @media (max-width: 740px) {
     width: 100%;
   }
+
+  @media (max-width: 560px) {
+    min-height: auto;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
 `;
 
 export const SearchInput = styled.input`
   min-width: 0;
   flex: 1;
-  height: 100%;
+  height: 38px;
   padding: 0 14px;
   border: 0;
   background: transparent;
@@ -364,6 +381,10 @@ export const SearchInput = styled.input`
 
   &::placeholder {
     color: #94a3b8;
+  }
+
+  @media (max-width: 560px) {
+    flex: 1 1 190px;
   }
 `;
 
@@ -380,6 +401,10 @@ export const ClearButton = styled.button`
 
   &:hover {
     background: #cbd5e1;
+  }
+
+  @media (max-width: 420px) {
+    width: 100%;
   }
 `;
 
@@ -455,6 +480,12 @@ export const TableWrapper = styled.div`
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #fff;
+
+  @media (max-width: 680px) {
+    overflow-x: visible;
+    border: 0;
+    background: transparent;
+  }
 `;
 
 export const Table = styled.table`
@@ -506,6 +537,76 @@ export const Table = styled.table`
     outline: 2px solid #ff8424;
     outline-offset: -2px;
   }
+
+  @media (max-width: 680px) {
+    min-width: 0;
+    display: block;
+
+    colgroup,
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: grid;
+      gap: 12px;
+    }
+
+    tr,
+    tbody tr[role='button'] {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    td {
+      min-width: 0;
+      padding: 0;
+      border-bottom: 0;
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      overflow: visible;
+      text-overflow: clip;
+      white-space: normal;
+    }
+
+    td::before {
+      content: attr(data-label);
+      color: #64748b;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    td[colspan] {
+      display: block;
+      text-align: center;
+    }
+
+    td[colspan]::before {
+      content: none;
+    }
+
+    tbody tr:hover td {
+      background: transparent;
+    }
+
+    tbody tr[role='button']:focus-visible {
+      outline: 2px solid #ff8424;
+      outline-offset: 2px;
+    }
+
+    tbody tr[role='button']:focus-visible td {
+      background: transparent;
+      outline: 0;
+    }
+  }
 `;
 
 export const ActionButtons = styled.div`
@@ -515,6 +616,11 @@ export const ActionButtons = styled.div`
   justify-content: flex-start;
   gap: 8px;
   min-width: max-content;
+
+  @media (max-width: 680px) {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
 `;
 
 export const ActionButton = styled.button`
@@ -579,6 +685,10 @@ export const CandidateCell = styled.div`
   display: flex;
   align-items: center;
   gap: 14px;
+
+  @media (max-width: 680px) {
+    align-items: flex-start;
+  }
 `;
 
 export const CandidateAvatar = styled.div`
@@ -625,6 +735,14 @@ export const CandidateInfo = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  @media (max-width: 680px) {
+    strong,
+    span {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
   }
 `;
 

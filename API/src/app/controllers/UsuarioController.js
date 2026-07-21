@@ -17,7 +17,7 @@ function buildUsuarioWhere(req) {
   }
 
   if (scope === 'admins') {
-    and.push({ tipo: 'admin' });
+    and.push({ tipo: { in: ['admin', 'superAdmin'] } });
   }
 
   if (scope === 'usuarios') {
