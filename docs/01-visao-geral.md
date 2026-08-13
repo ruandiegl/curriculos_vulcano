@@ -21,6 +21,8 @@ O projeto Curriculos Vulcano e uma plataforma de recrutamento para a Metalurgica
 - Relatorios.
 - Gestao de usuarios pelo super admin.
 
+No funil administrativo, curriculos novos usam o status `nao_visualizado`. Ao abrir o detalhe em `/view/:id`, um admin ou super admin promove esse status para `visualizado`; candidatos nao alteram o status ao consultar o proprio curriculo.
+
 ## Stack resumida
 
 - Frontend em React + TypeScript dentro de `web/curriculos_project`.

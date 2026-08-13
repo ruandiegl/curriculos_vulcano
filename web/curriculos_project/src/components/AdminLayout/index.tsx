@@ -1,12 +1,18 @@
-﻿import type { ReactNode } from 'react';
-import { useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo-sidebar.png';
 import { useAuth } from '../../hooks/useAuth';
 import { useConfirmLogout } from '../../hooks/useConfirmLogout';
+import { LogoutIcon, MoreIcon } from './navIcons';
+import { getAdminNavItems } from './navItems';
+import type { AdminNavItem, AdminSection } from './navItems';
 import {
   AdminPage,
+  BottomMoreBackdrop,
+  BottomMoreHeader,
+  BottomMoreList,
+  BottomMorePanel,
   BottomNav,
   BottomNavButton,
   Brand,
@@ -23,12 +29,12 @@ import {
   UserInfo,
 } from './styles';
 
-type AdminSection = 'curriculos' | 'vagas' | 'relatorios' | 'usuarios';
-
 type AdminLayoutProps = {
   activeSection?: AdminSection;
   children: ReactNode;
 };
+
+const MAX_BOTTOM_NAV_ITEMS = 5;
 
 function getInitials(name?: string, email?: string) {
   const source = name?.trim() || email?.split('@')[0] || 'AD';
@@ -41,66 +47,44 @@ function getInitials(name?: string, email?: string) {
   return source.slice(0, 2).toUpperCase();
 }
 
-function CurriculumIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M7 3h10a2 2 0 0 1 2 2v16H5V5a2 2 0 0 1 2-2Z" />
-      <path d="M9 8h6M9 12h6M9 16h4" />
-    </svg>
-  );
-}
-
-function JobsIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M9 6V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1" />
-      <path d="M4 8h16v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" />
-      <path d="M4 13h16M10 13v2h4v-2" />
-    </svg>
-  );
-}
-
-function ReportsIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 19V5" />
-      <path d="M4 19h16" />
-      <path d="M8 16v-5" />
-      <path d="M12 16V8" />
-      <path d="M16 16v-8" />
-      <path d="M20 16v-3" />
-    </svg>
-  );
-}
-
-function UsersIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M16 11a4 4 0 1 0-8 0" />
-      <path d="M4 21a8 8 0 0 1 16 0" />
-      <path d="M18 5h3M19.5 3.5v3" />
-    </svg>
-  );
-}
-
-function LogoutIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M14 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" />
-      <path d="M10 12h10M17 9l3 3-3 3" />
-    </svg>
-  );
-}
-
 export function AdminLayout({ activeSection = 'curriculos', children }: AdminLayoutProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { requestLogout, logoutModal } = useConfirmLogout();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [bottomMoreOpen, setBottomMoreOpen] = useState(false);
   const isSuperAdmin = user?.tipo === 'superAdmin';
+  const navItems = useMemo(() => getAdminNavItems(user?.tipo), [user?.tipo]);
+  const bottomRouteLimit = MAX_BOTTOM_NAV_ITEMS - 1;
+  const hasOverflowItems = navItems.length > bottomRouteLimit;
+  const visibleBottomItems = hasOverflowItems ? navItems.slice(0, bottomRouteLimit - 1) : navItems;
+  const overflowBottomItems = hasOverflowItems ? navItems.slice(bottomRouteLimit - 1) : [];
+  const bottomItemCount = visibleBottomItems.length + (hasOverflowItems ? 1 : 0) + 1;
+  const isMoreActive = overflowBottomItems.some((item) => item.id === activeSection);
   const userName = user?.nome?.trim() || (user?.tipo === 'admin' || isSuperAdmin ? 'Administrador' : 'Usuário');
   const userEmail = user?.email?.trim() || 'E-mail não informado';
   const userInitials = getInitials(user?.nome, user?.email);
+
+  const navigateTo = (item: AdminNavItem) => {
+    setBottomMoreOpen(false);
+    navigate(item.path);
+  };
+
+  useEffect(() => {
+    if (!bottomMoreOpen) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setBottomMoreOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [bottomMoreOpen]);
 
   return (
     <AdminPage $sidebarOpen={sidebarOpen}>
@@ -122,49 +106,26 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
           </MenuButton>
         </SidebarHeader>
 
-        <SidebarNav>
-          <NavButton
-            type="button"
-            $active={activeSection === 'curriculos'}
-            $open={sidebarOpen}
-            title="Gerenciar Currículos"
-            onClick={() => navigate('/dashboard')}
-          >
-            <CurriculumIcon />
-            <span className="nav-label">Gerenciar Currículos</span>
-          </NavButton>
-          <NavButton
-            type="button"
-            $active={activeSection === 'vagas'}
-            $open={sidebarOpen}
-            title="Gerenciar Vagas"
-            onClick={() => navigate('/newJob')}
-          >
-            <JobsIcon />
-            <span className="nav-label">Gerenciar Vagas</span>
-          </NavButton>
-          <NavButton
-            type="button"
-            $active={activeSection === 'relatorios'}
-            $open={sidebarOpen}
-            title="Relatórios RH"
-            onClick={() => navigate('/reports')}
-          >
-            <ReportsIcon />
-            <span className="nav-label">Relatórios RH</span>
-          </NavButton>
-          {isSuperAdmin && (
-            <NavButton
-              type="button"
-              $active={activeSection === 'usuarios'}
-              $open={sidebarOpen}
-              title="Gerenciar Usuários"
-              onClick={() => navigate('/users')}
-            >
-              <UsersIcon />
-              <span className="nav-label">Gerenciar Usuários</span>
-            </NavButton>
-          )}
+        <SidebarNav aria-label="Navegação administrativa">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = activeSection === item.id;
+
+            return (
+              <NavButton
+                key={item.id}
+                type="button"
+                $active={active}
+                $open={sidebarOpen}
+                title={item.label}
+                aria-current={active ? 'page' : undefined}
+                onClick={() => navigateTo(item)}
+              >
+                <Icon />
+                <span className="nav-label">{item.label}</span>
+              </NavButton>
+            );
+          })}
         </SidebarNav>
 
         <SidebarFooter $open={sidebarOpen}>
@@ -184,43 +145,39 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
       </Sidebar>
 
       <Main>{children}</Main>
-      <BottomNav style={{ '--bottom-count': isSuperAdmin ? 5 : 4 } as CSSProperties & Record<'--bottom-count', number>}>
-        <BottomNavButton
-          type="button"
-          $active={activeSection === 'curriculos'}
-          aria-label="Currículos"
-          onClick={() => navigate('/dashboard')}
-        >
-          <CurriculumIcon />
-          <span>Currículos</span>
-        </BottomNavButton>
-        <BottomNavButton
-          type="button"
-          $active={activeSection === 'vagas'}
-          aria-label="Vagas"
-          onClick={() => navigate('/newJob')}
-        >
-          <JobsIcon />
-          <span>Vagas</span>
-        </BottomNavButton>
-        <BottomNavButton
-          type="button"
-          $active={activeSection === 'relatorios'}
-          aria-label="Relatórios"
-          onClick={() => navigate('/reports')}
-        >
-          <ReportsIcon />
-          <span>Relatórios</span>
-        </BottomNavButton>
-        {isSuperAdmin && (
+      <BottomNav
+        aria-label="Navegação administrativa mobile"
+        style={{ '--bottom-count': bottomItemCount } as CSSProperties & Record<'--bottom-count', number>}
+      >
+        {visibleBottomItems.map((item) => {
+          const Icon = item.icon;
+          const active = activeSection === item.id;
+
+          return (
+            <BottomNavButton
+              key={item.id}
+              type="button"
+              $active={active}
+              aria-label={item.shortLabel}
+              aria-current={active ? 'page' : undefined}
+              onClick={() => navigateTo(item)}
+            >
+              <Icon />
+              <span>{item.shortLabel}</span>
+            </BottomNavButton>
+          );
+        })}
+        {hasOverflowItems && (
           <BottomNavButton
             type="button"
-            $active={activeSection === 'usuarios'}
-            aria-label="Usuários"
-            onClick={() => navigate('/users')}
+            $active={isMoreActive}
+            aria-label="Abrir mais opções"
+            aria-controls="admin-bottom-more"
+            aria-expanded={bottomMoreOpen}
+            onClick={() => setBottomMoreOpen((current) => !current)}
           >
-            <UsersIcon />
-            <span>Usuários</span>
+            <MoreIcon />
+            <span>Mais</span>
           </BottomNavButton>
         )}
         <BottomNavButton type="button" $danger aria-label="Sair" onClick={requestLogout}>
@@ -228,6 +185,45 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
           <span>Sair</span>
         </BottomNavButton>
       </BottomNav>
+
+      {bottomMoreOpen && (
+        <BottomMoreBackdrop onClick={() => setBottomMoreOpen(false)}>
+          <BottomMorePanel
+            id="admin-bottom-more"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-bottom-more-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <BottomMoreHeader>
+              <strong id="admin-bottom-more-title">Mais opções</strong>
+              <button type="button" onClick={() => setBottomMoreOpen(false)}>
+                Fechar
+              </button>
+            </BottomMoreHeader>
+            <BottomMoreList>
+              {overflowBottomItems.map((item) => {
+                const Icon = item.icon;
+                const active = activeSection === item.id;
+
+                return (
+                  <BottomNavButton
+                    key={item.id}
+                    type="button"
+                    $active={active}
+                    aria-label={item.label}
+                    aria-current={active ? 'page' : undefined}
+                    onClick={() => navigateTo(item)}
+                  >
+                    <Icon />
+                    <span>{item.label}</span>
+                  </BottomNavButton>
+                );
+              })}
+            </BottomMoreList>
+          </BottomMorePanel>
+        </BottomMoreBackdrop>
+      )}
       {logoutModal}
     </AdminPage>
   );

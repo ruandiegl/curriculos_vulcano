@@ -13,7 +13,7 @@ export const AdminPage = styled.div<{ $sidebarOpen: boolean }>`
   overflow: hidden;
   transition: grid-template-columns 180ms ease;
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
     grid-template-columns: minmax(0, 1fr);
   }
 `;
@@ -32,7 +32,7 @@ export const Sidebar = styled.aside<{ $open: boolean }>`
   overflow: hidden;
   z-index: 4;
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
     display: none;
   }
 `;
@@ -84,7 +84,12 @@ export const MenuButton = styled.button`
     background: rgba(255, 255, 255, 0.18);
   }
 
-  @media (max-width: 640px) {
+  &:focus-visible {
+    outline: 3px solid rgba(255, 132, 36, 0.55);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 767px) {
     width: 38px;
     height: 38px;
     flex-basis: 38px;
@@ -144,7 +149,12 @@ export const NavButton = styled.button<{ $active?: boolean; $open: boolean }>`
     background: ${({ $active }) => ($active ? '#ff8424' : 'rgba(255, 255, 255, 0.1)')};
   }
 
-  @media (max-width: 640px) {
+  &:focus-visible {
+    outline: 3px solid rgba(255, 132, 36, 0.55);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 767px) {
     min-height: 42px;
     padding: ${({ $open }) => ($open ? '0 12px' : '0')};
 
@@ -195,6 +205,11 @@ export const LogoutButton = styled.button`
   &:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 132, 36, 0.55);
+    outline-offset: 2px;
   }
 `;
 
@@ -254,15 +269,15 @@ export const Main = styled.main`
   overflow-y: auto;
   overflow-x: hidden;
 
-  @media (max-width: 640px) {
-    padding: 16px 10px 92px;
+  @media (max-width: 767px) {
+    padding: 16px 10px calc(96px + env(safe-area-inset-bottom));
   }
 `;
 
 export const BottomNav = styled.nav`
   display: none;
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
     position: fixed;
     left: 0;
     right: 0;
@@ -316,5 +331,90 @@ export const BottomNavButton = styled.button<{ $active?: boolean; $danger?: bool
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  &:hover {
+    background: ${({ $active }) => ($active ? 'rgba(255, 132, 36, 0.2)' : 'rgba(255, 255, 255, 0.08)')};
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 132, 36, 0.55);
+    outline-offset: -2px;
+  }
+`;
+
+export const BottomMoreBackdrop = styled.div`
+  display: none;
+
+  @media (max-width: 767px) {
+    position: fixed;
+    inset: 0;
+    z-index: 34;
+    padding: 0 10px calc(84px + env(safe-area-inset-bottom));
+    background: rgba(15, 23, 42, 0.42);
+    display: flex;
+    align-items: flex-end;
+  }
+`;
+
+export const BottomMorePanel = styled.div`
+  width: 100%;
+  max-height: min(420px, 72vh);
+  padding: 14px;
+  border-radius: 14px 14px 0 0;
+  background: #11182d;
+  color: #fff;
+  box-shadow: 0 -18px 44px rgba(15, 23, 42, 0.36);
+  overflow-y: auto;
+`;
+
+export const BottomMoreHeader = styled.div`
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  strong {
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  button {
+    min-height: 38px;
+    border: 0;
+    border-radius: 8px;
+    padding: 0 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  button:focus-visible {
+    outline: 3px solid rgba(255, 132, 36, 0.55);
+    outline-offset: 2px;
+  }
+`;
+
+export const BottomMoreList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+
+  ${BottomNavButton} {
+    min-height: 48px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 0 12px;
+    font-size: 13px;
+    text-align: left;
   }
 `;

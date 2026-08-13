@@ -46,7 +46,7 @@ model Curriculo {
   numeroCnh     String?       @map("numero_cnh")
   vencimentoCnh DateTime?     @map("vencimento_cnh") @db.Date
   cursoAtivo    Boolean       @default(false) @map("curso_ativo")
-  status        String        @default("visualizado")
+  status        String        @default("nao_visualizado")
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
   usuario       Usuario?      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)

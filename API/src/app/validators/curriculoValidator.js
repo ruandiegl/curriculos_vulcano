@@ -54,7 +54,7 @@ export const curriculoSchema = z.object({
   numeroCnh: nullableText,
   vencimentoCnh: z.coerce.date().optional().nullable(),
   cursoAtivo: z.boolean().optional(),
-  status: z.enum(['visualizado', 'entrevistado', 'selecionado', 'desconsiderado']).optional(),
+  status: z.enum(['nao_visualizado', 'visualizado', 'entrevistado', 'selecionado', 'desconsiderado']).optional(),
   enderecos: z.array(enderecoSchema).optional(),
   atuacoes: z.array(atuacaoSchema).optional(),
   cursos: z.array(cursoSchema).optional(),

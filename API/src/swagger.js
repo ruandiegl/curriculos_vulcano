@@ -374,7 +374,7 @@ export const swaggerDocument = {
                     possuiCnh: true,
                     categoriaCnh: 'B',
                     cursoAtivo: true,
-                    status: 'visualizado',
+                    status: 'nao_visualizado',
                     enderecos: [
                       {
                         rua: 'Rua A',
@@ -923,7 +923,7 @@ export const swaggerDocument = {
       },
       CurriculoStatus: {
         type: 'string',
-        enum: ['visualizado', 'entrevistado', 'selecionado', 'desconsiderado'],
+        enum: ['nao_visualizado', 'visualizado', 'entrevistado', 'selecionado', 'desconsiderado'],
       },
       Usuario: {
         type: 'object',

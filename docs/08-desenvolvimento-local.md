@@ -22,20 +22,20 @@ npm run dev
 API local:
 
 ```txt
-http://localhost:3001/api
+http://localhost:3101/api
 ```
 
 Healthcheck:
 
 ```txt
-GET http://localhost:3001/api/health
+GET http://localhost:3101/api/health
 ```
 
 Swagger:
 
 ```txt
-http://localhost:3001/api/docs
-http://localhost:3001/api/docs.json
+http://localhost:3101/api/docs
+http://localhost:3101/api/docs.json
 ```
 
 ## Frontend
@@ -49,27 +49,27 @@ npm run dev
 Frontend local comum:
 
 ```txt
-http://localhost:5173
+http://localhost:5181
 ```
 
-Se a porta estiver ocupada, o Vite pode abrir em `5174`.
+O Vite esta configurado com `strictPort` e informa um erro se a porta `5181` estiver ocupada.
 
 ## Variaveis de ambiente da API
 
 ```txt
 DATABASE_URL=
 JWT_SECRET=
-PORT=3001
+PORT=3101
 NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-CORS_ORIGIN=http://localhost:5173
+FRONTEND_URL=http://localhost:5181
+CORS_ORIGIN=http://localhost:5181
 ADMIN_CREATE_SECRET=
 PASSWORD_RESET_SECRET=
 PASSWORD_SETUP_SECRET=
 PASSWORD_RESET_EXPIRES_IN=1h
 PASSWORD_SETUP_EXPIRES_IN=15m
 ENABLE_API_DOCS=true
-API_PUBLIC_URL=http://localhost:3001/api
+API_PUBLIC_URL=http://localhost:3101/api
 SMTP_HOST=
 SMTP_PORT=587
 SMTP_SECURE=false
@@ -81,10 +81,10 @@ MAIL_FROM=
 ## Variaveis de ambiente do frontend
 
 ```txt
-VITE_API_URL=http://localhost:3001/api
+VITE_API_URL=http://localhost:3101/api
 ```
 
-Se `VITE_API_URL` nao for definida, o fallback atual do frontend aponta para `http://127.0.0.1:3000/api`. Ajuste isso conforme o ambiente.
+Se `VITE_API_URL` nao for definida, o fallback atual do frontend aponta para `http://127.0.0.1:3000/api`. Para desenvolvimento local, mantenha a variavel configurada para a API na porta `3101`.
 
 ## Usuario seed
 

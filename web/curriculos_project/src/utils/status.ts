@@ -1,10 +1,11 @@
 ﻿import type { CurriculoStatus } from '../types/curriculo';
 
 export const statusLabels: Array<{ label: string; status: CurriculoStatus }> = [
-  { label: 'Desconsiderado', status: 'desconsiderado' },
+  { label: 'Nao visualizado', status: 'nao_visualizado' },
+  { label: 'Visualizado', status: 'visualizado' },
   { label: 'Entrevistado', status: 'entrevistado' },
   { label: 'Selecionado', status: 'selecionado' },
-  { label: 'Visualizado', status: 'visualizado' },
+  { label: 'Desconsiderado', status: 'desconsiderado' },
 ];
 
 export function getStatusLabel(status: CurriculoStatus) {
@@ -13,6 +14,7 @@ export function getStatusLabel(status: CurriculoStatus) {
 
 export function getStatusColor(status: string) {
   const colors: Record<string, string> = {
+    nao_visualizado: '#d97706',
     desconsiderado: '#dc2626',
     entrevistado: '#4f46e5',
     selecionado: '#2f8f75',

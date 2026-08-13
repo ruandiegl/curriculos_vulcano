@@ -1,4 +1,4 @@
-export type CurriculoStatus = 'visualizado' | 'entrevistado' | 'selecionado' | 'desconsiderado';
+export type CurriculoStatus = 'nao_visualizado' | 'visualizado' | 'entrevistado' | 'selecionado' | 'desconsiderado';
 
 export type CurriculoRelation = {
   id: string;

@@ -6,7 +6,7 @@ import { listCurriculos } from '../../services/curriculos';
 import { listVagas } from '../../services/vagas';
 import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
 import type { Vaga } from '../../types/vaga';
-import { formatList, getStatusLabel, statusLabels } from '../../utils/status';
+import { formatList, getStatusColor, getStatusLabel, statusLabels } from '../../utils/status';
 import {
   AlertItem,
   AlertList,
@@ -36,13 +36,6 @@ import {
 
 type PeriodFilter = '30' | '90' | '365' | 'all';
 type ActiveChart = { type: 'status' | 'role' | 'month'; label: string } | null;
-
-const STATUS_TONES: Record<CurriculoStatus, string> = {
-  visualizado: '#2f74b5',
-  entrevistado: '#facc15',
-  selecionado: '#2f9b84',
-  desconsiderado: '#dc2626',
-};
 
 function parseDate(value?: string | null) {
   if (!value) return null;
@@ -270,7 +263,7 @@ function exportPdf(data: {
     statusLabels.map((item) => ({
       label: item.label,
       value: data.statusCounts[item.status] ?? 0,
-      color: STATUS_TONES[item.status],
+      color: getStatusColor(item.status),
     })),
     14,
     132,
@@ -414,6 +407,7 @@ export default function Reports() {
   );
 
   const statusCounts = useMemo(() => ({
+    nao_visualizado: filteredCurriculos.filter((curriculo) => curriculo.status === 'nao_visualizado').length,
     visualizado: filteredCurriculos.filter((curriculo) => curriculo.status === 'visualizado').length,
     entrevistado: filteredCurriculos.filter((curriculo) => curriculo.status === 'entrevistado').length,
     selecionado: filteredCurriculos.filter((curriculo) => curriculo.status === 'selecionado').length,
@@ -577,7 +571,7 @@ export default function Reports() {
                           <strong>{count}</strong>
                         </BarMeta>
                         <BarTrack>
-                          <BarFill $percent={(count / maxStatus) * 100} $tone={STATUS_TONES[item.status]} />
+                          <BarFill $percent={(count / maxStatus) * 100} $tone={getStatusColor(item.status)} />
                         </BarTrack>
                       </BarButton>
                     );

@@ -22,6 +22,10 @@ Este diretorio centraliza as guidelines e padroes do projeto para que uma nova p
 8. [Desenvolvimento local](./08-desenvolvimento-local.md)
 9. [Qualidade, seguranca e deploy](./09-qualidade-seguranca-deploy.md)
 
+## PRDs
+
+- [PRD-002: Status nao visualizado em curriculos](./prd-status-nao-visualizado.md)
+
 ## Docs ja existentes
 
 - [Deploy Locaweb com front e API local](./deploy-locaweb-front-api-local.md)

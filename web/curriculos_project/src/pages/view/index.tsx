@@ -48,8 +48,11 @@ export default function View() {
   const [loading, setLoading] = useState(true);
   const [savingStatus, setSavingStatus] = useState(false);
   const [message, setMessage] = useState('');
+  const isAdmin = user?.tipo === 'admin' || user?.tipo === 'superAdmin';
 
   useEffect(() => {
+    let isCurrent = true;
+
     async function loadCurriculo() {
       if (!id) {
         return;
@@ -58,16 +61,45 @@ export default function View() {
       try {
         setLoading(true);
         setMessage('');
-        setCurriculo(await getCurriculo(id));
+        const loadedCurriculo = await getCurriculo(id);
+
+        if (!isCurrent) {
+          return;
+        }
+
+        if (isAdmin && loadedCurriculo.status === 'nao_visualizado') {
+          setCurriculo(loadedCurriculo);
+
+          try {
+            const updatedCurriculo = await updateCurriculo(id, { status: 'visualizado' });
+            if (isCurrent) {
+              setCurriculo(updatedCurriculo);
+            }
+          } catch {
+            if (isCurrent) {
+              setMessage('Currículo carregado, mas não foi possível marcar como visualizado.');
+            }
+          }
+        } else {
+          setCurriculo(loadedCurriculo);
+        }
       } catch {
-        setMessage('Não foi possível carregar este currículo.');
+        if (isCurrent) {
+          setMessage('Não foi possível carregar este currículo.');
+        }
       } finally {
-        setLoading(false);
+        if (isCurrent) {
+          setLoading(false);
+        }
       }
     }
 
     loadCurriculo();
-  }, [id]);
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [id, isAdmin]);
 
   function handleLogout() {
     requestLogout();
@@ -93,7 +125,6 @@ export default function View() {
 
   const firstAddress = curriculo?.enderecos?.[0];
   const possuiCNH = curriculo?.possuiCnh ? 'Sim' : 'Não';
-  const isAdmin = user?.tipo === 'admin' || user?.tipo === 'superAdmin';
   const homePath = isAdmin ? '/dashboard' : '/profile';
 
   async function handleDownloadUploadedPdf() {

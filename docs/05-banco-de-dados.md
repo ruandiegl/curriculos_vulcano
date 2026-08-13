@@ -11,7 +11,7 @@
 ## Modelos principais
 
 - `Usuario`: login, perfil, criador e relacao com curriculos/candidaturas.
-- `Curriculo`: dados pessoais, status, CNH, curso ativo e relacoes.
+- `Curriculo`: dados pessoais, status, CNH, curso ativo e relacoes. O status default de novos registros e `nao_visualizado`; os valores posteriores do funil sao `visualizado`, `entrevistado`, `selecionado` e `desconsiderado`.
 - `Endereco`: endereco do curriculo.
 - `Atuacao`: areas/funcoes pretendidas.
 - `Curso`: cursos e certificacoes.
@@ -68,4 +68,5 @@ npm run seed
 - Nunca edite migration ja aplicada em producao.
 - Crie nova migration para mudancas incrementais.
 - Valide impactos em seeds e dados antigos.
+- A migration do status `nao_visualizado` altera apenas o default; curriculos existentes nao devem sofrer backfill.
 - Nao versionar dumps com dados sensiveis novos.

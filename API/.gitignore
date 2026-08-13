@@ -2,6 +2,9 @@ node_modules
 # Keep environment variables out of version control
 .env
 
+# Backups de bancos remotos podem conter dados sensíveis
+backup_railway_*.sql
+
 /src/generated/prisma
 
 uploads/*

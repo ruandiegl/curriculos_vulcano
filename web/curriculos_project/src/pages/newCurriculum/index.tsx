@@ -56,6 +56,29 @@ function limitCurriculumField<K extends keyof FormState>(field: K, value: FormSt
   return limitText(textValue, limits[field] ?? textLimits.medium) as FormState[K];
 }
 
+function formFromCurriculo(curriculo: Curriculo): FormState {
+  const [principal, secundaria, terciaria] = [...(curriculo?.atuacoes ?? [])]
+    .sort((a, b) => (a.prioridade ?? 99) - (b.prioridade ?? 99));
+
+  return {
+    nome: curriculo?.nome ?? '',
+    celular: formatPhone(curriculo?.celular),
+    nascimento: curriculo?.nascimento?.slice(0, 10) ?? '',
+    estadoCivil: curriculo?.estadoCivil ?? initialForm.estadoCivil,
+    rg: formatRg(curriculo?.rg),
+    telefone: formatPhone(curriculo?.telefone),
+    cpf: formatCpf(curriculo?.cpf),
+    possuiCnh: curriculo?.possuiCnh ? 'Sim' : 'Nao',
+    cursoAtivo: curriculo?.cursoAtivo ? 'Sim' : 'Nao',
+    numeroCnh: formatCnh(curriculo?.numeroCnh),
+    vencimentoCnh: curriculo?.vencimentoCnh?.slice(0, 10) ?? '',
+    categoriaCnh: curriculo?.categoriaCnh ?? initialForm.categoriaCnh,
+    atuacaoPrincipal: principal?.nome ?? '',
+    atuacaoSecundaria: secundaria?.nome ?? '',
+    atuacaoTerciaria: terciaria?.nome ?? '',
+  };
+}
+
 export default function NewCurriculum() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -125,29 +148,6 @@ export default function NewCurriculum() {
       vencimentoCnh: form.possuiCnh === 'Sim' ? nullable(form.vencimentoCnh) : null,
       categoriaCnh: form.possuiCnh === 'Sim' ? nullable(form.categoriaCnh) : null,
       atuacoes,
-    };
-  }
-
-  function formFromCurriculo(curriculo: Curriculo): FormState {
-    const [principal, secundaria, terciaria] = [...(curriculo?.atuacoes ?? [])]
-      .sort((a, b) => (a.prioridade ?? 99) - (b.prioridade ?? 99));
-
-    return {
-      nome: curriculo?.nome ?? '',
-      celular: formatPhone(curriculo?.celular),
-      nascimento: curriculo?.nascimento?.slice(0, 10) ?? '',
-      estadoCivil: curriculo?.estadoCivil ?? initialForm.estadoCivil,
-      rg: formatRg(curriculo?.rg),
-      telefone: formatPhone(curriculo?.telefone),
-      cpf: formatCpf(curriculo?.cpf),
-      possuiCnh: curriculo?.possuiCnh ? 'Sim' : 'Nao',
-      cursoAtivo: curriculo?.cursoAtivo ? 'Sim' : 'Nao',
-      numeroCnh: formatCnh(curriculo?.numeroCnh),
-      vencimentoCnh: curriculo?.vencimentoCnh?.slice(0, 10) ?? '',
-      categoriaCnh: curriculo?.categoriaCnh ?? initialForm.categoriaCnh,
-      atuacaoPrincipal: principal?.nome ?? '',
-      atuacaoSecundaria: secundaria?.nome ?? '',
-      atuacaoTerciaria: terciaria?.nome ?? '',
     };
   }
 

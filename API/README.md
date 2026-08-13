@@ -6,29 +6,37 @@ API em Node.js, Express, PostgreSQL e Prisma ORM.
 
 ```bash
 npm install
-docker compose up -d
+npm run db:up
 npm run prisma:deploy
 npm run prisma:generate
 npm run dev
 ```
 
+O comando `db:up` aguarda o PostgreSQL ficar saudavel antes de retornar. Para
+acompanhar os logs ou parar o banco local:
+
+```bash
+npm run db:logs
+npm run db:down
+```
+
 A API sobe em:
 
 ```txt
-http://localhost:3001/api
+http://localhost:3101/api
 ```
 
 Healthcheck:
 
 ```txt
-GET /api/health
+GET http://localhost:3101/api/health
 ```
 
 Documentacao Swagger:
 
 ```txt
-http://localhost:3001/api/docs
-http://localhost:3001/api/docs.json
+http://localhost:3101/api/docs
+http://localhost:3101/api/docs.json
 ```
 
 ## Rotas principais

@@ -207,10 +207,11 @@ export default function Dashboard() {
   const [draftStatusFilter, setDraftStatusFilter] = useState<StatusFilter>(() => getInitialStatus(searchParams));
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [statusTotals, setStatusTotals] = useState<Record<CurriculoStatus, number>>({
-    desconsiderado: 0,
+    nao_visualizado: 0,
+    visualizado: 0,
     entrevistado: 0,
     selecionado: 0,
-    visualizado: 0,
+    desconsiderado: 0,
   });
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -297,10 +298,11 @@ export default function Dashboard() {
       } catch {
         if (isCurrent) {
           setStatusTotals({
-            desconsiderado: 0,
+            nao_visualizado: 0,
+            visualizado: 0,
             entrevistado: 0,
             selecionado: 0,
-            visualizado: 0,
+            desconsiderado: 0,
           });
         }
       }
