@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/AdminLayout';
 import { BottomSheet } from '../../components/BottomSheet';
 import { ConfirmModal } from '../../components/ConfirmModal';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { deleteCurriculo, listCurriculos } from '../../services/curriculos';
 import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
 import { formatList, getStatusLabel, statusLabels } from '../../utils/status';
@@ -182,6 +183,7 @@ function FilterIcon() {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const isMobile = useMediaQuery('(max-width: 767px)');
   const [curriculos, setCurriculos] = useState<Curriculo[]>([]);
   const [page, setPage] = useState(() => getInitialPage(searchParams));
   const [totalPages, setTotalPages] = useState(1);
@@ -210,10 +212,11 @@ export default function Dashboard() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const pages = useMemo(() => {
-    const start = Math.max(1, page - 2);
-    const end = Math.min(totalPages, start + 4);
+    const visiblePageCount = isMobile ? 3 : 5;
+    const start = Math.max(1, Math.min(page - Math.floor(visiblePageCount / 2), totalPages - visiblePageCount + 1));
+    const end = Math.min(totalPages, start + visiblePageCount - 1);
     return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-  }, [page, totalPages]);
+  }, [isMobile, page, totalPages]);
 
   const totalCurriculos = useMemo(() => {
     const totalByStatus = Object.values(statusTotals).reduce((sum, count) => sum + count, 0);

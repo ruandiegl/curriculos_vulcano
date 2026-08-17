@@ -828,13 +828,19 @@ export const StatusPill = styled.span<{ $status: string }>`
 
 export const Pagination = styled.div`
   min-height: 44px;
+  padding: 0 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 4px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #fff;
+
+  @media (max-width: 380px) {
+    padding: 0 2px;
+    gap: 2px;
+  }
 `;
 
 export const PageButton = styled.button<{ $active?: boolean }>`
@@ -865,6 +871,13 @@ export const PageButton = styled.button<{ $active?: boolean }>`
     min-width: 44px;
     height: 44px;
     min-height: 44px;
+  }
+
+  @media (max-width: 380px) {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
   }
 `;
 
