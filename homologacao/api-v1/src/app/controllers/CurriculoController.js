@@ -11,13 +11,11 @@ import {
   experienciaSchema,
 } from '../validators/curriculoValidator.js';
 import { auditLog } from '../services/auditLogger.js';
-import { isAdminUser } from '../middlewares/Auth.js';
-import { abbreviateCurriculosForList } from '../utils/curriculoList.js';
 
 const repository = new CurriculoRepository();
 
 function canAccessCurriculo(req, curriculo) {
-  return isAdminUser(req.userTipo) || curriculo.usuarioId === req.userId;
+  return req.userTipo === 'admin' || curriculo.usuarioId === req.userId;
 }
 
 async function findCurrentUserCurriculo(req, res) {
@@ -39,12 +37,7 @@ export class CurriculoController {
       repository.count(req.query),
     ]);
 
-    return res.json(paginatedResponse({
-      data: abbreviateCurriculosForList(data),
-      total,
-      page,
-      limit,
-    }));
+    return res.json(paginatedResponse({ data, total, page, limit }));
   }
 
   async show(req, res) {
@@ -72,7 +65,7 @@ export class CurriculoController {
   }
 
   async store(req, res) {
-    const payload = isAdminUser(req.userTipo)
+    const payload = req.userTipo === 'admin'
       ? curriculoSchema.parse(req.body)
       : {
           ...curriculoUserCreateSchema.parse(req.body),
@@ -98,7 +91,7 @@ export class CurriculoController {
       return res.status(403).json({ message: 'Acesso permitido apenas ao dono do curriculo.' });
     }
 
-    const payload = isAdminUser(req.userTipo)
+    const payload = req.userTipo === 'admin'
       ? curriculoUpdateSchema.parse(req.body)
       : curriculoUserUpdateSchema.parse(req.body);
 
