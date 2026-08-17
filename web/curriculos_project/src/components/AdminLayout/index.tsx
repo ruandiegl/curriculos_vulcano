@@ -35,6 +35,15 @@ type AdminLayoutProps = {
 };
 
 const MAX_BOTTOM_NAV_ITEMS = 5;
+const SIDEBAR_STORAGE_KEY = 'adminSidebarOpen';
+
+function getInitialSidebarOpen() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return window.sessionStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true';
+}
 
 function getInitials(name?: string, email?: string) {
   const source = name?.trim() || email?.split('@')[0] || 'AD';
@@ -51,7 +60,7 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
   const navigate = useNavigate();
   const { user } = useAuth();
   const { requestLogout, logoutModal } = useConfirmLogout();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(getInitialSidebarOpen);
   const [bottomMoreOpen, setBottomMoreOpen] = useState(false);
   const isSuperAdmin = user?.tipo === 'superAdmin';
   const navItems = useMemo(() => getAdminNavItems(user?.tipo), [user?.tipo]);
@@ -64,6 +73,10 @@ export function AdminLayout({ activeSection = 'curriculos', children }: AdminLay
   const userName = user?.nome?.trim() || (user?.tipo === 'admin' || isSuperAdmin ? 'Administrador' : 'Usuário');
   const userEmail = user?.email?.trim() || 'E-mail não informado';
   const userInitials = getInitials(user?.nome, user?.email);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebarOpen));
+  }, [sidebarOpen]);
 
   const navigateTo = (item: AdminNavItem) => {
     setBottomMoreOpen(false);

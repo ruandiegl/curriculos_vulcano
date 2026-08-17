@@ -17,7 +17,17 @@ import {
   UserInfo,
 } from '../AdminLayout/styles';
 import logo from '../../assets/logo-sidebar.png';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+const SIDEBAR_STORAGE_KEY = 'userSidebarOpen';
+
+function getInitialSidebarOpen() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return window.sessionStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true';
+}
 
 type UserLayoutProps = {
   children: ReactNode;
@@ -145,10 +155,14 @@ export function UserLayout({ children }: UserLayoutProps) {
   const location = useLocation();
   const { user } = useAuth();
   const { requestLogout, logoutModal } = useConfirmLogout();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(getInitialSidebarOpen);
   const userName = user?.nome?.trim() || 'Usuário';
   const userEmail = user?.email?.trim() || 'E-mail não informado';
   const userInitials = getInitials(user?.nome, user?.email);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebarOpen));
+  }, [sidebarOpen]);
 
   return (
     <AdminPage $sidebarOpen={sidebarOpen}>
