@@ -22,6 +22,10 @@ import { Main as ProfileMain } from '../Profile/styles';
 
 export const Main = styled(ProfileMain)`
   width: min(930px, calc(100% - 48px));
+
+  @media (max-width: 767px) {
+    width: 100%;
+  }
 `;
 
 export const SearchBar = styled.div`
@@ -50,7 +54,7 @@ export const SearchBar = styled.div`
     font-weight: 900;
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     align-items: stretch;
     flex-direction: column;
   }
@@ -78,7 +82,7 @@ export const SearchInput = styled.input`
     box-shadow: 0 0 0 4px rgba(255, 132, 36, 0.14);
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     width: 100%;
   }
 `;
@@ -133,6 +137,16 @@ export const JobActions = styled.div`
 
     ${SubmitButton} {
       width: 100%;
+    }
+  }
+
+  @media (max-width: 767px) {
+    align-items: stretch;
+    flex-direction: column;
+
+    ${SubmitButton} {
+      width: 100%;
+      min-height: 48px;
     }
   }
 `;

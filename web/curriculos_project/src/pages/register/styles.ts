@@ -216,14 +216,10 @@ export const ModalBackdrop = styled.div`
 `;
 
 export const PolicyModal = styled.div`
-  width: min(760px, 100%);
-  max-height: min(82vh, 760px);
-  border-radius: 8px;
+  width: 100%;
   background: #f7fafc;
-  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.32);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 `;
 
 export const PolicyHeader = styled.div`

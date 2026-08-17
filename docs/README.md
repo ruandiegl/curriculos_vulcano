@@ -25,6 +25,7 @@ Este diretorio centraliza as guidelines e padroes do projeto para que uma nova p
 ## PRDs
 
 - [PRD-002: Status nao visualizado em curriculos](./prd-status-nao-visualizado.md)
+- [PRD-003: Versao mobile responsiva — bottom tab, bottom sheet e cards](./prd-mobile-responsivo.md)
 
 ## Docs ja existentes
 

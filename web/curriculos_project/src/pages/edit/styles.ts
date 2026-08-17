@@ -92,6 +92,11 @@ export const Main = styled.main`
   margin: 0 auto;
   padding: 32px 0 64px;
   flex: 1;
+
+  @media (max-width: 767px) {
+    width: 100%;
+    padding: 16px 0 32px;
+  }
 `;
 
 export const Section = styled.section`
@@ -119,7 +124,7 @@ export const Grid = styled.div`
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 767px) {
     grid-template-columns: 1fr;
   }
 `;
@@ -205,6 +210,11 @@ export const ActionButtons = styled.div`
     flex-direction: column;
     align-items: stretch;
   }
+
+  @media (max-width: 767px) {
+    align-items: stretch;
+    flex-direction: column;
+  }
 `;
 
 export const SubmitButton = styled.button`
@@ -227,6 +237,11 @@ export const SubmitButton = styled.button`
     cursor: not-allowed;
     opacity: 0.68;
   }
+
+  @media (max-width: 767px) {
+    width: 100%;
+    min-height: 48px;
+  }
 `;
 
 export const ReturnButton = styled.button`
@@ -243,6 +258,11 @@ export const ReturnButton = styled.button`
 
   &:hover {
     background: #cbd5e1;
+  }
+
+  @media (max-width: 767px) {
+    width: 100%;
+    min-height: 48px;
   }
 `;
 

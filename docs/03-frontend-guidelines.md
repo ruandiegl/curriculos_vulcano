@@ -25,6 +25,9 @@
 - Preserve os layouts existentes: `AdminLayout` para area administrativa e `UserLayout` para area do candidato.
 - Para confirmacoes, use `ConfirmModal`.
 - Para feedback textual, use `FeedbackMessage` quando aplicavel.
+- Para dialogs responsivos, use `BottomSheet` (`src/components/BottomSheet`) ou `ConfirmModal` quando a ação for uma confirmação.
+- `BottomSheet` deve conservar callbacks e estados do consumidor, usar `role="dialog"`/`aria-modal="true"`, gerenciar foco e iniciar drag somente no handle.
+- Use `useMediaQuery` para lógica que dependa do viewport e `useBottomSheet` para o gesto de drawer; não crie listeners sem cleanup.
 
 ## Estado e dados
 
@@ -40,6 +43,7 @@
 - Normalize campos antes de enviar para a API.
 - Mostre mensagens especificas de erro.
 - Em edicoes inline no mobile, role ate o formulario apos o clique de editar.
+- Em viewport abaixo de 768px, inputs/selects/textareas devem ter fonte mínima de 16px e altura mínima de 48px; ações devem ter target mínimo de 44px.
 
 ## Rotas
 

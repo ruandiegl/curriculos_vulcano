@@ -418,3 +418,148 @@ export const BottomMoreList = styled.div`
     text-align: left;
   }
 `;
+
+export const UserBottomNav = styled.nav`
+  display: none;
+
+  @media (max-width: 767px) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 35;
+    min-height: 74px;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    border-top: 1px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 -14px 34px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(14px);
+    display: grid;
+    grid-template-columns: repeat(var(--bottom-count, 5), minmax(0, 1fr));
+    gap: 4px;
+  }
+`;
+
+export const UserBottomNavButton = styled.button<{ $active?: boolean; $danger?: boolean }>`
+  min-width: 0;
+  min-height: 56px;
+  border: 0;
+  border-radius: 10px;
+  background: ${({ $active }) => ($active ? '#fff1e6' : 'transparent')};
+  color: ${({ $active, $danger }) => {
+    if ($danger) return '#dc2626';
+    return $active ? '#ff8424' : '#64748b';
+  }};
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 10px;
+  line-height: 1.1;
+  font-weight: 900;
+  text-align: center;
+
+  svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    background: ${({ $active }) => ($active ? '#fff1e6' : '#f8fafc')};
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 132, 36, 0.35);
+    outline-offset: -2px;
+  }
+`;
+
+export const UserBottomMoreBackdrop = styled.div`
+  display: none;
+
+  @media (max-width: 767px) {
+    position: fixed;
+    inset: 0;
+    z-index: 34;
+    padding: 0 10px calc(84px + env(safe-area-inset-bottom));
+    background: rgba(15, 23, 42, 0.42);
+    display: flex;
+    align-items: flex-end;
+  }
+`;
+
+export const UserBottomMorePanel = styled.div`
+  width: 100%;
+  max-height: min(520px, 78vh);
+  padding: 14px;
+  border-radius: 16px 16px 0 0;
+  background: #fff;
+  color: #102a43;
+  box-shadow: 0 -18px 44px rgba(15, 23, 42, 0.2);
+  overflow-y: auto;
+`;
+
+export const UserBottomMoreHeader = styled.div`
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  strong {
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  button {
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: #eef5fb;
+    color: #334155;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  button:hover {
+    background: #e2e8f0;
+  }
+
+  button:focus-visible {
+    outline: 3px solid rgba(255, 132, 36, 0.35);
+    outline-offset: 2px;
+  }
+`;
+
+export const UserBottomMoreList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+
+  ${UserBottomNavButton} {
+    min-height: 48px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 0 12px;
+    font-size: 13px;
+    text-align: left;
+  }
+`;

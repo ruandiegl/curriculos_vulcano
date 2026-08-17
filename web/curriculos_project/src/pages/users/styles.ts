@@ -324,6 +324,13 @@ export const IconActionButton = styled.button<{ $variant?: 'edit' | 'delete' }>`
   &:hover {
     background: ${({ $variant }) => `${actionVariantColor[$variant ?? 'default']}22`};
   }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    flex-basis: 44px;
+  }
 `;
 
 export const TableSection = styled.section`
@@ -339,7 +346,7 @@ export const TableWrapper = styled.div`
   border-radius: 8px;
   background: #fff;
 
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     overflow-x: visible;
     border: 0;
     background: transparent;
@@ -382,7 +389,7 @@ export const Table = styled.table`
     border-bottom: 0;
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     min-width: 0;
     display: block;
 
@@ -529,20 +536,12 @@ export const UserModalBackdrop = styled.div`
 `;
 
 export const UserModal = styled.form`
-  width: min(560px, 100%);
-  max-height: min(760px, calc(100vh - 48px));
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 22px 64px rgba(15, 23, 42, 0.32);
-  overflow-y: auto;
-  touch-action: pan-y;
+  width: 100%;
+  background: transparent;
 
   @media (max-width: 640px) {
     width: 100%;
-    max-height: min(88dvh, 720px);
-    border-radius: 18px 18px 0 0;
-    padding-top: 14px;
-    box-shadow: 0 -18px 44px rgba(15, 23, 42, 0.28);
+    width: 100%;
   }
 `;
 
@@ -582,9 +581,9 @@ export const ModalTitle = styled.h2`
 `;
 
 export const ModalCloseButton = styled.button`
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
   border: 0;
   border-radius: 8px;
   background: #eef5fb;
@@ -673,5 +672,12 @@ export const PageButton = styled.button<{ $active?: boolean }>`
   &:disabled {
     cursor: not-allowed;
     opacity: 0.42;
+  }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
   }
 `;

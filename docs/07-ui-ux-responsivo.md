@@ -16,6 +16,15 @@
 - O bottom navigation administrativo mobile deve usar fundo escuro do app, com item ativo em laranja.
 - Conteudo deve deixar espaco para o bottom navigation usando padding inferior responsivo.
 
+### Bottom tab mobile
+
+- Abaixo de 768px, `AdminLayout` usa bottom navigation escura com item ativo em laranja Vulcano.
+- Abaixo de 768px, `UserLayout` usa bottom navigation clara com os itens `Início`, `Vagas`, `Currículo`, `Formação` e `Mais`.
+- Itens secundários do candidato ficam no painel `Mais`, que também mantém a ação de sair acessível.
+- O item ativo deve expor `aria-current="page"` e todos os botões devem ter target mínimo de 44px.
+- Barras fixas devem usar `env(safe-area-inset-bottom)` e o conteúdo deve reservar padding inferior suficiente.
+- Em 768px ou mais, a sidebar desktop permanece disponível.
+
 ## Listas e tabelas
 
 Padrao desktop:
@@ -47,6 +56,8 @@ Mobile:
 - Deve fechar ao arrastar para baixo quando o gesto passar do limiar definido.
 - Conteudo alto deve rolar dentro do painel.
 
+O componente compartilhado `src/components/BottomSheet` concentra esse comportamento. Ele aceita `isOpen`, `onClose`, `title`, `ariaLabel`, `wide` e `children`, mantendo modal centralizado no desktop e drawer bottom no mobile. O gesto inicia somente no handle e fecha com deslocamento maior que 80px.
+
 ## Inputs
 
 - Inputs devem ter altura minima consistente.
@@ -67,3 +78,5 @@ Mobile:
 - Elementos clicaveis por linha devem aceitar teclado (`Enter` e espaco).
 - Foco visivel deve continuar perceptivel.
 - Modais devem usar `role="dialog"` e `aria-modal="true"`.
+- O foco deve entrar no primeiro controle do dialog, permanecer dentro dele durante Tab e retornar ao elemento que abriu o dialog ao fechar.
+- O handle do drawer não deve capturar o scroll do conteúdo; o gesto de arraste é iniciado exclusivamente nele.

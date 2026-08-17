@@ -94,6 +94,11 @@ export const Main = styled.main`
   margin: 0 auto;
   padding: 0 0 48px;
   flex: 1;
+
+  @media (max-width: 767px) {
+    width: 100%;
+    padding-bottom: 24px;
+  }
 `;
 
 export const Greeting = styled.div`
@@ -178,6 +183,10 @@ export const Input = styled.input`
 export const ActionButtons = styled.div`
   display: flex;
   margin-top: 28px;
+
+  @media (max-width: 767px) {
+    width: 100%;
+  }
 `;
 
 export const SubmitButton = styled.button`
@@ -199,6 +208,11 @@ export const SubmitButton = styled.button`
   &:disabled {
     cursor: not-allowed;
     opacity: 0.68;
+  }
+
+  @media (max-width: 767px) {
+    width: 100%;
+    min-height: 48px;
   }
 `;
 

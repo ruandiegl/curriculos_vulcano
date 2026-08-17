@@ -226,7 +226,7 @@ export const Main = styled.main`
   overflow-y: auto;
   overflow-x: hidden;
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
     padding: 18px 12px 28px;
   }
 `;
@@ -541,7 +541,7 @@ export const TableWrapper = styled.div`
   border-radius: 8px;
   background: #fff;
 
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     overflow-x: visible;
     border: 0;
     background: transparent;
@@ -604,7 +604,7 @@ export const Table = styled.table`
     outline-offset: -2px;
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     min-width: 0;
     display: block;
 
@@ -734,6 +734,13 @@ export const IconActionButton = styled.button<{ $variant?: 'view' | 'edit' | 'de
   &:hover {
     background: ${({ $variant }) => `${actionVariantColor[$variant ?? 'default']}22`};
   }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    flex-basis: 44px;
+  }
 `;
 
 export const CandidateCell = styled.div`
@@ -852,6 +859,13 @@ export const PageButton = styled.button<{ $active?: boolean }>`
     cursor: not-allowed;
     opacity: 0.42;
   }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
 `;
 
 export const StatusBadge = styled.span<{ $active: boolean }>`
@@ -924,29 +938,10 @@ export const FilterModalBackdrop = styled.div`
 
 export const FilterModal = styled.form`
   width: min(620px, 100%);
-  max-height: min(760px, calc(100vh - 48px));
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 22px 64px rgba(15, 23, 42, 0.32);
-  overflow-y: auto;
-  touch-action: pan-y;
+  background: transparent;
 
   @media (max-width: 640px) {
     width: 100%;
-    max-height: min(88dvh, 720px);
-    border-radius: 18px 18px 0 0;
-    padding-top: 14px;
-    box-shadow: 0 -18px 44px rgba(15, 23, 42, 0.28);
-
-    &::before {
-      content: '';
-      width: 42px;
-      height: 4px;
-      margin: 0 auto 2px;
-      border-radius: 999px;
-      background: #cbd5e1;
-      display: block;
-    }
   }
 `;
 
@@ -980,9 +975,9 @@ export const FilterModalHeader = styled.header`
 `;
 
 export const FilterModalCloseButton = styled.button`
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
   border: 0;
   border-radius: 8px;
   background: #eef5fb;

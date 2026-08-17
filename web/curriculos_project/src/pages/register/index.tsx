@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { BottomSheet } from '../../components/BottomSheet';
 import { PRIVACY_POLICY_VERSION, privacyPolicySections } from '../../content/privacyPolicy';
 import { api } from '../../services/api';
 import { isValidEmail, normalizeEmail } from '../../utils/email';
@@ -13,7 +14,6 @@ import {
   Field,
   FormMessage,
   Form,
-  ModalBackdrop,
   PolicyActions,
   PolicyButton,
   PolicyContent,
@@ -179,8 +179,13 @@ export default function Register() {
       </Card>
 
       {policyOpen && (
-        <ModalBackdrop role="presentation">
-          <PolicyModal role="dialog" aria-modal="true" aria-labelledby="privacy-policy-title">
+        <BottomSheet
+          isOpen={policyOpen}
+          onClose={() => setPolicyOpen(false)}
+          ariaLabel="Política de Privacidade"
+          wide
+        >
+          <PolicyModal>
             <PolicyHeader>
               <h2 id="privacy-policy-title">Política de Privacidade</h2>
               <span>Versao {PRIVACY_POLICY_VERSION}</span>
@@ -213,7 +218,7 @@ export default function Register() {
               </PolicyButton>
             </PolicyActions>
           </PolicyModal>
-        </ModalBackdrop>
+        </BottomSheet>
       )}
     </Page>
   );

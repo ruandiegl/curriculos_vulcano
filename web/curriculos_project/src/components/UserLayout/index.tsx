@@ -13,13 +13,21 @@ import {
   SidebarHeader,
   SidebarNav,
   SidebarUser,
+  UserBottomMoreBackdrop,
+  UserBottomMoreHeader,
+  UserBottomMoreList,
+  UserBottomMorePanel,
+  UserBottomNav,
+  UserBottomNavButton,
   UserAvatar,
   UserInfo,
 } from '../AdminLayout/styles';
 import logo from '../../assets/logo-sidebar.png';
 import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 
 const SIDEBAR_STORAGE_KEY = 'userSidebarOpen';
+const BOTTOM_TAB_PATHS = ['/profile', '/vagas', '/newCurriculum', '/new-education'];
 
 function getInitialSidebarOpen() {
   if (typeof window === 'undefined') {
@@ -141,6 +149,16 @@ function CertificateIcon() {
   );
 }
 
+function MoreIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="5" cy="12" r="1.3" />
+      <circle cx="12" cy="12" r="1.3" />
+      <circle cx="19" cy="12" r="1.3" />
+    </svg>
+  );
+}
+
 function LogoutIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -156,13 +174,43 @@ export function UserLayout({ children }: UserLayoutProps) {
   const { user } = useAuth();
   const { requestLogout, logoutModal } = useConfirmLogout();
   const [sidebarOpen, setSidebarOpen] = useState(getInitialSidebarOpen);
+  const [bottomMoreOpen, setBottomMoreOpen] = useState(false);
   const userName = user?.nome?.trim() || 'Usuário';
   const userEmail = user?.email?.trim() || 'E-mail não informado';
   const userInitials = getInitials(user?.nome, user?.email);
+  const visibleBottomItems = menuItems.filter((item) => BOTTOM_TAB_PATHS.includes(item.path));
+  const overflowBottomItems = menuItems.filter((item) => !BOTTOM_TAB_PATHS.includes(item.path));
+  const isMoreActive = overflowBottomItems.some((item) => location.pathname === item.path);
 
   useEffect(() => {
     window.sessionStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebarOpen));
   }, [sidebarOpen]);
+
+  useEffect(() => {
+    if (!bottomMoreOpen) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setBottomMoreOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [bottomMoreOpen]);
+
+  function navigateTo(path: string) {
+    setBottomMoreOpen(false);
+    navigate(path);
+  }
+
+  function handleMobileLogout() {
+    setBottomMoreOpen(false);
+    requestLogout();
+  }
 
   return (
     <AdminPage $sidebarOpen={sidebarOpen}>
@@ -220,6 +268,82 @@ export function UserLayout({ children }: UserLayoutProps) {
       </Sidebar>
 
       <Main>{children}</Main>
+      <UserBottomNav
+        aria-label="Navegação do candidato"
+        style={{ '--bottom-count': visibleBottomItems.length + 1 } as CSSProperties & Record<'--bottom-count', number>}
+      >
+        {visibleBottomItems.map((item) => {
+          const Icon = item.icon;
+          const active = location.pathname === item.path;
+
+          return (
+            <UserBottomNavButton
+              key={item.path}
+              type="button"
+              $active={active}
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
+              onClick={() => navigateTo(item.path)}
+            >
+              <Icon />
+              <span>{item.label === 'Dados pessoais' ? 'Currículo' : item.label}</span>
+            </UserBottomNavButton>
+          );
+        })}
+        <UserBottomNavButton
+          type="button"
+          $active={isMoreActive}
+          aria-label="Abrir mais opções"
+          aria-controls="user-bottom-more"
+          aria-expanded={bottomMoreOpen}
+          onClick={() => setBottomMoreOpen((current) => !current)}
+        >
+          <MoreIcon />
+          <span>Mais</span>
+        </UserBottomNavButton>
+      </UserBottomNav>
+
+      {bottomMoreOpen && (
+        <UserBottomMoreBackdrop onClick={() => setBottomMoreOpen(false)}>
+          <UserBottomMorePanel
+            id="user-bottom-more"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="user-bottom-more-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <UserBottomMoreHeader>
+              <strong id="user-bottom-more-title">Mais opções</strong>
+              <button type="button" onClick={() => setBottomMoreOpen(false)}>
+                Fechar
+              </button>
+            </UserBottomMoreHeader>
+            <UserBottomMoreList>
+              {overflowBottomItems.map((item) => {
+                const Icon = item.icon;
+                const active = location.pathname === item.path;
+
+                return (
+                  <UserBottomNavButton
+                    key={item.path}
+                    type="button"
+                    $active={active}
+                    aria-current={active ? 'page' : undefined}
+                    onClick={() => navigateTo(item.path)}
+                  >
+                    <Icon />
+                    <span>{item.label}</span>
+                  </UserBottomNavButton>
+                );
+              })}
+              <UserBottomNavButton type="button" $danger onClick={handleMobileLogout}>
+                <LogoutIcon />
+                <span>Sair</span>
+              </UserBottomNavButton>
+            </UserBottomMoreList>
+          </UserBottomMorePanel>
+        </UserBottomMoreBackdrop>
+      )}
       {logoutModal}
     </AdminPage>
   );

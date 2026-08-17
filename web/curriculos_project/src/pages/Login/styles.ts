@@ -273,19 +273,10 @@ export const ModalBackdrop = styled.div`
 `;
 
 export const RecoveryModal = styled.div`
-  width: min(100%, 420px);
-  padding: 28px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+  width: 100%;
+  padding: 20px 26px 28px;
+  background: transparent;
   color: #30384a;
-
-  h2 {
-    margin: 0 0 12px;
-    font-size: 22px;
-    line-height: 1.2;
-    font-weight: 800;
-  }
 
   p {
     margin: 0;
@@ -293,6 +284,10 @@ export const RecoveryModal = styled.div`
     font-size: 14px;
     font-weight: 700;
     line-height: 1.5;
+  }
+
+  @media (max-width: 767px) {
+    padding: 16px 22px calc(22px + env(safe-area-inset-bottom));
   }
 `;
 

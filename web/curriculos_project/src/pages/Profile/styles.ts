@@ -97,6 +97,11 @@ export const Main = styled.main`
   display: flex;
   flex-direction: column;
   gap: 24px;
+
+  @media (max-width: 767px) {
+    width: 100%;
+    padding-bottom: 24px;
+  }
 `;
 
 export const Card = styled.section`

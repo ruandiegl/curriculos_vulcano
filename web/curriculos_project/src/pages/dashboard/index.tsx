@@ -1,8 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useRef } from 'react';
-import type { MouseEvent, PointerEvent } from 'react';
 import { AdminLayout } from '../../components/AdminLayout';
+import { BottomSheet } from '../../components/BottomSheet';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { deleteCurriculo, listCurriculos } from '../../services/curriculos';
 import type { Curriculo, CurriculoStatus } from '../../types/curriculo';
@@ -26,7 +25,6 @@ import {
   FilterLabel,
   FilterModal,
   FilterModalActions,
-  FilterModalBackdrop,
   FilterModalBody,
   FilterModalButton,
   FilterModalCloseButton,
@@ -52,8 +50,6 @@ import {
 import { limitText, textLimits } from '../../utils/formLimits';
 
 const PAGE_SIZE = 20;
-const MOBILE_DRAWER_QUERY = '(max-width: 640px)';
-const DRAWER_CLOSE_DISTANCE = 90;
 const DASHBOARD_SEARCH_STORAGE_KEY = 'dashboardSearch';
 const DASHBOARD_APPLIED_SEARCH_STORAGE_KEY = 'dashboardAppliedSearch';
 const DASHBOARD_PAGE_STORAGE_KEY = 'dashboardPage';
@@ -78,10 +74,6 @@ const emptyAdvancedFilters: AdvancedFilters = {
   cursoAtivo: '',
   possuiCnh: '',
 };
-
-function isMobileDrawer() {
-  return typeof window !== 'undefined' && window.matchMedia(MOBILE_DRAWER_QUERY).matches;
-}
 
 function getStoredValue(key: string) {
   return sessionStorage.getItem(key) ?? '';
@@ -189,7 +181,6 @@ function FilterIcon() {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const filterDragStartYRef = useRef<number | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [curriculos, setCurriculos] = useState<Curriculo[]>([]);
   const [page, setPage] = useState(() => getInitialPage(searchParams));
@@ -387,33 +378,6 @@ export default function Dashboard() {
 
   function handleClearSearch() {
     setSearch('');
-  }
-
-  function handleFilterBackdropClick(event: MouseEvent<HTMLDivElement>) {
-    if (event.target === event.currentTarget) {
-      setFiltersOpen(false);
-    }
-  }
-
-  function handleFilterPointerDown(event: PointerEvent<HTMLFormElement>) {
-    if (!isMobileDrawer()) {
-      return;
-    }
-
-    filterDragStartYRef.current = event.clientY;
-  }
-
-  function handleFilterPointerUp(event: PointerEvent<HTMLFormElement>) {
-    const startY = filterDragStartYRef.current;
-    filterDragStartYRef.current = null;
-
-    if (!isMobileDrawer() || startY === null) {
-      return;
-    }
-
-    if (event.clientY - startY >= DRAWER_CLOSE_DISTANCE) {
-      setFiltersOpen(false);
-    }
   }
 
   function handleOpenFilters() {
@@ -669,19 +633,13 @@ export default function Dashboard() {
         </Content>
 
       {filtersOpen && (
-        <FilterModalBackdrop
-          role="presentation"
-          onClick={handleFilterBackdropClick}
+        <BottomSheet
+          isOpen={filtersOpen}
+          onClose={() => setFiltersOpen(false)}
+          ariaLabel="Filtros de currículos"
+          wide
         >
           <FilterModal
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="filter-modal-title"
-            onPointerDown={handleFilterPointerDown}
-            onPointerUp={handleFilterPointerUp}
-            onPointerCancel={() => {
-              filterDragStartYRef.current = null;
-            }}
             onSubmit={(event) => {
               event.preventDefault();
               handleApplyFilters();
@@ -791,7 +749,7 @@ export default function Dashboard() {
               </FilterModalButton>
             </FilterModalActions>
           </FilterModal>
-        </FilterModalBackdrop>
+        </BottomSheet>
       )}
 
       {deleteTarget && (

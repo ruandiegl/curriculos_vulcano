@@ -47,6 +47,15 @@ export const HeaderActions = styled.div`
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+
+  @media (max-width: 767px) {
+    width: 100%;
+
+    > * {
+      width: 100%;
+      min-height: 48px;
+    }
+  }
 `;
 
 export const Select = styled.select`
@@ -94,6 +103,10 @@ export const MetricsGrid = styled.div`
   }
 
   @media (max-width: 560px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 359px) {
     grid-template-columns: 1fr;
   }
 `;
@@ -146,6 +159,10 @@ export const Panel = styled.section`
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
+
+  @media (max-width: 767px) {
+    padding: 16px;
+  }
 `;
 
 export const PanelHeader = styled.div`
@@ -215,10 +232,17 @@ export const BarFill = styled.div<{ $percent: number; $tone?: string }>`
 
 export const ChartArea = styled.div`
   min-height: 220px;
+  width: 100%;
   display: flex;
   align-items: flex-end;
   gap: 10px;
   padding: 12px 0 0;
+
+  @media (max-width: 767px) {
+    min-height: 190px;
+    gap: 6px;
+    overflow-x: auto;
+  }
 `;
 
 export const ColumnButton = styled.button<{ $active?: boolean }>`
@@ -285,7 +309,7 @@ export const Table = styled.table`
     vertical-align: top;
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     display: block;
 
     thead {

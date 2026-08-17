@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { BottomSheet } from '../../components/BottomSheet';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../services/api';
 import { isValidEmail, normalizeEmail } from '../../utils/email';
@@ -16,7 +17,6 @@ import {
   LoginButton,
   LoginIcon,
   ModalActions,
-  ModalBackdrop,
   ModalButton,
   Page,
   PhotoPanel,
@@ -179,9 +179,12 @@ export default function Login() {
       </Card>
 
       {showRecoveryModal && (
-        <ModalBackdrop role="presentation">
-          <RecoveryModal role="dialog" aria-modal="true" aria-labelledby="recovery-modal-title">
-            <h2 id="recovery-modal-title">Crie sua senha de acesso</h2>
+        <BottomSheet
+          isOpen={showRecoveryModal}
+          onClose={() => setShowRecoveryModal(false)}
+          title="Crie sua senha de acesso"
+        >
+          <RecoveryModal>
             <p>
               Encontramos seu cadastro antigo. Para acessar a plataforma, confirme seus dados e
               crie uma senha nova.
@@ -198,7 +201,7 @@ export default function Login() {
               </ModalButton>
             </ModalActions>
           </RecoveryModal>
-        </ModalBackdrop>
+        </BottomSheet>
       )}
     </Page>
   );

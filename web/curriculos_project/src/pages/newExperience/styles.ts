@@ -94,6 +94,11 @@ export const Main = styled.main`
   margin: 0 auto;
   padding: 0 0 48px;
   flex: 1;
+
+  @media (max-width: 767px) {
+    width: 100%;
+    padding-bottom: 24px;
+  }
 `;
 
 export const Section = styled.section`
@@ -210,6 +215,11 @@ export const ActionButtons = styled.div`
   @media (max-width: 480px) {
     flex-direction: column;
   }
+
+  @media (max-width: 767px) {
+    align-items: stretch;
+    flex-direction: column;
+  }
 `;
 
 export const SubmitButton = styled.button`
@@ -226,6 +236,11 @@ export const SubmitButton = styled.button`
 
   &:hover {
     background: #fb7900;
+  }
+
+  @media (max-width: 767px) {
+    width: 100%;
+    min-height: 48px;
   }
 `;
 

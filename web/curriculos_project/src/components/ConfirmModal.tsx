@@ -1,6 +1,6 @@
-import { useRef } from 'react';
-import type { MouseEvent, PointerEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import styled from 'styled-components';
+import { BottomSheet } from './BottomSheet';
 
 type ConfirmModalProps = {
   title: string;
@@ -14,105 +14,25 @@ type ConfirmModalProps = {
   onConfirm: () => void;
 };
 
-const MOBILE_DRAWER_QUERY = '(max-width: 640px)';
-const DRAWER_CLOSE_DISTANCE = 90;
+const ConfirmBody = styled.div<{ $tone: 'danger' | 'default' }>`
+  padding: 20px 28px 28px;
 
-function isMobileDrawer() {
-  return typeof window !== 'undefined' && window.matchMedia(MOBILE_DRAWER_QUERY).matches;
-}
+  @media (max-width: 767px) {
+    padding: 16px 22px calc(22px + env(safe-area-inset-bottom));
+  }
+`;
 
-const Backdrop = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
+const ConfirmIcon = styled.span<{ $tone: 'danger' | 'default' }>`
+  width: 42px;
+  height: 42px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  display: inline-grid;
   place-items: center;
-  padding: 24px;
-  background: rgba(15, 23, 42, 0.66);
-
-  @media (max-width: 640px) {
-    align-items: end;
-    padding: 0;
-    overflow: hidden;
-  }
-`;
-
-const Modal = styled.div`
-  width: min(440px, 100%);
-  max-height: min(720px, calc(100vh - 48px));
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 22px 64px rgba(15, 23, 42, 0.32);
-  overflow-y: auto;
-  touch-action: pan-y;
-
-  @media (max-width: 640px) {
-    width: 100%;
-    max-height: min(86dvh, 620px);
-    border-radius: 18px 18px 0 0;
-    padding-top: 14px;
-    box-shadow: 0 -18px 44px rgba(15, 23, 42, 0.28);
-  }
-`;
-
-const DrawerHandle = styled.div`
-  display: none;
-
-  @media (max-width: 640px) {
-    width: 42px;
-    height: 4px;
-    margin: 0 auto 2px;
-    border-radius: 999px;
-    background: #cbd5e1;
-    display: block;
-    cursor: grab;
-  }
-`;
-
-const Header = styled.div<{ $tone: 'danger' | 'default' }>`
-  padding: 26px 28px 16px;
-  border-bottom: 1px solid #e2e8f0;
-
-  @media (max-width: 640px) {
-    padding: 18px 22px 14px;
-  }
-
-  span {
-    width: 42px;
-    height: 42px;
-    margin-bottom: 16px;
-    border-radius: 50%;
-    display: inline-grid;
-    place-items: center;
-    background: ${({ $tone }) => ($tone === 'danger' ? 'rgba(220, 38, 38, 0.12)' : 'rgba(251, 121, 0, 0.14)')};
-    color: ${({ $tone }) => ($tone === 'danger' ? '#dc2626' : '#fb7900')};
-    font-size: 24px;
-    font-weight: 900;
-  }
-
-  h2 {
-    margin: 0;
-    color: #063e66;
-    font-size: 22px;
-    line-height: 1.2;
-    font-weight: 800;
-  }
-`;
-
-const Body = styled.div`
-  padding: 18px 28px 6px;
-
-  @media (max-width: 640px) {
-    padding: 16px 22px 4px;
-  }
-
-  p {
-    margin: 0;
-    color: #475569;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.55;
-  }
+  background: ${({ $tone }) => ($tone === 'danger' ? 'rgba(220, 38, 38, 0.12)' : 'rgba(251, 121, 0, 0.14)')};
+  color: ${({ $tone }) => ($tone === 'danger' ? '#dc2626' : '#fb7900')};
+  font-size: 24px;
+  font-weight: 900;
 `;
 
 const Description = styled.div`
@@ -123,19 +43,20 @@ const Description = styled.div`
 `;
 
 const Actions = styled.div`
-  padding: 22px 28px 28px;
+  padding-top: 22px;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
 
-  @media (max-width: 640px) {
-    padding: 18px 22px calc(22px + env(safe-area-inset-bottom));
+  @media (max-width: 767px) {
+    padding-top: 18px;
     flex-direction: column-reverse;
   }
 `;
 
 const Button = styled.button<{ $tone?: 'danger' | 'default'; $primary?: boolean }>`
-  min-height: 42px;
+  min-width: 112px;
+  min-height: 44px;
   padding: 0 22px;
   border: 0;
   border-radius: 999px;
@@ -156,9 +77,18 @@ const Button = styled.button<{ $tone?: 'danger' | 'default'; $primary?: boolean 
     }};
   }
 
+  &:focus-visible {
+    outline: 3px solid rgba(255, 132, 36, 0.35);
+    outline-offset: 2px;
+  }
+
   &:disabled {
     cursor: not-allowed;
     opacity: 0.7;
+  }
+
+  @media (max-width: 767px) {
+    width: 100%;
   }
 `;
 
@@ -173,55 +103,13 @@ export function ConfirmModal({
   onCancel,
   onConfirm,
 }: ConfirmModalProps) {
-  const dragStartYRef = useRef<number | null>(null);
-
-  function handleBackdropClick(event: MouseEvent<HTMLDivElement>) {
-    if (event.target === event.currentTarget) {
-      onCancel();
-    }
-  }
-
-  function handleDrawerPointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (!isMobileDrawer()) {
-      return;
-    }
-
-    dragStartYRef.current = event.clientY;
-  }
-
-  function handleDrawerPointerUp(event: PointerEvent<HTMLDivElement>) {
-    const startY = dragStartYRef.current;
-    dragStartYRef.current = null;
-
-    if (!isMobileDrawer() || startY === null) {
-      return;
-    }
-
-    if (event.clientY - startY >= DRAWER_CLOSE_DISTANCE) {
-      onCancel();
-    }
-  }
-
   return (
-    <Backdrop role="presentation" onClick={handleBackdropClick}>
-      <Modal
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirm-modal-title"
-        onPointerDown={handleDrawerPointerDown}
-        onPointerUp={handleDrawerPointerUp}
-        onPointerCancel={() => {
-          dragStartYRef.current = null;
-        }}
-      >
-        <DrawerHandle aria-hidden="true" />
-        <Header $tone={tone}>
-          <span aria-hidden="true">{tone === 'danger' ? '!' : '✓'}</span>
-          <h2 id="confirm-modal-title">{title}</h2>
-        </Header>
-        <Body>
-          <Description>{description}</Description>
-        </Body>
+    <BottomSheet isOpen title={title} onClose={onCancel}>
+      <ConfirmBody $tone={tone}>
+        <ConfirmIcon $tone={tone} aria-hidden="true">
+          {tone === 'danger' ? '!' : '✓'}
+        </ConfirmIcon>
+        <Description>{description}</Description>
         <Actions>
           <Button type="button" onClick={onCancel} disabled={loading}>
             {cancelLabel}
@@ -230,7 +118,7 @@ export function ConfirmModal({
             {loading ? loadingLabel : confirmLabel}
           </Button>
         </Actions>
-      </Modal>
-    </Backdrop>
+      </ConfirmBody>
+    </BottomSheet>
   );
 }

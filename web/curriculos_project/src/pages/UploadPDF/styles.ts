@@ -95,8 +95,9 @@ export const Main = styled.main`
   padding: 0 0 48px;
   flex: 1;
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
     width: 100%;
+    padding-bottom: 24px;
   }
 `;
 
@@ -275,6 +276,11 @@ export const ActionButtons = styled.div`
   @media (max-width: 640px) {
     flex-direction: column;
   }
+
+  @media (max-width: 767px) {
+    width: 100%;
+    align-items: stretch;
+  }
 `;
 
 const BaseActionButton = styled.button`
@@ -292,8 +298,9 @@ const BaseActionButton = styled.button`
     opacity: 0.65;
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
     width: 100%;
+    min-height: 48px;
   }
 `;
 

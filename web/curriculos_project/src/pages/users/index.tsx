@@ -1,8 +1,9 @@
 import axios from 'axios';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { FormEvent, MouseEvent, PointerEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { EditIcon, TrashIcon } from '../../components/ActionIcons';
+import { BottomSheet } from '../../components/BottomSheet';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { createUsuario, deleteUsuario, listUsuarios, updateUsuario } from '../../services/usuarios';
 import type { UsuarioPayload, UsuarioScope } from '../../services/usuarios';
@@ -44,16 +45,12 @@ import {
   TableWrapper,
   TypeBadge,
   UserModal,
-  UserModalBackdrop,
-  UserModalHandle,
   UserCell,
   UserInfo,
   WorkspaceGrid,
 } from './styles';
 
 const PAGE_SIZE = 20;
-const MOBILE_DRAWER_QUERY = '(max-width: 640px)';
-const DRAWER_CLOSE_DISTANCE = 90;
 
 type FormState = {
   nome: string;
@@ -79,10 +76,6 @@ const scopes: Array<{ value: UsuarioScope; label: string }> = [
   { value: 'usuarios', label: 'Usuários comuns' },
   { value: 'all', label: 'Todos' },
 ];
-
-function isMobileDrawer() {
-  return typeof window !== 'undefined' && window.matchMedia(MOBILE_DRAWER_QUERY).matches;
-}
 
 function getInitials(name?: string, email?: string) {
   const source = name?.trim() || email?.split('@')[0] || 'US';
@@ -137,7 +130,6 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 export default function Users() {
-  const editDragStartYRef = useRef<number | null>(null);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [scope, setScope] = useState<UsuarioScope>('createdByMe');
   const [search, setSearch] = useState('');
@@ -284,33 +276,6 @@ export default function Users() {
 
   function closeEditModal() {
     resetForm();
-  }
-
-  function handleEditBackdropClick(event: MouseEvent<HTMLDivElement>) {
-    if (event.target === event.currentTarget) {
-      closeEditModal();
-    }
-  }
-
-  function handleEditPointerDown(event: PointerEvent<HTMLFormElement>) {
-    if (!isMobileDrawer()) {
-      return;
-    }
-
-    editDragStartYRef.current = event.clientY;
-  }
-
-  function handleEditPointerUp(event: PointerEvent<HTMLFormElement>) {
-    const startY = editDragStartYRef.current;
-    editDragStartYRef.current = null;
-
-    if (!isMobileDrawer() || startY === null) {
-      return;
-    }
-
-    if (event.clientY - startY >= DRAWER_CLOSE_DISTANCE) {
-      closeEditModal();
-    }
   }
 
   return (
@@ -511,19 +476,10 @@ export default function Users() {
       </Content>
 
       {editingUser && (
-        <UserModalBackdrop role="presentation" onClick={handleEditBackdropClick}>
+        <BottomSheet isOpen={Boolean(editingUser)} onClose={closeEditModal} ariaLabel="Editar usuário" wide>
           <UserModal
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="edit-user-title"
             onSubmit={handleSubmit}
-            onPointerDown={handleEditPointerDown}
-            onPointerUp={handleEditPointerUp}
-            onPointerCancel={() => {
-              editDragStartYRef.current = null;
-            }}
           >
-            <UserModalHandle aria-hidden="true" />
             <ModalHeader>
               <div>
                 <SectionCategory>Editar usuario</SectionCategory>
@@ -593,7 +549,7 @@ export default function Users() {
               </Button>
             </ModalActions>
           </UserModal>
-        </UserModalBackdrop>
+        </BottomSheet>
       )}
 
       {deleteTarget && (

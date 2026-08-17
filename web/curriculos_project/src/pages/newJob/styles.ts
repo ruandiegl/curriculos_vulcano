@@ -226,7 +226,7 @@ export const Main = styled.main`
   overflow-y: auto;
   overflow-x: hidden;
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
     padding: 18px 12px 28px;
   }
 `;
@@ -481,7 +481,7 @@ export const TableWrapper = styled.div`
   border-radius: 8px;
   background: #fff;
 
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     overflow-x: visible;
     border: 0;
     background: transparent;
@@ -538,7 +538,7 @@ export const Table = styled.table`
     outline-offset: -2px;
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     min-width: 0;
     display: block;
 
@@ -677,6 +677,13 @@ export const IconActionButton = styled.button<{ $variant?: 'view' | 'edit' | 'de
   &:hover {
     background: ${({ $variant }) => `${actionVariantColor[$variant ?? 'default']}22`};
   }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    flex-basis: 44px;
+  }
 `;
 
 export const CandidateCell = styled.div`
@@ -792,6 +799,13 @@ export const PageButton = styled.button<{ $active?: boolean }>`
   &:disabled {
     cursor: not-allowed;
     opacity: 0.42;
+  }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
   }
 `;
 
