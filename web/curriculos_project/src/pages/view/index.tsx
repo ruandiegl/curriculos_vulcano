@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { AdminLayout } from '../../components/AdminLayout';
 import { UserLayout } from '../../components/UserLayout';
@@ -40,8 +40,14 @@ function formatDate(value?: string | null) {
   return value?.slice(0, 10) || null;
 }
 
+type ViewLocationState = {
+  returnTo?: string;
+};
+
 export default function View() {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { requestLogout, logoutModal } = useConfirmLogout();
   const [curriculo, setCurriculo] = useState<Curriculo | null>(null);
@@ -49,6 +55,8 @@ export default function View() {
   const [savingStatus, setSavingStatus] = useState(false);
   const [message, setMessage] = useState('');
   const isAdmin = user?.tipo === 'admin' || user?.tipo === 'superAdmin';
+  const homePath = isAdmin ? '/dashboard' : '/profile';
+  const returnTo = (location.state as ViewLocationState | null)?.returnTo ?? homePath;
 
   useEffect(() => {
     let isCurrent = true;
@@ -125,8 +133,6 @@ export default function View() {
 
   const firstAddress = curriculo?.enderecos?.[0];
   const possuiCNH = curriculo?.possuiCnh ? 'Sim' : 'Não';
-  const homePath = isAdmin ? '/dashboard' : '/profile';
-
   async function handleDownloadUploadedPdf() {
     const arquivo = curriculo?.arquivos?.[0];
 
@@ -196,7 +202,9 @@ export default function View() {
               )}
             </ActionGroup>
             <ActionButtons>
-              <ActionButton href={homePath}>Voltar</ActionButton>
+              <ActionButton as="button" type="button" onClick={() => navigate(returnTo)}>
+                Voltar
+              </ActionButton>
               <ActionButton href={`/edit/${curriculo?.id}`}>Alterar Currículo</ActionButton>
             </ActionButtons>
           </ActionPanel>

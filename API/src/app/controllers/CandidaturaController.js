@@ -3,6 +3,7 @@ import { getPagination, paginatedResponse } from '../DTO/pagination.js';
 import { candidaturaSchema } from '../validators/candidaturaValidator.js';
 import { auditLog } from '../services/auditLogger.js';
 import { isAdminUser } from '../middlewares/Auth.js';
+import { abbreviateCandidaturasForList } from '../utils/curriculoList.js';
 
 const repository = new CandidaturaRepository();
 
@@ -19,7 +20,12 @@ export class CandidaturaController {
       repository.count(filters),
     ]);
 
-    return res.json(paginatedResponse({ data, total, page, limit }));
+    return res.json(paginatedResponse({
+      data: abbreviateCandidaturasForList(data),
+      total,
+      page,
+      limit,
+    }));
   }
 
   async store(req, res) {

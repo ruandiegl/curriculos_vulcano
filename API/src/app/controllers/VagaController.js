@@ -2,6 +2,7 @@ import { VagaRepository } from '../Repositories/VagaRepository.js';
 import { getPagination, paginatedResponse } from '../DTO/pagination.js';
 import { vagaSchema, vagaUpdateSchema } from '../validators/vagaValidator.js';
 import { auditLog } from '../services/auditLogger.js';
+import { abbreviateCandidaturasForList } from '../utils/curriculoList.js';
 
 const repository = new VagaRepository();
 
@@ -23,7 +24,10 @@ export class VagaController {
       return res.status(404).json({ message: 'Vaga não encontrada.' });
     }
 
-    return res.json(vaga);
+    return res.json({
+      ...vaga,
+      candidaturas: abbreviateCandidaturasForList(vaga.candidaturas ?? []),
+    });
   }
 
   async store(req, res) {

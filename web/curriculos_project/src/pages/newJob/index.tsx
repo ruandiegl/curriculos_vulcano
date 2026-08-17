@@ -1,12 +1,13 @@
 ﻿import axios from 'axios';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/AdminLayout';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { FeedbackMessage } from '../../components/FeedbackMessage';
+import { deleteCandidatura } from '../../services/candidaturas';
 import { createVaga, deleteVaga, getVaga, listVagas, updateVaga } from '../../services/vagas';
 import type { VagaPayload } from '../../services/vagas';
-import type { Vaga } from '../../types/vaga';
+import type { Candidatura, Vaga } from '../../types/vaga';
 import { formatList, getStatusLabel } from '../../utils/status';
 import {
   ActionButton,
@@ -154,6 +155,7 @@ function TrashIcon() {
 
 export default function NewJob() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const formSectionRef = useRef<HTMLElement | null>(null);
   const detailsSectionRef = useRef<HTMLElement | null>(null);
   const [vagas, setVagas] = useState<Vaga[]>([]);
@@ -161,15 +163,18 @@ export default function NewJob() {
   const [showForm, setShowForm] = useState(false);
   const [editingVaga, setEditingVaga] = useState<Vaga | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Vaga | null>(null);
+  const [discardTarget, setDiscardTarget] = useState<Candidatura | null>(null);
   const [form, setForm] = useState<FormState>(initialForm);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [discarding, setDiscarding] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [message, setMessage] = useState('');
 
   const candidates = useMemo(() => selectedVaga?.candidaturas ?? [], [selectedVaga]);
+  const selectedVagaId = searchParams.get('vagaId');
   const activeJobs = useMemo(() => vagas.filter((vaga) => vaga.ativa).length, [vagas]);
 
   useEffect(() => {
@@ -203,6 +208,48 @@ export default function NewJob() {
     };
   }, [search]);
 
+  useEffect(() => {
+    if (!selectedVagaId) {
+      return undefined;
+    }
+
+    const vagaId = selectedVagaId;
+    let isCurrent = true;
+    let scrollTimeoutId: number | undefined;
+
+    async function restoreSelectedVaga() {
+      try {
+        setLoadingDetails(true);
+        setMessage('');
+        const details = await getVaga(vagaId);
+
+        if (isCurrent) {
+          setSelectedVaga(details);
+          scrollTimeoutId = window.setTimeout(() => {
+            detailsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 80);
+        }
+      } catch (error) {
+        if (isCurrent) {
+          setMessage(getErrorMessage(error, 'Não foi possível carregar os detalhes da vaga.'));
+        }
+      } finally {
+        if (isCurrent) {
+          setLoadingDetails(false);
+        }
+      }
+    }
+
+    restoreSelectedVaga();
+
+    return () => {
+      isCurrent = false;
+      if (scrollTimeoutId) {
+        window.clearTimeout(scrollTimeoutId);
+      }
+    };
+  }, [selectedVagaId]);
+
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
     const nextValue = String(value);
     const limitedValue = {
@@ -231,6 +278,7 @@ export default function NewJob() {
 
   function openCreateForm() {
     setSelectedVaga(null);
+    setSearchParams({}, { replace: true });
     setEditingVaga(null);
     setForm(initialForm);
     setMessage('');
@@ -240,6 +288,7 @@ export default function NewJob() {
 
   function openEditForm(vaga: Vaga) {
     setSelectedVaga(null);
+    setSearchParams({}, { replace: true });
     setEditingVaga(vaga);
     setForm(toForm(vaga));
     setMessage('');
@@ -251,6 +300,11 @@ export default function NewJob() {
     setShowForm(false);
     setEditingVaga(null);
     setForm(initialForm);
+  }
+
+  function closeDetails() {
+    setSelectedVaga(null);
+    setSearchParams({}, { replace: true });
   }
 
   async function handleSaveVaga() {
@@ -292,6 +346,7 @@ export default function NewJob() {
       setVagas((items) => items.filter((item) => item.id !== deleteTarget?.id));
       if (selectedVaga?.id === deleteTarget?.id) {
         setSelectedVaga(null);
+        setSearchParams({}, { replace: true });
       }
       setDeleteTarget(null);
     } catch (error) {
@@ -301,21 +356,56 @@ export default function NewJob() {
     }
   }
 
-  async function handleViewVaga(vaga: Vaga) {
+  function handleViewVaga(vaga: Vaga) {
+    setShowForm(false);
+    setEditingVaga(null);
+    setForm(initialForm);
+    setSelectedVaga(null);
+    setSearchParams({ vagaId: vaga.id });
+  }
+
+  function openCurriculo(curriculoId: string) {
+    if (!selectedVaga?.id) {
+      return;
+    }
+
+    navigate(`/view/${curriculoId}`, {
+      state: { returnTo: `/newJob?vagaId=${selectedVaga.id}` },
+    });
+  }
+
+  async function confirmDiscardCandidatura() {
+    if (!discardTarget) {
+      return;
+    }
+
+    const vagaId = selectedVaga?.id;
+
     try {
-      setShowForm(false);
-      setEditingVaga(null);
-      setForm(initialForm);
-      setSelectedVaga(vaga);
-      setLoadingDetails(true);
-      setMessage('');
-      scrollToPanel('details');
-      const details = await getVaga(vaga.id);
-      setSelectedVaga(details);
+      setDiscarding(true);
+      await deleteCandidatura(discardTarget.id);
+
+      setSelectedVaga((current) => (current
+        ? {
+            ...current,
+            candidaturas: (current.candidaturas ?? []).filter((item) => item.id !== discardTarget.id),
+          }
+        : current));
+
+      if (vagaId) {
+        setVagas((items) => items.map((item) => (
+          item.id === vagaId
+            ? { ...item, candidaturas: (item.candidaturas ?? []).filter((item) => item.id !== discardTarget.id) }
+            : item
+        )));
+      }
+
+      setDiscardTarget(null);
+      setMessage('Candidato descartado desta vaga.');
     } catch (error) {
-      setMessage(getErrorMessage(error, 'Não foi possível carregar os detalhes da vaga.'));
+      setMessage(getErrorMessage(error, 'Não foi possível descartar o candidato desta vaga.'));
     } finally {
-      setLoadingDetails(false);
+      setDiscarding(false);
     }
   }
 
@@ -587,20 +677,54 @@ export default function NewJob() {
                       const curriculo = candidatura.usuario?.curriculos?.[0];
 
                       return (
-                        <tr key={candidatura.id}>
+                        <tr
+                          key={candidatura.id}
+                          role={curriculo ? 'button' : undefined}
+                          tabIndex={curriculo ? 0 : undefined}
+                          aria-label={curriculo ? `Abrir currículo de ${curriculo.nome}` : undefined}
+                          onClick={() => {
+                            if (curriculo) {
+                              openCurriculo(curriculo.id);
+                            }
+                          }}
+                          onKeyDown={(event) => {
+                            if (curriculo && (event.key === 'Enter' || event.key === ' ')) {
+                              event.preventDefault();
+                              openCurriculo(curriculo.id);
+                            }
+                          }}
+                        >
                           <td data-label="Candidato">{curriculo?.nome ?? candidatura.usuario?.nome ?? '-'}</td>
                           <td data-label="E-mail">{curriculo?.email ?? candidatura.usuario?.email ?? '-'}</td>
                           <td data-label="Telefone">{curriculo?.celular ?? curriculo?.telefone ?? '-'}</td>
                           <td data-label="Atuação">{formatList(curriculo?.atuacoes)}</td>
                           <td data-label="Status">{curriculo?.status ? getStatusLabel(curriculo?.status) : '-'}</td>
                           <td data-label="Ações">
-                            {curriculo ? (
-                              <ActionButton type="button" onClick={() => navigate(`/view/${curriculo?.id}`)}>
-                                Ver Currículo
-                              </ActionButton>
-                            ) : (
-                              '-'
-                            )}
+                            <ActionButtons>
+                              {curriculo && (
+                                <ActionButton
+                                  type="button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    openCurriculo(curriculo.id);
+                                  }}
+                                >
+                                  Ver Currículo
+                                </ActionButton>
+                              )}
+                              <IconActionButton
+                                type="button"
+                                aria-label={`Descartar candidatura de ${curriculo?.nome ?? candidatura.usuario?.nome ?? 'candidato'}`}
+                                title="Descartar candidato desta vaga"
+                                $variant="delete"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setDiscardTarget(candidatura);
+                                }}
+                              >
+                                <TrashIcon />
+                              </IconActionButton>
+                            </ActionButtons>
                           </td>
                         </tr>
                       );
@@ -614,7 +738,7 @@ export default function NewJob() {
               )}
 
               <FormActionButtons>
-                <CloseButton type="button" onClick={() => setSelectedVaga(null)}>
+                <CloseButton type="button" onClick={closeDetails}>
                   Fechar detalhes
                 </CloseButton>
               </FormActionButtons>
@@ -630,6 +754,18 @@ export default function NewJob() {
           loading={deleting}
           onCancel={() => setDeleteTarget(null)}
           onConfirm={confirmDeleteJob}
+        />
+      )}
+
+      {discardTarget && (
+        <ConfirmModal
+          title="Descartar candidato?"
+          description={`A candidatura de ${discardTarget.usuario?.curriculos?.[0]?.nome ?? discardTarget.usuario?.nome ?? 'este candidato'} será removida apenas desta vaga. O currículo continuará cadastrado no sistema.`}
+          confirmLabel="Descartar"
+          loadingLabel="Descartando..."
+          loading={discarding}
+          onCancel={() => setDiscardTarget(null)}
+          onConfirm={confirmDiscardCandidatura}
         />
       )}
     </AdminLayout>

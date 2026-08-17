@@ -40,3 +40,19 @@ export function abbreviateCurriculosForList(curriculos) {
     };
   });
 }
+
+export function abbreviateCurriculoForList(curriculo) {
+  return abbreviateCurriculosForList([curriculo])[0];
+}
+
+export function abbreviateCandidaturasForList(candidaturas) {
+  return candidaturas.map((candidatura) => ({
+    ...candidatura,
+    usuario: candidatura.usuario
+      ? {
+          ...candidatura.usuario,
+          curriculos: (candidatura.usuario.curriculos ?? []).map(abbreviateCurriculoForList),
+        }
+      : candidatura.usuario,
+  }));
+}
