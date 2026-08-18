@@ -9,6 +9,7 @@ import { adminCreationRoutes, adminRoutes, privateRoutes, superAdminRoutes } fro
 import { asyncHandler } from './app/middlewares/asyncHandler.js';
 import { authRateLimitKey, rateLimiter } from './app/middlewares/rateLimiter.js';
 import { uploadCurriculoPdf } from './app/middlewares/uploadCurriculoPdf.js';
+import { getDevelopmentMailbox, getEmailProvider } from './app/services/mailService.js';
 
 export const router = express.Router();
 
@@ -19,11 +20,13 @@ const curriculoArquivos = new CurriculoArquivoController();
 const vagas = new VagaController();
 const candidaturas = new CandidaturaController();
 const authLimiter = rateLimiter({
+  name: 'auth',
   windowMs: 15 * 60 * 1000,
   max: 20,
   keyGenerator: authRateLimitKey,
 });
 const passwordResetLimiter = rateLimiter({
+  name: 'password-recovery',
   windowMs: 15 * 60 * 1000,
   max: 5,
   keyGenerator: authRateLimitKey,
@@ -37,9 +40,18 @@ router.post('/login', authLimiter, asyncHandler(auth.login));
 router.post('/login/register', authLimiter, asyncHandler(auth.register));
 router.post('/login/forgot-password', passwordResetLimiter, asyncHandler(auth.forgotPassword));
 router.post('/login/reset-password', passwordResetLimiter, asyncHandler(auth.resetPassword));
+router.post('/login/activate-account', passwordResetLimiter, asyncHandler(auth.activateAccount));
 router.post('/login/recovery-match', passwordResetLimiter, asyncHandler(auth.recoveryMatch));
 router.post('/login/setup-password', passwordResetLimiter, asyncHandler(auth.setupPassword));
 router.post('/login/register-admin', authLimiter, adminCreationRoutes, asyncHandler(auth.registerAdmin));
+
+router.get('/login/dev/mailbox/latest', (req, res) => {
+  if (process.env.NODE_ENV === 'production' || getEmailProvider() !== 'mock') {
+    return res.status(404).json({ message: 'Nao encontrado.' });
+  }
+
+  return res.json({ messages: getDevelopmentMailbox({ to: req.query.to }) });
+});
 
 router.use(privateRoutes);
 

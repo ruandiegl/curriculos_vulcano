@@ -192,7 +192,7 @@ export default function Login() {
             <ModalActions>
               <ModalButton
                 type="button"
-                onClick={() => navigate('/recover-acces', { state: { email: normalizeEmail(email) } })}
+                onClick={() => navigate('/forgot-password', { state: { email: normalizeEmail(email) } })}
               >
                 Continuar
               </ModalButton>

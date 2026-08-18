@@ -12,6 +12,37 @@ npm run prisma:generate
 npm run dev
 ```
 
+Para testar localmente o envio de recuperação sem SMTP, use
+`EMAIL_PROVIDER=mock` e `MAIL_DELIVERY_MODE=memory`. O link não é escrito nos
+logs; ele fica disponível somente no endpoint local
+`GET /api/login/dev/mailbox/latest` enquanto o modo simulado estiver ativo.
+
+Em homologação ou produção, configure o Resend somente na API:
+
+```txt
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=re_...
+RESEND_FROM_EMAIL=Metalurgica Vulcano <nao-responda@dominio-verificado.tld>
+PUBLIC_WEB_URL=https://seu-frontend.tld
+```
+
+`RESEND_API_KEY` nunca deve ser enviado ao frontend, ao repositório ou ao FTP.
+O domínio usado em `RESEND_FROM_EMAIL` precisa estar verificado no workspace do
+Resend. O modo `smtp` continua disponível como rollback manual temporário.
+
+### Homologação no Railway
+
+No serviço da API no Railway, configure `NODE_ENV=production`,
+`EMAIL_PROVIDER=resend`, `RESEND_API_KEY` como variável secreta e
+`RESEND_FROM_EMAIL` com um remetente do domínio verificado. O backend usa
+`PUBLIC_WEB_URL` quando informado; se ele não existir, usa automaticamente
+`https://${RAILWAY_PUBLIC_DOMAIN}` para montar os links enviados por e-mail.
+
+Mantenha `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN` e `FRONTEND_URL` nas
+variáveis do serviço. O Railway fornece `RAILWAY_PUBLIC_DOMAIN` e injeta o
+`PORT` automaticamente; o comando de inicialização é `npm start` quando o
+diretório de trabalho do serviço é `API`.
+
 O comando `db:up` aguarda o PostgreSQL ficar saudavel antes de retornar. Para
 acompanhar os logs ou parar o banco local:
 
@@ -45,6 +76,9 @@ http://localhost:3101/api/docs.json
 POST   /api/login/register
 POST   /api/login/register-admin
 POST   /api/login
+POST   /api/login/activate-account
+POST   /api/login/forgot-password
+POST   /api/login/reset-password
 
 GET    /api/usuarios
 POST   /api/usuarios
@@ -108,6 +142,12 @@ Use o token retornado nas rotas protegidas:
 ```txt
 Authorization: Bearer <token>
 ```
+
+Contas legadas sem `pass_hash` recebem um link de ativação por e-mail e criam a
+primeira senha em `POST /api/login/activate-account`. O token é aleatório,
+expira e só pode ser usado uma vez. A rota antiga de confirmação por CPF só
+funciona se `ENABLE_LEGACY_CPF_RECOVERY=true` for explicitamente habilitado em
+ambiente de transição.
 
 ## Criar administrador
 

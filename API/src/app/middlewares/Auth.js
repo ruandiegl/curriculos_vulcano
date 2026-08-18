@@ -13,6 +13,7 @@ const publicRoutes = new Set([
   '/login/register',
   '/login/forgot-password',
   '/login/reset-password',
+  '/login/activate-account',
   '/login/recovery-match',
   '/login/setup-password',
 ]);

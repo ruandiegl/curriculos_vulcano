@@ -10,11 +10,24 @@ import {
   setupPasswordSchema,
 } from '../validators/authValidator.js';
 import { auditLog } from '../services/auditLogger.js';
-import { sendPasswordResetEmail } from '../services/mailService.js';
+import {
+  resolvePublicWebUrl,
+  sendPasswordActivationEmail,
+  sendPasswordResetEmail,
+} from '../services/mailService.js';
+import {
+  consumePasswordToken,
+  InvalidPasswordTokenError,
+  issuePasswordToken,
+  markPasswordTokenDelivery,
+  PASSWORD_TOKEN_PURPOSES,
+  PASSWORD_TOKEN_DELIVERY_STATUSES,
+  revokePasswordToken,
+} from '../services/passwordTokenService.js';
 
 const repository = new UsuarioRepository();
 const fakeHash = '$2b$10$C8h7Kx6dL0U0uD3bY4QbCu0K4IVhSR2UQWhZbb7FZQ4y6UwX0EJ1S';
-const forgotPasswordMessage = 'Se o email existir, enviaremos instrucoes para redefinir a senha.';
+const forgotPasswordMessage = 'Se o email existir, enviaremos instrucoes para atualizar o acesso.';
 const passwordSetupRequiredCode = 'PASSWORD_SETUP_REQUIRED';
 
 function getJwtSecret() {
@@ -27,42 +40,8 @@ function getJwtSecret() {
   return process.env.JWT_SECRET;
 }
 
-function getPasswordResetSecret() {
-  return process.env.PASSWORD_RESET_SECRET ?? getJwtSecret();
-}
-
-function getPasswordSetupSecret() {
-  return process.env.PASSWORD_SETUP_SECRET ?? getPasswordResetSecret();
-}
-
 function getFrontendUrl() {
-  return (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
-}
-
-function createPasswordResetToken(user) {
-  return jwt.sign(
-    {
-      sub: user.id,
-      email: user.email,
-      purpose: 'password-reset',
-      passHash: user.passHash,
-    },
-    getPasswordResetSecret(),
-    { expiresIn: process.env.PASSWORD_RESET_EXPIRES_IN ?? '1h' },
-  );
-}
-
-function createPasswordSetupToken(user) {
-  return jwt.sign(
-    {
-      sub: user.id,
-      email: user.email,
-      purpose: 'password-setup',
-      passHash: user.passHash ?? null,
-    },
-    getPasswordSetupSecret(),
-    { expiresIn: process.env.PASSWORD_SETUP_EXPIRES_IN ?? '15m' },
-  );
+  return resolvePublicWebUrl();
 }
 
 function onlyDigits(value) {
@@ -80,6 +59,43 @@ function recoveryDataMatches(payload, user) {
 function sanitizeUser(user) {
   const { passHash, ...safeUser } = user;
   return safeUser;
+}
+
+async function completeLegacyActivation(req, res) {
+  const { token, password } = setupPasswordSchema.parse(req.body);
+  let targetUserId;
+
+  try {
+    targetUserId = await consumePasswordToken({
+      token,
+      purpose: PASSWORD_TOKEN_PURPOSES.ACTIVATION,
+      consume: async (transaction, user) => {
+        if (user.passHash) {
+          throw new InvalidPasswordTokenError();
+        }
+
+        const passHash = await bcrypt.hash(password, 10);
+        await transaction.usuario.update({
+          where: { id: user.id },
+          data: { passHash },
+        });
+
+        return user.id;
+      },
+    });
+  } catch (error) {
+    if (error instanceof InvalidPasswordTokenError) {
+      return res.status(400).json({ message: 'Link de ativacao invalido ou expirado.' });
+    }
+
+    throw error;
+  }
+
+  auditLog(req, 'auth.password_activation_completed', {
+    targetUserId,
+  });
+
+  return res.status(200).json({ message: 'Senha criada com sucesso.' });
 }
 
 export class AuthController {
@@ -153,7 +169,6 @@ export class AuthController {
 
     if (user && !user.passHash) {
       auditLog(req, 'auth.password_setup_required', {
-        email,
         targetUserId: user.id,
       });
       return res.status(403).json({
@@ -167,7 +182,6 @@ export class AuthController {
 
     if (!user || !passwordMatch) {
       auditLog(req, 'auth.login_failed', {
-        email,
         reason: user ? 'invalid_password' : 'unknown_user',
       });
       return res.status(401).json({ message: 'Email ou senha incorretos.' });
@@ -196,21 +210,72 @@ export class AuthController {
     const { email } = forgotPasswordSchema.parse(req.body);
     const user = await repository.findByEmailWithPassword(email);
 
-    if (user?.passHash) {
-      const token = createPasswordResetToken(user);
-      const resetUrl = `${getFrontendUrl()}/reset-password?token=${encodeURIComponent(token)}`;
-
-      await sendPasswordResetEmail({
-        to: user.email,
-        nome: user.nome,
-        resetUrl,
+    if (user) {
+      const isLegacyUser = !user.passHash;
+      const purpose = isLegacyUser
+        ? PASSWORD_TOKEN_PURPOSES.ACTIVATION
+        : PASSWORD_TOKEN_PURPOSES.RESET;
+      const { token, tokenId } = await issuePasswordToken({
+        usuarioId: user.id,
+        purpose,
       });
+
+      try {
+        const delivery = isLegacyUser
+          ? await sendPasswordActivationEmail({
+              to: user.email,
+              nome: user.nome,
+              tokenId,
+              activationUrl: `${getFrontendUrl()}/activate-account?token=${encodeURIComponent(token)}`,
+            })
+          : await sendPasswordResetEmail({
+              to: user.email,
+              nome: user.nome,
+              tokenId,
+              resetUrl: `${getFrontendUrl()}/reset-password?token=${encodeURIComponent(token)}`,
+            });
+
+        try {
+          await markPasswordTokenDelivery({
+            tokenId,
+            status: delivery.provider === 'mock'
+              ? PASSWORD_TOKEN_DELIVERY_STATUSES.MOCKED
+              : PASSWORD_TOKEN_DELIVERY_STATUSES.SENT,
+            providerMessageId: delivery.messageId,
+          });
+        } catch (statusError) {
+          auditLog(req, 'auth.password_email_status_persist_failed', {
+            targetUserId: user.id,
+            purpose,
+            requestId: req.requestId ?? null,
+          });
+        }
+      } catch (deliveryError) {
+        try {
+          await revokePasswordToken({ tokenId });
+        } catch (revokeError) {
+          auditLog(req, 'auth.password_token_revoke_failed', {
+            targetUserId: user.id,
+            purpose,
+            requestId: req.requestId ?? null,
+          });
+          throw revokeError;
+        }
+
+        auditLog(req, 'auth.password_email_failed', {
+          targetUserId: user.id,
+          purpose,
+          category: deliveryError.category ?? 'unknown',
+          providerStatus: deliveryError.providerStatus ?? null,
+          requestId: req.requestId ?? null,
+        });
+      }
     }
 
     auditLog(req, 'auth.password_reset_requested', {
-      email,
       targetUserId: user?.id ?? null,
-      emailExists: Boolean(user?.passHash),
+      accountFound: Boolean(user),
+      accountState: user ? (user.passHash ? 'activated' : 'legacy') : 'unknown',
     });
 
     return res.status(200).json({ message: forgotPasswordMessage });
@@ -218,29 +283,36 @@ export class AuthController {
 
   async resetPassword(req, res) {
     const { token, password } = resetPasswordSchema.parse(req.body);
-    let payload;
+    let targetUserId;
 
     try {
-      payload = jwt.verify(token, getPasswordResetSecret());
-    } catch {
-      return res.status(400).json({ message: 'Link de redefinicao invalido ou expirado.' });
+      targetUserId = await consumePasswordToken({
+        token,
+        purpose: PASSWORD_TOKEN_PURPOSES.RESET,
+        consume: async (transaction, user) => {
+          if (!user.passHash) {
+            throw new InvalidPasswordTokenError();
+          }
+
+          const passHash = await bcrypt.hash(password, 10);
+          await transaction.usuario.update({
+            where: { id: user.id },
+            data: { passHash },
+          });
+
+          return user.id;
+        },
+      });
+    } catch (error) {
+      if (error instanceof InvalidPasswordTokenError) {
+        return res.status(400).json({ message: 'Link de redefinicao invalido ou expirado.' });
+      }
+
+      throw error;
     }
-
-    if (payload.purpose !== 'password-reset' || !payload.sub || !payload.email || !payload.passHash) {
-      return res.status(400).json({ message: 'Link de redefinicao invalido ou expirado.' });
-    }
-
-    const user = await repository.findByEmailWithPassword(payload.email);
-
-    if (!user || user.id !== payload.sub || user.passHash !== payload.passHash) {
-      return res.status(400).json({ message: 'Link de redefinicao invalido ou expirado.' });
-    }
-
-    const passHash = await bcrypt.hash(password, 10);
-    await repository.updatePassword(user.id, passHash);
 
     auditLog(req, 'auth.password_reset_completed', {
-      targetUserId: user.id,
+      targetUserId,
     });
 
     return res.status(200).json({ message: 'Senha redefinida com sucesso.' });
@@ -250,50 +322,37 @@ export class AuthController {
     const payload = recoveryMatchSchema.parse(req.body);
     const user = await repository.findRecoveryCandidateByEmail(payload.email);
 
-    if (!user || !recoveryDataMatches(payload, user)) {
+    if (
+      process.env.ENABLE_LEGACY_CPF_RECOVERY !== 'true' ||
+      !user ||
+      user.passHash ||
+      !recoveryDataMatches(payload, user)
+    ) {
       auditLog(req, 'auth.password_setup_match_failed', {
-        email: payload.email,
         targetUserId: user?.id ?? null,
       });
-      return res.status(400).json({ message: 'Nao foi possivel confirmar seus dados.' });
+      return res.status(400).json({ message: 'Nao foi possivel confirmar seus dados. Solicite um link por e-mail.' });
     }
+
+    const { token: recoveryToken } = await issuePasswordToken({
+      usuarioId: user.id,
+      purpose: PASSWORD_TOKEN_PURPOSES.ACTIVATION,
+    });
 
     auditLog(req, 'auth.password_setup_match_success', {
       targetUserId: user.id,
     });
 
     return res.status(200).json({
-      recoveryToken: createPasswordSetupToken(user),
+      recoveryToken,
     });
   }
 
   async setupPassword(req, res) {
-    const { token, password } = setupPasswordSchema.parse(req.body);
-    let payload;
+    return completeLegacyActivation(req, res);
+  }
 
-    try {
-      payload = jwt.verify(token, getPasswordSetupSecret());
-    } catch {
-      return res.status(400).json({ message: 'Validacao expirada. Confirme seus dados novamente.' });
-    }
-
-    if (payload.purpose !== 'password-setup' || !payload.sub || !payload.email) {
-      return res.status(400).json({ message: 'Validacao expirada. Confirme seus dados novamente.' });
-    }
-
-    const user = await repository.findByEmailWithPassword(payload.email);
-
-    if (!user || user.id !== payload.sub || user.passHash !== payload.passHash) {
-      return res.status(400).json({ message: 'Nao foi possivel redefinir senha para este usuario.' });
-    }
-
-    const passHash = await bcrypt.hash(password, 10);
-    await repository.updatePassword(user.id, passHash);
-
-    auditLog(req, 'auth.password_setup_completed', {
-      targetUserId: user.id,
-    });
-
-    return res.status(200).json({ message: 'Senha redefinida com sucesso.' });
+  async activateAccount(req, res) {
+    return completeLegacyActivation(req, res);
   }
 }

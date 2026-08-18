@@ -5,14 +5,18 @@ import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import { router } from './routes.js';
 import { errorHandler } from './app/middlewares/errorHandler.js';
+import { requestId } from './app/middlewares/requestId.js';
+import { assertEmailProviderConfiguration } from './app/services/mailService.js';
 import { swaggerDocument } from './swagger.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
 const isProduction = process.env.NODE_ENV === 'production';
+const trustProxyHops = Number(process.env.TRUST_PROXY_HOPS ?? 0);
 const configuredOrigins = [
   process.env.CORS_ORIGIN,
   process.env.FRONTEND_URL,
+  process.env.PUBLIC_WEB_URL,
 ]
   .filter(Boolean)
   .flatMap((origins) => origins.split(','))
@@ -41,6 +45,14 @@ if (isProduction && !configuredOrigins.length) {
   throw new Error('Configure CORS_ORIGIN ou FRONTEND_URL em producao com o dominio permitido do frontend.');
 }
 
+assertEmailProviderConfiguration({ production: isProduction });
+
+if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0 || trustProxyHops > 3) {
+  throw new Error('TRUST_PROXY_HOPS deve ser um inteiro entre 0 e 3.');
+}
+
+app.set('trust proxy', trustProxyHops);
+app.use(requestId);
 app.use(helmet());
 app.use(cors({
   origin(origin, callback) {

@@ -17,13 +17,15 @@ export function rateLimiter({
   max,
   message = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
   keyGenerator,
+  name = 'default',
 }) {
   return (req, res, next) => {
     const now = Date.now();
     cleanup(now);
 
     const keys = keyGenerator?.(req) ?? [getClientIp(req)];
-    const normalizedKeys = Array.isArray(keys) ? keys : [keys];
+    const normalizedKeys = (Array.isArray(keys) ? keys : [keys])
+      .map((key) => `${name}:${key}`);
     const blockedBucket = normalizedKeys
       .map((key) => buckets.get(key))
       .find((bucket) => bucket && bucket.resetAt > now && bucket.count >= max);

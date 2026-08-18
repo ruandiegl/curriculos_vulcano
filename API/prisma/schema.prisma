@@ -26,8 +26,28 @@ model Usuario {
   curriculos      Curriculo[]
   candidaturas    Candidatura[]
   novidades       NovidadeUsuario[]
+  passwordTokens  PasswordToken[]
 
   @@map("usuarios")
+}
+
+model PasswordToken {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuarioId  String    @map("usuario_id") @db.Uuid
+  tokenHash  String    @unique @map("token_hash")
+  purpose    String
+  expiresAt  DateTime  @map("expires_at")
+  usedAt     DateTime? @map("used_at")
+  revokedAt  DateTime? @map("revoked_at")
+  deliveryStatus    String   @default("pending") @map("delivery_status")
+  providerMessageId String?  @map("provider_message_id")
+  idempotencyKey    String?  @unique @map("idempotency_key")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  usuario    Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId, purpose])
+  @@index([expiresAt])
+  @@map("password_tokens")
 }
 
 model Curriculo {

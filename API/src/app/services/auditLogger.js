@@ -6,6 +6,7 @@ export function auditLog(req, action, details = {}) {
   const entry = {
     type: 'audit',
     timestamp: new Date().toISOString(),
+    requestId: req.requestId ?? null,
     action,
     actorId: req.userId ?? null,
     actorTipo: req.userTipo ?? null,
