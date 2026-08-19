@@ -1,4 +1,16 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const cookieBannerEnter = keyframes`
+  from {
+    opacity: 0;
+    transform: translate3d(0, 120%, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+`;
 
 export const CookieBanner = styled.aside`
   position: fixed;
@@ -19,16 +31,33 @@ export const CookieBanner = styled.aside`
   box-shadow: 0 12px 36px rgba(27, 35, 51, 0.2);
   color: #30384a;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
+  animation: ${cookieBannerEnter} 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
 
-  @media (max-width: 640px) {
-    right: 12px;
-    bottom: 12px;
-    left: 12px;
-    width: calc(100% - 24px);
+  @media (max-width: 760px) {
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: calc(100% - 32px);
     align-items: stretch;
     flex-direction: column;
-    gap: 16px;
-    padding: 18px;
+    gap: 14px;
+    padding: 18px 20px;
+  }
+
+  @media (max-width: 420px) {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    width: calc(100% - 20px);
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    will-change: auto;
   }
 `;
 
@@ -56,8 +85,13 @@ export const CookieActions = styled.div`
   gap: 10px;
   align-items: center;
 
-  @media (max-width: 640px) {
+  @media (max-width: 760px) {
     width: 100%;
+  }
+
+  @media (max-width: 420px) {
+    flex-direction: column;
+    align-items: stretch;
   }
 `;
 
@@ -89,8 +123,12 @@ export const CookieButton = styled.button<{ $secondary?: boolean }>`
     transform: translateY(1px);
   }
 
-  @media (max-width: 640px) {
+  @media (min-width: 421px) and (max-width: 760px) {
     flex: 1;
     padding-inline: 12px;
+  }
+
+  @media (max-width: 420px) {
+    width: 100%;
   }
 `;
