@@ -1,0 +1,16 @@
+ .gitignore                                         |   15 [31m-[m
+ API/backupAtual.sql                                | 6790 [32m+++++++++++++++++++[m
+ API/backup_12-06-26.sql                            | 6796 [32m++++++++++++++++++++[m
+ curriculos-api-v2-20260817-0818.tar.gz             |  Bin [31m0[m -> [32m1178001[m bytes
+ .../railway-pre-restore-20260817-102225.dump       |  Bin [31m0[m -> [32m406093[m bytes
+ .../railway-transfer/vps-restore-source.dump       |  Bin [31m0[m -> [32m500691[m bytes
+ web/curriculos_project/.env                        |    1 [32m+[m
+ web/curriculos_project/.env.production.example     |    2 [32m+[m[31m-[m
+ web/curriculos_project/.gitignore                  |    4 [31m-[m
+ web/curriculos_project/package-lock.json           |   10 [32m+[m
+ web/curriculos_project/package.json                |    1 [32m+[m
+ web/curriculos_project/public/.htaccess            |    1 [31m-[m
+ web/curriculos_project/src/hooks/useAuth.tsx       |   10 [31m-[m
+ .../src/pages/register/index.tsx                   |    4 [32m+[m[31m-[m
+ web/curriculos_project/vite.config.ts              |   53 [32m+[m[31m-[m
+ 15 files changed, 13613 insertions(+), 74 deletions(-)
