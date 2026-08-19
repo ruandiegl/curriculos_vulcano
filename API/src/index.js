@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import { router } from './routes.js';
 import { errorHandler } from './app/middlewares/errorHandler.js';
+import { csrfProtection } from './app/middlewares/csrf.js';
 import { requestId } from './app/middlewares/requestId.js';
 import { assertEmailProviderConfiguration } from './app/services/mailService.js';
 import { swaggerDocument } from './swagger.js';
@@ -53,8 +54,11 @@ if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0 || trustProxyHops > 
 
 app.set('trust proxy', trustProxyHops);
 app.use(requestId);
-app.use(helmet());
+app.use(helmet({
+  referrerPolicy: { policy: 'no-referrer' },
+}));
 app.use(cors({
+  credentials: true,
   origin(origin, callback) {
     if (!origin || allowedOrigins.includes(origin) || isAllowedDevelopmentOrigin(origin)) {
       return callback(null, true);
@@ -64,6 +68,7 @@ app.use(cors({
   },
 }));
 app.use(express.json({ limit: '2mb' }));
+app.use(csrfProtection);
 
 if (docsEnabled) {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

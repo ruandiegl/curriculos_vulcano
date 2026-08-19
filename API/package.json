@@ -15,7 +15,7 @@
     "prisma:deploy": "prisma migrate deploy",
     "seed": "node prisma/seed.js",
     "seed:security-test": "node prisma/seed-security-test.js",
-    "test": "node --test src/app/services/mailService.test.js"
+    "test": "node --test src/app/services/mailService.test.js src/app/services/sessionCookie.test.js src/app/middlewares/rateLimiter.test.js src/app/middlewares/csrf.test.js"
   },
   "keywords": [],
   "author": "",

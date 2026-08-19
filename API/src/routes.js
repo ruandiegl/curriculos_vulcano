@@ -5,7 +5,13 @@ import { CandidaturaController } from './app/controllers/CandidaturaController.j
 import { CurriculoController } from './app/controllers/CurriculoController.js';
 import { UsuarioController } from './app/controllers/UsuarioController.js';
 import { VagaController } from './app/controllers/VagaController.js';
-import { adminCreationRoutes, adminRoutes, privateRoutes, superAdminRoutes } from './app/middlewares/Auth.js';
+import {
+  adminCreationRoutes,
+  adminRoutes,
+  privateRoutes,
+  sessionRoutes,
+  superAdminRoutes,
+} from './app/middlewares/Auth.js';
 import { asyncHandler } from './app/middlewares/asyncHandler.js';
 import { authRateLimitKey, rateLimiter } from './app/middlewares/rateLimiter.js';
 import { uploadCurriculoPdf } from './app/middlewares/uploadCurriculoPdf.js';
@@ -31,6 +37,18 @@ const passwordResetLimiter = rateLimiter({
   max: 5,
   keyGenerator: authRateLimitKey,
 });
+const passwordRecoveryCooldownLimiter = rateLimiter({
+  name: 'password-recovery-cooldown',
+  windowMs: 60 * 1000,
+  max: 1,
+  keyGenerator: authRateLimitKey,
+});
+
+function noStore(req, res, next) {
+  res.set('Cache-Control', 'no-store');
+  res.set('Referrer-Policy', 'no-referrer');
+  return next();
+}
 
 router.get('/health', (req, res) => {
   res.json({ status: 'ok' });
@@ -38,11 +56,19 @@ router.get('/health', (req, res) => {
 
 router.post('/login', authLimiter, asyncHandler(auth.login));
 router.post('/login/register', authLimiter, asyncHandler(auth.register));
-router.post('/login/forgot-password', passwordResetLimiter, asyncHandler(auth.forgotPassword));
-router.post('/login/reset-password', passwordResetLimiter, asyncHandler(auth.resetPassword));
-router.post('/login/activate-account', passwordResetLimiter, asyncHandler(auth.activateAccount));
-router.post('/login/recovery-match', passwordResetLimiter, asyncHandler(auth.recoveryMatch));
-router.post('/login/setup-password', passwordResetLimiter, asyncHandler(auth.setupPassword));
+router.get('/login/session', noStore, sessionRoutes, asyncHandler(auth.session));
+router.post('/login/logout', noStore, asyncHandler(auth.logout));
+router.post(
+  '/login/forgot-password',
+  noStore,
+  passwordResetLimiter,
+  passwordRecoveryCooldownLimiter,
+  asyncHandler(auth.forgotPassword),
+);
+router.post('/login/reset-password', noStore, passwordResetLimiter, asyncHandler(auth.resetPassword));
+router.post('/login/activate-account', noStore, passwordResetLimiter, asyncHandler(auth.activateAccount));
+router.post('/login/recovery-match', noStore, passwordResetLimiter, asyncHandler(auth.recoveryMatch));
+router.post('/login/setup-password', noStore, passwordResetLimiter, asyncHandler(auth.setupPassword));
 router.post('/login/register-admin', authLimiter, adminCreationRoutes, asyncHandler(auth.registerAdmin));
 
 router.get('/login/dev/mailbox/latest', (req, res) => {

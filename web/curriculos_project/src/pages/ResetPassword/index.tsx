@@ -1,9 +1,10 @@
 ﻿import axios from 'axios';
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { api } from '../../services/api';
+import { clearActionTokenFromUrl, getActionToken } from '../../utils/actionToken';
 import {
   Brand,
   Card,
@@ -20,13 +21,19 @@ import {
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const resetToken = searchParams.get('token') ?? searchParams.get('oobCode') ?? '';
+  const location = useLocation();
+  const resetToken = getActionToken(location, ['token', 'oobCode']);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useLayoutEffect(() => {
+    if (resetToken) {
+      clearActionTokenFromUrl(location.pathname);
+    }
+  }, [location.pathname, resetToken]);
 
   async function handleResetPassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

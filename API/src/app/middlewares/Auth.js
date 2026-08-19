@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { clearSessionCookie, getSessionToken } from '../services/sessionCookie.js';
 
 export function isAdminUser(tipo) {
   return tipo === 'admin' || tipo === 'superAdmin';
@@ -23,24 +24,22 @@ export function privateRoutes(req, res, next) {
     return next();
   }
 
-  const authToken = req.headers.authorization;
+  const session = getSessionToken(req);
 
-  if (!authToken) {
+  if (!session) {
     return res.status(401).json({ message: 'Token não enviado.' });
   }
 
-  const [scheme, token] = authToken.split(' ');
-
-  if (scheme !== 'Bearer' || !token) {
-    return res.status(401).json({ message: 'Formato de token inválido.' });
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(session.token, process.env.JWT_SECRET);
     req.userId = decoded.id;
     req.userTipo = decoded.tipo;
+    req.authSource = session.source;
     return next();
   } catch (error) {
+    if (session.source === 'cookie') {
+      clearSessionCookie(res);
+    }
     return res.status(401).json({ message: 'Token inválido.' });
   }
 }
@@ -68,22 +67,16 @@ export function adminCreationRoutes(req, res, next) {
     return next();
   }
 
-  const authToken = req.headers.authorization;
+  const session = getSessionToken(req);
 
-  if (!authToken) {
+  if (!session) {
     return res.status(403).json({
       message: 'Informe um token admin ou a chave x-admin-secret para criar administradores.',
     });
   }
 
-  const [scheme, token] = authToken.split(' ');
-
-  if (scheme !== 'Bearer' || !token) {
-    return res.status(401).json({ message: 'Formato de token invalido.' });
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(session.token, process.env.JWT_SECRET);
 
     if (!isAdminUser(decoded.tipo)) {
       return res.status(403).json({ message: 'Acesso permitido apenas para administradores.' });
@@ -91,8 +84,30 @@ export function adminCreationRoutes(req, res, next) {
 
     req.userId = decoded.id;
     req.userTipo = decoded.tipo;
+    req.authSource = session.source;
     return next();
   } catch (error) {
     return res.status(401).json({ message: 'Token invalido.' });
+  }
+}
+
+export function sessionRoutes(req, res, next) {
+  const session = getSessionToken(req);
+
+  if (!session) {
+    return res.status(401).json({ message: 'Sessão não encontrada.' });
+  }
+
+  try {
+    const decoded = jwt.verify(session.token, process.env.JWT_SECRET);
+    req.userId = decoded.id;
+    req.userTipo = decoded.tipo;
+    req.authSource = session.source;
+    return next();
+  } catch (error) {
+    if (session.source === 'cookie') {
+      clearSessionCookie(res);
+    }
+    return res.status(401).json({ message: 'Sessão inválida.' });
   }
 }

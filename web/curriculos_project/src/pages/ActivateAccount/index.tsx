@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { api } from '../../services/api';
+import { clearActionTokenFromUrl, getActionToken } from '../../utils/actionToken';
 import {
   Brand,
   Card,
@@ -19,14 +20,20 @@ import {
 } from '../ResetPassword/styles';
 
 export default function ActivateAccount() {
+  const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const activationToken = searchParams.get('token') ?? '';
+  const activationToken = getActionToken(location);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useLayoutEffect(() => {
+    if (activationToken) {
+      clearActionTokenFromUrl(location.pathname);
+    }
+  }, [activationToken, location.pathname]);
 
   async function handleActivation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

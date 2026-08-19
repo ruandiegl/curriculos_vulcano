@@ -48,7 +48,11 @@ function getAuthenticatedPath(user: ReturnType<typeof useAuth>['user']) {
 }
 
 function PublicRoute({ children }: RouteGuardProps) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
 
   if (isAuthenticated) {
     return <Navigate to={getAuthenticatedPath(user)} replace />;
@@ -58,7 +62,11 @@ function PublicRoute({ children }: RouteGuardProps) {
 }
 
 function PrivateRoute({ children, adminOnly = false, superAdminOnly = false, userOnly = false }: RouteGuardProps) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;

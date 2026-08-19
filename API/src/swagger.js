@@ -73,6 +73,37 @@ export const swaggerDocument = {
         },
       },
     },
+    '/login/session': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Retorna a sessão autenticada atual',
+        security: [{ cookieAuth: [] }],
+        responses: {
+          200: {
+            description: 'Sessão válida',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { user: { $ref: '#/components/schemas/Usuario' } },
+                },
+              },
+            },
+          },
+          401: { $ref: '#/components/responses/UnauthorizedError' },
+        },
+      },
+    },
+    '/login/logout': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Encerra a sessão atual',
+        security: [{ cookieAuth: [] }],
+        responses: {
+          204: { description: 'Sessão encerrada' },
+        },
+      },
+    },
     '/login/register': {
       post: {
         tags: ['Auth'],
@@ -735,6 +766,11 @@ export const swaggerDocument = {
         scheme: 'bearer',
         bearerFormat: 'JWT',
       },
+      cookieAuth: {
+        type: 'apiKey',
+        in: 'cookie',
+        name: 'curriculos_session',
+      },
       adminSecretAuth: {
         type: 'apiKey',
         in: 'header',
@@ -792,6 +828,14 @@ export const swaggerDocument = {
       },
       ForbiddenError: {
         description: 'Acesso negado',
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+          },
+        },
+      },
+      UnauthorizedError: {
+        description: 'Sessão ausente ou inválida',
         content: {
           'application/json': {
             schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -870,7 +914,7 @@ export const swaggerDocument = {
       RecoveryMatchResponse: {
         type: 'object',
         properties: {
-          recoveryToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+          recoveryToken: { type: 'string', example: 'token-de-exemplo-nao-utilizar' },
         },
       },
       SetupPasswordInput: {
@@ -892,7 +936,6 @@ export const swaggerDocument = {
         properties: {
           message: { type: 'string', example: 'Login bem sucedido.' },
           user: { $ref: '#/components/schemas/Usuario' },
-          token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
         },
       },
       RegisterResponse: {

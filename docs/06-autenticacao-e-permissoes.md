@@ -2,13 +2,13 @@
 
 ## Autenticacao
 
-A API usa JWT Bearer. O frontend salva o token em `localStorage` usando `TOKEN_STORAGE_KEY` de `src/services/api.ts`.
+A API usa JWT em cookie de sessão `HttpOnly`, `Secure` em produção e `SameSite`
+configurável (padrão `Lax`). O frontend envia o cookie com Axios usando
+`withCredentials: true` e não salva o JWT em `localStorage` ou `sessionStorage`.
 
-Formato:
-
-```txt
-Authorization: Bearer <token>
-```
+O backend ainda aceita `Authorization: Bearer <token>` temporariamente para
+compatibilidade operacional com clientes antigos, mas o frontend novo não cria,
+persiste ou envia esse header.
 
 ## Perfis
 
@@ -36,6 +36,8 @@ Arquivo: `API/src/app/middlewares/Auth.js`.
 ## Rotas publicas
 
 - `POST /api/login`
+- `GET /api/login/session`
+- `POST /api/login/logout`
 - `POST /api/login/register`
 - `POST /api/login/forgot-password`
 - `POST /api/login/reset-password`
@@ -55,13 +57,33 @@ Rotas de usuario em `/api/usuarios` sao exclusivas para super admin.
 
 ## Reset e setup de senha
 
-- Reset usa `PASSWORD_RESET_SECRET` ou cai para `JWT_SECRET`.
-- Setup usa `PASSWORD_SETUP_SECRET` ou cai para o segredo de reset.
-- Expiracoes padrao: `PASSWORD_RESET_EXPIRES_IN=1h` e `PASSWORD_SETUP_EXPIRES_IN=15m`.
+- Usuário ativado recebe `/reset-password#token=...`.
+- Usuário legado sem `passHash` recebe `/activate-account#token=...`.
+- Query string antiga continua aceita durante a transição, mas o frontend remove
+  o token da URL assim que o captura.
+- O token é salvo apenas como hash no banco, expira e é de uso único.
+- As rotas sensíveis usam `Cache-Control: no-store` e `Referrer-Policy: no-referrer`.
+
+## Rate limit
+
+- Login/cadastro: 20 tentativas por 15 minutos.
+- Recuperação/reset/ativação: 5 tentativas por 15 minutos.
+- Recuperação de senha: cooldown adicional de uma solicitação por minuto.
+- As chaves combinam IP, email normalizado e IP + email, armazenadas de forma
+  hashada no processo.
+- Ao bloquear, a API retorna `429` e `Retry-After`.
+- O armazenamento atual é em memória por processo; Redis compartilhado deve ser
+  adotado antes de escalar para múltiplas réplicas/workers.
+
+## Proteção CSRF e CORS
+
+- Operações mutáveis que usam o cookie de sessão exigem `Origin` permitido.
+- CORS aceita somente origins configuradas e credenciais explícitas.
+- Não usar `Access-Control-Allow-Origin: *` com sessão por cookie.
 
 ## Guidelines
 
-- Nunca exponha o JWT em logs.
+- Nunca exponha o JWT em logs, HTML, URL persistente ou storage do navegador.
 - Nunca armazene senha em texto puro.
 - Use bcrypt para hash de senha.
 - Ao criar nova rota, defina explicitamente se e publica, privada, admin ou super admin.

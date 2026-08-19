@@ -25,7 +25,6 @@ import {
 } from './styles';
 
 type LoginResponse = {
-  token: string;
   user: {
     id: string;
     nome?: string;
@@ -84,7 +83,7 @@ export default function Login() {
         password,
       });
 
-      signIn(response.data.token, response.data.user);
+      signIn(response.data.user);
       navigate(getLoginRedirectPath(response.data.user), { replace: true });
     } catch (error) {
       if (axios.isAxiosError<LoginErrorResponse>(error)) {

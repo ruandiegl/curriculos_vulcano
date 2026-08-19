@@ -72,6 +72,13 @@ export class UsuarioRepository {
     return prisma.usuario.findUnique({ where: { email } });
   }
 
+  findSafeById(id) {
+    return prisma.usuario.findUnique({
+      where: { id },
+      select: usuarioSafeSelect,
+    });
+  }
+
   findRecoveryCandidateByEmail(email) {
     return prisma.usuario.findUnique({
       where: { email },

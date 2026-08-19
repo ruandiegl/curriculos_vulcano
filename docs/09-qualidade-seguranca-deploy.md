@@ -26,9 +26,16 @@ Quando alterar arquivos especificos JS/TS, rode tambem checks focados nos arquiv
 - Nunca logar JWT, senha, hash ou tokens de reset.
 - Manter `JWT_SECRET` forte e diferente por ambiente.
 - Configurar `CORS_ORIGIN` ou `FRONTEND_URL` em producao.
+- Manter a sessão principal em cookie `HttpOnly`, `Secure` e `SameSite` adequado;
+  não persistir JWT em `localStorage`.
 - Manter Swagger desabilitado em producao, exceto com `ENABLE_API_DOCS=true`.
 - Upload de PDF deve continuar limitado a PDF e tamanho maximo configurado.
 - Reset de senha deve ter rate limit.
+- Rate limit deve retornar `429` com `Retry-After`; o armazenamento em memória só
+  é aceitável enquanto houver uma única instância. Adotar armazenamento distribuído
+  antes de escalar réplicas ou workers.
+- Validar `TRUST_PROXY_HOPS` antes de usar `req.ip` como identificador de cliente
+  atrás de Railway ou Nginx.
 
 ## OWASP
 

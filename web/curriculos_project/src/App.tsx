@@ -2,6 +2,7 @@
 
 import { AppRoutes} from './routes/routes'
 import { GlobalStyles } from './styles/GlobalStyles'
+import CookieConsent from './components/CookieConsent'
 
 function App() {
 
@@ -9,6 +10,7 @@ function App() {
     <>
      <GlobalStyles />
       <AppRoutes />
+      <CookieConsent />
     </>
     
   )

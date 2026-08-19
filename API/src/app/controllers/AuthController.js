@@ -24,6 +24,7 @@ import {
   PASSWORD_TOKEN_DELIVERY_STATUSES,
   revokePasswordToken,
 } from '../services/passwordTokenService.js';
+import { clearSessionCookie, setSessionCookie } from '../services/sessionCookie.js';
 
 const repository = new UsuarioRepository();
 const fakeHash = '$2b$10$C8h7Kx6dL0U0uD3bY4QbCu0K4IVhSR2UQWhZbb7FZQ4y6UwX0EJ1S';
@@ -192,18 +193,37 @@ export class AuthController {
       targetUserTipo: user.tipo,
     });
 
+    const sessionToken = jwt.sign(
+      {
+        id: user.id,
+        tipo: user.tipo,
+      },
+      getJwtSecret(),
+      { expiresIn: process.env.JWT_EXPIRES_IN ?? '1d' },
+    );
+
+    setSessionCookie(res, sessionToken);
+
     return res.status(200).json({
       message: 'Login bem sucedido.',
       user: sanitizeUser(user),
-      token: jwt.sign(
-        {
-          id: user.id,
-          tipo: user.tipo,
-        },
-        getJwtSecret(),
-        { expiresIn: process.env.JWT_EXPIRES_IN ?? '1d' },
-      ),
     });
+  }
+
+  async session(req, res) {
+    const user = await repository.findSafeById(req.userId);
+
+    if (!user) {
+      clearSessionCookie(res);
+      return res.status(401).json({ message: 'Sessão inválida.' });
+    }
+
+    return res.status(200).json({ user });
+  }
+
+  async logout(req, res) {
+    clearSessionCookie(res);
+    return res.status(204).send();
   }
 
   async forgotPassword(req, res) {
@@ -226,13 +246,13 @@ export class AuthController {
               to: user.email,
               nome: user.nome,
               tokenId,
-              activationUrl: `${getFrontendUrl()}/activate-account?token=${encodeURIComponent(token)}`,
+              activationUrl: `${getFrontendUrl()}/activate-account#token=${encodeURIComponent(token)}`,
             })
           : await sendPasswordResetEmail({
               to: user.email,
               nome: user.nome,
               tokenId,
-              resetUrl: `${getFrontendUrl()}/reset-password?token=${encodeURIComponent(token)}`,
+              resetUrl: `${getFrontendUrl()}/reset-password#token=${encodeURIComponent(token)}`,
             });
 
         try {
