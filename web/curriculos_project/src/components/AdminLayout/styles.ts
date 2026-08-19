@@ -112,8 +112,8 @@ export const NavButton = styled.button<{ $active?: boolean; $open: boolean }>`
   padding: ${({ $open }) => ($open ? '0 14px' : '0')};
   border: 0;
   border-radius: 8px;
-  background: ${({ $active }) => ($active ? '#ff8424' : 'transparent')};
-  color: #fff;
+  background: ${({ $active, $open }) => ($active && $open ? 'rgba(255, 132, 36, 0.14)' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#ffd2b2' : '#fff')};
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -122,6 +122,7 @@ export const NavButton = styled.button<{ $active?: boolean; $open: boolean }>`
   font-size: 13px;
   font-weight: 800;
   text-align: left;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
 
   svg {
     width: 30px;
@@ -129,12 +130,13 @@ export const NavButton = styled.button<{ $active?: boolean; $open: boolean }>`
     flex: 0 0 30px;
     border-radius: 8px;
     padding: 6px;
-    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)')};
+    background: ${({ $active }) => ($active ? '#ff8424' : 'rgba(255, 255, 255, 0.1)')};
     fill: none;
     stroke: currentColor;
     stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
+    transition: background 160ms ease, color 160ms ease, transform 160ms ease;
   }
 
   .nav-label {
@@ -146,7 +148,12 @@ export const NavButton = styled.button<{ $active?: boolean; $open: boolean }>`
   }
 
   &:hover {
-    background: ${({ $active }) => ($active ? '#ff8424' : 'rgba(255, 255, 255, 0.1)')};
+    background: ${({ $active, $open }) => ($active && $open ? 'rgba(255, 132, 36, 0.2)' : 'transparent')};
+
+    svg {
+      background: ${({ $active }) => ($active ? '#ff8424' : 'rgba(255, 255, 255, 0.16)')};
+      transform: translateY(-1px);
+    }
   }
 
   &:focus-visible {
