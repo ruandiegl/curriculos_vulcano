@@ -1,0 +1,15 @@
+# Environment files. Keep only safe templates in version control.
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Database dumps, local backups and deployment packages.
+**/backup*.sql
+**/*.dump
+**/*.tar.gz
+**/railway-transfer/*
+
+# Local build output and dependencies.
+**/node_modules/
+**/dist/

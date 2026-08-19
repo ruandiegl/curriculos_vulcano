@@ -5,6 +5,14 @@ import { api } from '../services/api';
 const LEGACY_TOKEN_STORAGE_KEY = 'token';
 const LEGACY_USER_STORAGE_KEY = 'user';
 
+function clearBrowserSessionState() {
+  try {
+    window.sessionStorage.clear();
+  } catch {
+    // Storage can be unavailable in restricted browser contexts.
+  }
+}
+
 export type User = {
   id: string;
   nome?: string;
@@ -46,6 +54,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       })
       .catch(() => {
         if (active) {
+          clearBrowserSessionState();
           setUser(null);
         }
       })
@@ -74,6 +83,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } catch {
           // A local logout must still complete if the API is unavailable.
         } finally {
+          clearBrowserSessionState();
           setUser(null);
         }
       },

@@ -82,9 +82,7 @@ export default function Register() {
           error.response?.data?.message ??
             error.response?.data?.error ??
             'Não foi possível realizar o cadastro.',
-            
-        )
-        console.error('Erro ao registrar:', error.response?.data ?? error.message);
+        );
         return;
       }
 
